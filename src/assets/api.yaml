@@ -1,0 +1,1764 @@
+openapi: 3.0.3
+info:
+  title: Project Inventory API
+  description: |
+    API de gestión de inventario de proyectos. Permite administrar usuarios, clientes,
+    proyectos, desarrollos e imputaciones de horas.
+  version: 1.0.0
+  contact:
+    name: API Support
+
+servers:
+  - url: /api/v1
+    description: Base URL
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Dashboard
+    description: Operaciones del panel principal del usuario
+  - name: Users
+    description: Gestión de usuarios
+  - name: Clients
+    description: Gestión de clientes
+  - name: Sectors
+    description: Catálogo de sectores
+  - name: Projects
+    description: Gestión de proyectos
+  - name: Technologies
+    description: Gestión de tecnologías
+  - name: Authentication
+    description: Autenticación y MFA
+
+paths:
+  # ─────────────────────────────────────────────
+  # DASHBOARD
+  # ─────────────────────────────────────────────
+
+  /users/{id}:
+    get:
+      tags: [Users]
+      summary: Obtener usuario por ID
+      operationId: getUserById
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: Usuario encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      tags: [Users]
+      summary: Actualizar usuario
+      operationId: updateUser
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdateRequest"
+      responses:
+        "204":
+          description: Usuario actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+    delete:
+      tags: [Users]
+      summary: Desactivar usuario (soft delete)
+      description: Establece `is_active = false`. No elimina el registro para preservar el histórico de imputaciones.
+      operationId: deleteUser
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "204":
+          description: Usuario desactivado
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /users/{id}/projects:
+    get:
+      tags: [Users]
+      summary: Listado de proyectos asociados a un usuario
+      operationId: getUserProjects
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Proyectos asociados al usuario
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserProjectResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /users/{id}/password_change:
+    post:
+      tags: [Users]
+      summary: Cambiar contraseña de usuario con validación de contraseña original
+      operationId: changeUserPassword
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserPasswordChangeRequest"
+      responses:
+        "204":
+          description: Contraseña actualizada
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /users/{id}/admin_password:
+    post:
+      tags: [Users]
+      summary: Cambiar contraseña de usuario con privilegios de administrador
+      operationId: changeUserPasswordAsAdmin
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserAdminPasswordChangeRequest"
+      responses:
+        "204":
+          description: Contraseña actualizada por administrador
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /users/{id}/time-entries:
+    get:
+      tags: [Dashboard]
+      summary: Listado de imputaciones del usuario
+      operationId: getUserTimeEntries
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+        - name: from
+          in: query
+          description: Fecha inicio (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+          example: "2025-04-01"
+        - name: to
+          in: query
+          description: Fecha fin (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+          example: "2025-04-30"
+        - name: project_id
+          in: query
+          description: Filtrar por proyecto (UUID v7)
+          schema:
+            type: string
+            format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Listado de imputaciones con total de horas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserTimeEntriesResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    post:
+      tags: [Dashboard]
+      summary: Registrar imputación de horas
+      operationId: createTimeEntry
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TimeEntryRequest"
+      responses:
+        "201":
+          description: Imputación creada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeEntryResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ─────────────────────────────────────────────
+  # USERS
+  # ─────────────────────────────────────────────
+
+  /users:
+    get:
+      tags: [Users]
+      summary: Listado de usuarios
+      operationId: getUsers
+      parameters:
+        - name: is_active
+          in: query
+          description: Filtrar por usuarios activos o inactivos
+          schema:
+            type: boolean
+        - name: role
+          in: query
+          description: Filtrar por rol de usuario
+          schema:
+            $ref: "#/components/schemas/SystemRole"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Listado de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+    post:
+      tags: [Users]
+      summary: Crear usuario
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreateRequest"
+      responses:
+        "201":
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /login:
+    post:
+      tags: [Authentication]
+      summary: Autenticación de usuario
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Autenticación correcta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /mfa:
+    post:
+      tags: [Authentication]
+      summary: Autenticación de múltiples factores
+      operationId: mfa
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MfaRequest"
+      responses:
+        "200":
+          description: MFA correcto
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  # ─────────────────────────────────────────────
+  # CLIENTS
+  # ─────────────────────────────────────────────
+
+  /clients:
+    get:
+      tags: [Clients]
+      summary: Listado de clientes
+      operationId: getClients
+      parameters:
+        - name: is_active
+          in: query
+          description: Filtrar por estado activo
+          schema:
+            type: boolean
+        - name: sector_id
+          in: query
+          description: Filtrar por sector (UUID v7)
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Listado de clientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ClientSummaryResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /clients/{id}:
+    get:
+      tags: [Clients]
+      summary: Detalle de cliente
+      operationId: getClientById
+      parameters:
+        - $ref: "#/components/parameters/ClientId"
+      responses:
+        "200":
+          description: Cliente encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClientDetailResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      tags: [Clients]
+      summary: Actualizar cliente
+      operationId: updateClient
+      parameters:
+        - $ref: "#/components/parameters/ClientId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClientUpdateRequest"
+      responses:
+        "200":
+          description: Cliente actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClientDetailResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      tags: [Clients]
+      summary: Desactivar cliente (soft delete)
+      description: Establece `is_active = false`. No elimina proyectos asociados.
+      operationId: deleteClient
+      parameters:
+        - $ref: "#/components/parameters/ClientId"
+      responses:
+        "204":
+          description: Cliente desactivado
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /clients/{id}/contacts:
+    get:
+      tags: [Clients]
+      summary: Listado de contactos del cliente
+      operationId: getClientContacts
+      parameters:
+        - $ref: "#/components/parameters/ClientId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Contactos del cliente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ContactResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /clients/{id}/projects:
+    get:
+      tags: [Clients]
+      summary: Listado de proyectos del cliente
+      operationId: getClientProjects
+      parameters:
+        - $ref: "#/components/parameters/ClientId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Proyectos del cliente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProjectSummaryResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  # ─────────────────────────────────────────────
+  # SECTORS
+  # ─────────────────────────────────────────────
+
+  /sectors:
+    get:
+      tags: [Sectors]
+      summary: Catálogo de sectores
+      operationId: getSectors
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Listado de sectores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SectorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /technologies:
+    get:
+      tags: [Technologies]
+      summary: Listado de tecnologías
+      operationId: getTechnologies
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Listado de tecnologías
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TechnologyResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+    post:
+      tags: [Technologies]
+      summary: Crear tecnología
+      operationId: createTechnology
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TechnologyCreateRequest"
+      responses:
+        "201":
+          description: Tecnología creada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TechnologyResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /technologies/{id}:
+    put:
+      tags: [Technologies]
+      summary: Actualizar tecnología
+      operationId: updateTechnology
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la tecnología (UUID v7)
+          schema:
+            type: string
+            format: uuid
+          example: 019d8ad8-1382-72b4-83aa-7dfb1e6bd05f
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TechnologyUpdateRequest"
+      responses:
+        "200":
+          description: Tecnología actualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TechnologyResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ─────────────────────────────────────────────
+  # PROJECTS
+  # ─────────────────────────────────────────────
+
+  /projects:
+    get:
+      tags: [Projects]
+      summary: Listado de proyectos
+      operationId: getProjects
+      parameters:
+        - name: is_active
+          in: query
+          description: Filtrar por proyectos activos
+          schema:
+            type: boolean
+        - name: client_id
+          in: query
+          description: Filtrar por cliente (UUID v7)
+          schema:
+            type: string
+            format: uuid
+        - name: app_user_id
+          in: query
+          description: Proyectos en los que participa el usuario (UUID v7)
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Listado de proyectos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProjectSummaryResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+    post:
+      tags: [Projects]
+      summary: Crear proyecto
+      operationId: createProject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectCreateRequest"
+      responses:
+        "201":
+          description: Proyecto creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectDetailResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /projects/{id}:
+    get:
+      tags: [Projects]
+      summary: Detalle completo del proyecto
+      operationId: getProjectById
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: Proyecto encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectDetailResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      tags: [Projects]
+      summary: Actualizar datos del proyecto
+      operationId: updateProject
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectUpdateRequest"
+      responses:
+        "200":
+          description: Proyecto actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectDetailResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      tags: [Projects]
+      summary: Desactivar proyecto (soft delete)
+      description: Establece `is_active = false`. Conserva imputaciones e histórico.
+      operationId: deleteProject
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "204":
+          description: Proyecto desactivado
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /projects/{id}/users:
+    get:
+      tags: [Projects]
+      summary: Listado de usuarios del proyecto
+      operationId: getProjectUsers
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Usuarios del proyecto
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProjectUserResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      tags: [Projects]
+      summary: Gestionar usuarios del proyecto (upsert)
+      description: |
+        Reemplaza la lista completa de usuarios asignados al proyecto.
+        Usa el índice único `(project_id, app_user_id)` como base para el upsert en `project_user_id`.
+      operationId: updateProjectUsers
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectUsersRequest"
+      responses:
+        "200":
+          description: Usuarios del proyecto actualizados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectUsersResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /projects/{id}/developments:
+    get:
+      tags: [Projects]
+      summary: Listado de desarrollos del proyecto
+      operationId: getProjectDevelopments
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Desarrollos del proyecto
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DevelopmentResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      tags: [Projects]
+      summary: Gestionar desarrollos del proyecto
+      description: |
+        Upsert de desarrollos y sus links por entorno.
+        `id: null` crea un nuevo desarrollo. `id: N` actualiza el existente.
+      operationId: updateProjectDevelopments
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectDevelopmentsRequest"
+      responses:
+        "200":
+          description: Desarrollos actualizados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectDevelopmentsResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /projects/{id}/time-entries:
+    get:
+      tags: [Projects]
+      summary: Listado de imputaciones del proyecto
+      operationId: getProjectTimeEntries
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Imputaciones del proyecto
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimeEntryResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /projects/{id}/time-entries/{entry_id}:
+    put:
+      tags: [Projects]
+      summary: Actualizar imputación de horas del proyecto
+      description: |
+        Actualiza una imputación existente. Valida que la imputación pertenezca
+        a un `project_user` del proyecto indicado.
+      operationId: updateProjectTimeEntry
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - name: entry_id
+          in: path
+          required: true
+          description: ID de la imputación (time_entry, UUID v7)
+          schema:
+            type: string
+            format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TimeEntryUpdateRequest"
+      responses:
+        "200":
+          description: Imputación actualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeEntryResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+# ─────────────────────────────────────────────
+# COMPONENTS
+# ─────────────────────────────────────────────
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    UserId:
+      name: id
+      in: path
+      required: true
+      description: ID del usuario (UUID v7)
+      schema:
+        type: string
+        format: uuid
+      example: 00000000-0000-0000-0000-000000000001
+
+    ClientId:
+      name: id
+      in: path
+      required: true
+      description: ID del cliente (UUID v7)
+      schema:
+        type: string
+        format: uuid
+      example: 00000000-0000-0000-0000-000000000002
+
+    ProjectId:
+      name: id
+      in: path
+      required: true
+      description: ID del proyecto (UUID v7)
+      schema:
+        type: string
+        format: uuid
+      example: 00000000-0000-0000-0000-000000000003
+
+    Page:
+      name: page
+      in: query
+      description: Página de resultados
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    Limit:
+      name: limit
+      in: query
+      description: Límites de resultados por página
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  responses:
+    BadRequest:
+      description: Petición inválida
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: No autenticado — token ausente o inválido
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Conflict:
+      description: Conflicto — recurso ya existente (ej. email duplicado)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    # ── Enums ──────────────────────────────────
+
+    SystemRole:
+      type: string
+      enum: [ADMIN, EMPLOYEE]
+      example: EMPLOYEE
+
+    ProjectRole:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: qwe123
+        name:
+          type: string
+          example: DEVELOPER
+      required: [id, name]
+
+    Environment:
+      type: string
+      enum: [STAGE, PREPRODUCTION, PRODUCTION]
+      example: PRODUCTION
+
+    # ── Error ──────────────────────────────────
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 404
+        error:
+          type: string
+          example: Not Found
+        message:
+          type: string
+          example: El recurso solicitado no existe
+      required: [status, error, message]
+
+    # ── Sector ─────────────────────────────────
+
+    SectorResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 998fs0dfnslk
+        name:
+          type: string
+          example: Tecnología
+      required: [id, name]
+
+    # ── User ───────────────────────────────────
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: qwe123
+        name:
+          type: string
+          example: Ana
+        surname:
+          type: string
+          example: García
+        email:
+          type: string
+          format: email
+          example: ana@empresa.com
+        is_active:
+          type: boolean
+          example: true
+        role:
+          $ref: "#/components/schemas/SystemRole"
+      required: [id, name, surname, email, is_active, role]
+
+    UserCreateRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 000we9gwe009w0e909w
+        name:
+          type: string
+          maxLength: 100
+          example: Carlos
+        surname:
+          type: string
+          maxLength: 100
+          example: Ruiz
+        email:
+          type: string
+          format: email
+          maxLength: 150
+          example: carlos@empresa.com
+        password:
+          type: string
+          maxLength: 255
+          example: "S3cur3P@ssword"
+        role:
+          $ref: "#/components/schemas/SystemRole"
+      required: [name, surname, email, password, role]
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          example: Ana
+        surname:
+          type: string
+          maxLength: 100
+          example: García López
+        email:
+          type: string
+          format: email
+          maxLength: 150
+          example: ana@empresa.com
+        is_active:
+          type: boolean
+          example: true
+        role:
+          $ref: "#/components/schemas/SystemRole"
+      required: [name, surname, email, is_active, role]
+
+    UserDashboardResponse:
+      description: Perfil del usuario con la lista de proyectos en los que participa
+      allOf:
+        - $ref: "#/components/schemas/UserResponse"
+        - type: object
+          properties:
+            projects:
+              type: array
+              items:
+                type: object
+                properties:
+                  user_project_id:
+                    type: string
+                    format: uuid
+                    example: qwe123
+                  id:
+                    type: string
+                    format: uuid
+                    example: qwe123
+                  name:
+                    type: string
+                    example: Portal Cliente
+                  description:
+                    type: string
+                    nullable: true
+                    example: Rediseño del portal de clientes
+                  is_active:
+                    type: boolean
+                    example: true
+                  client:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        example: qwe123
+                      name:
+                        type: string
+                        example: Acme Corp
+                  team_members:
+                    type: integer
+                    example: 3
+                required: [id, name, is_active, client, team_members]
+
+    UserProjectResponse:
+      type: object
+      properties:
+        user_project_id:
+          type: string
+          format: uuid
+          example: qwe123
+        id:
+          type: string
+          format: uuid
+          example: qwe123
+        name:
+          type: string
+          example: Portal Cliente
+        description:
+          type: string
+          nullable: true
+          example: Rediseño del portal de clientes
+        is_active:
+          type: boolean
+          example: true
+        client:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              example: qwe123
+            name:
+              type: string
+              example: Acme Corp
+        team_members:
+          type: integer
+          example: 3
+      required: [user_project_id, id, name, is_active, client, team_members]
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: ana@empresa.com
+        password:
+          type: string
+          maxLength: 255
+          example: "S3cur3P@ssword"
+      required: [email, password]
+
+    MfaRequest:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+          example: 00000000-0000-0000-0000-000000000004
+        code:
+          type: string
+          example: "123456"
+      required: [session_id, code]
+
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+        token_type:
+          type: string
+          example: Bearer
+        expires_in:
+          type: integer
+          description: Segundos hasta la expiración del token
+          example: 3600
+        expires_at:
+          type: string
+          format: date-time
+          description: Fecha y hora de expiración del token
+          example: "2025-04-09T12:00:00Z"
+      required: [access_token, token_type, expires_in, expires_at]
+
+    UserPasswordChangeRequest:
+      type: object
+      properties:
+        current_password:
+          type: string
+          maxLength: 255
+          example: "S3cur3P@ssword"
+        new_password:
+          type: string
+          maxLength: 255
+          example: "N3wP@ssw0rd"
+      required: [current_password, new_password]
+
+    UserAdminPasswordChangeRequest:
+      type: object
+      properties:
+        new_password:
+          type: string
+          maxLength: 255
+          example: "N3wAdm1nP@ssw0rd"
+      required: [new_password]
+
+    # ── Time Entry ─────────────────────────────
+
+    TimeEntryRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 998fs0dfnslk
+        project_user_id:
+          type: string
+          format: uuid
+          example: 998fs0dfnslk
+        date:
+          type: string
+          format: date
+          example: "2025-04-09"
+        hour:
+          type: number
+          format: decimal
+          minimum: 0.25
+          maximum: 24
+          example: 4.5
+        comment:
+          type: string
+          maxLength: 50
+          example: Revisión de PRs
+      required: [project_user_id, date, hour]
+
+    TimeEntryUpdateRequest:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: "2025-04-09"
+        hour:
+          type: number
+          format: decimal
+          minimum: 0.25
+          maximum: 24
+          example: 6.0
+        comment:
+          type: string
+          maxLength: 50
+          example: Actualización de tarea
+      required: [date, hour]
+
+    TimeEntryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: qwe123
+        project_user_id:
+          type: string
+          format: uuid
+          example: qwe123
+        date:
+          type: string
+          format: date
+          example: "2025-04-09"
+        hour:
+          type: number
+          example: 4.5
+        comment:
+          type: string
+          nullable: true
+          example: Revisión de PRs
+      required: [id, project_user_id, date, hour]
+
+    TimeEntryDetailResponse:
+      allOf:
+        - $ref: "#/components/schemas/TimeEntryResponse"
+        - type: object
+          properties:
+            project:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  example: qwe123
+                name:
+                  type: string
+                  example: Portal Cliente
+
+    UserTimeEntriesResponse:
+      type: object
+      properties:
+        total_hours:
+          type: number
+          example: 42.5
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/TimeEntryDetailResponse"
+      required: [total_hours, data]
+
+    # ── Client ─────────────────────────────────
+
+    ClientSummaryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 998fs0dfnslk
+        name:
+          type: string
+          example: Acme Corp
+        is_active:
+          type: boolean
+          example: true
+        sector:
+          $ref: "#/components/schemas/SectorResponse"
+      required: [id, name, is_active, sector]
+
+    ContactResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 998fs0dfnslk
+        full_name:
+          type: string
+          example: Juan Pérez
+        phone_number:
+          type: string
+          nullable: true
+          example: "+34600000001"
+        email:
+          type: string
+          format: email
+          example: juan@acme.com
+        is_active:
+          type: boolean
+          nullable: true
+          example: true
+        is_main:
+          type: boolean
+          nullable: true
+          example: true
+        note:
+          type: string
+          nullable: true
+          maxLength: 100
+          example: Contacto técnico principal
+      required: [id, full_name, email]
+
+    ClientDetailResponse:
+      allOf:
+        - $ref: "#/components/schemas/ClientSummaryResponse"
+        - type: object
+          properties: {}
+
+    ClientUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          example: Acme Corporation
+        sector_id:
+          type: string
+          format: uuid
+          example: 998fs0dfnslk
+        is_active:
+          type: boolean
+          example: true
+        contacts:
+          type: array
+          description: |
+            Upsert de contactos del cliente. id: null crea uno nuevo, id: N actualiza el existente.
+            Los contactos no presentes en el array no se eliminan — para desactivar uno usa is_active: false.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                nullable: true
+                description: null para crear, ID numérico para actualizar
+                example: null
+              full_name:
+                type: string
+                example: Juan Pérez
+              phone_number:
+                type: string
+                maxLength: 30
+                nullable: true
+                example: "+34600000001"
+              email:
+                type: string
+                format: email
+                example: juan@acme.com
+              is_active:
+                type: boolean
+                nullable: true
+                example: true
+              is_main:
+                type: boolean
+                nullable: true
+                description: Solo puede haber un contacto principal por cliente
+                example: false
+              note:
+                type: string
+                maxLength: 100
+                nullable: true
+                example: Contacto técnico principal
+            required: [full_name, email]
+      required: [name, sector_id, is_active]
+
+    # ── Project ────────────────────────────────
+
+    ProjectUserResponse:
+      type: object
+      properties:
+        app_user_id:
+          type: string
+          format: uuid
+          example: 019d8b28-13a8-7e72-886a-d5147f9dc808
+        name:
+          type: string
+          example: Ana
+        surname:
+          type: string
+          example: García
+        role:
+          $ref: "#/components/schemas/ProjectRole"
+      required: [app_user_id, name, surname, role]
+
+    LinkResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: qwe123
+        environment:
+          $ref: "#/components/schemas/Environment"
+        url:
+          type: string
+          format: uri
+          example: "https://app.client.com"
+      required: [id, environment, url]
+
+    LinkRequest:
+      type: object
+      properties:
+        environment:
+          $ref: "#/components/schemas/Environment"
+        url:
+          type: string
+          format: uri
+          example: "https://app.client.com"
+      required: [environment, url]
+
+    DevelopmentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: qwe123
+        name:
+          type: string
+          example: Frontend
+        description:
+          type: string
+          example: SPA React
+        technology:
+          $ref: "#/components/schemas/Technology"
+        url_repository:
+          type: string
+          format: uri
+          example: "https://github.com/org/front"
+        links:
+          type: array
+          items:
+            $ref: "#/components/schemas/LinkResponse"
+      required: [id, name, description, technology, url_repository]
+
+    DevelopmentRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: true
+          description: null para crear, ID numérico para actualizar
+          example: null
+        name:
+          type: string
+          maxLength: 100
+          example: Frontend
+        description:
+          type: string
+          maxLength: 150
+          example: SPA React
+        technology_id:
+          type: string
+          format: uuid
+          example: 019d8ad8-1382-72b4-83aa-7dfb1e6bd05f
+        url_repository:
+          type: string
+          format: uri
+          example: "https://github.com/org/front"
+        links:
+          type: array
+          items:
+            $ref: "#/components/schemas/LinkRequest"
+      required: [name, description, technology_id, url_repository]
+
+    ProjectSummaryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: qwe123
+        name:
+          type: string
+          example: Portal Cliente
+        description:
+          type: string
+          nullable: true
+          example: Rediseño del portal
+        start_date:
+          type: string
+          format: date
+          nullable: true
+          example: "2025-01-01"
+        is_active:
+          type: boolean
+          example: true
+        client:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              example: qwe123
+            name:
+              type: string
+              example: Acme Corp
+        team_members:
+          type: integer
+          example: 3
+      required: [id, name, is_active, client, team_members]
+
+    ProjectDetailResponse:
+      allOf:
+        - $ref: "#/components/schemas/ProjectSummaryResponse"
+        - type: object
+          properties:
+            users:
+              type: array
+              items:
+                $ref: "#/components/schemas/ProjectUserResponse"
+            developments:
+              type: array
+              items:
+                $ref: "#/components/schemas/DevelopmentResponse"
+            total_hours:
+              type: number
+              description: Suma total de las horas imputadas al proyecto
+              example: 125.5
+            total_imputs:
+              type: number
+              description: Suma total de imputaciones del proyecto
+              example: 20
+            time_entries:
+              type: array
+              items:
+                $ref: "#/components/schemas/TimeEntryResponse"
+
+    ProjectCreateRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: qwe123
+        name:
+          type: string
+          maxLength: 150
+          example: Portal Cliente v2
+        description:
+          type: string
+          nullable: true
+          example: Nueva versión del portal
+        start_date:
+          type: string
+          format: date
+          nullable: true
+          example: "2025-05-01"
+        client_id:
+          type: string
+          format: uuid
+          example: qwe123
+      required: [name, client_id]
+
+    ProjectUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 150
+          example: Portal Cliente
+        description:
+          type: string
+          nullable: true
+          example: Descripción actualizada
+        start_date:
+          type: string
+          format: date
+          nullable: true
+          example: "2025-01-01"
+        is_active:
+          type: boolean
+          example: true
+        client_id:
+          type: string
+          format: uuid
+          example: qwe123
+      required: [name, is_active, client_id]
+
+    ProjectUsersRequest:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            type: object
+            properties:
+              app_user_id:
+                type: string
+                format: uuid
+                example: 019d8b28-13a8-7e72-886a-d5147f9dc808
+              project_role_id:
+                type: string
+                format: uuid
+                example: 019d8b28-13a8-7e72-886a-d5147f9dc808
+            required: [app_user_id, project_role_id]
+      required: [users]
+
+    ProjectUsersResponse:
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          example: 019d8b28-13a8-7e72-886a-d5147f9dc808
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProjectUserResponse"
+      required: [project_id, users]
+
+    ProjectDevelopmentsRequest:
+      type: object
+      properties:
+        developments:
+          type: array
+          items:
+            $ref: "#/components/schemas/DevelopmentRequest"
+      required: [developments]
+
+    ProjectDevelopmentsResponse:
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          example: 019d8b28-13a8-7e72-886a-d5147f9dc808
+        developments:
+          type: array
+          items:
+            $ref: "#/components/schemas/DevelopmentResponse"
+      required: [project_id, developments]
+
+    Technology:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 019d8ad8-1382-72b4-83aa-7dfb1e6bd05f
+        name:
+          type: string
+          example: React
+      required: [id, name]
+
+    TechnologyResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 019d8ad8-1382-72b4-83aa-7dfb1e6bd05f
+        name:
+          type: string
+          example: React
+      required: [id, name]
+
+    TechnologyCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: React
+      required: [name]
+
+    TechnologyUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: React
+      required: [name]

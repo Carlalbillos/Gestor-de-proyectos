@@ -1,0 +1,15 @@
+body {
+  background-color: #fd9494;
+}
+
+h1 {
+  color: #ff3232;
+}
+
+button {
+  background-color: #ff3232;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}/*# sourceMappingURL=styles.css.map */
