@@ -164,3 +164,6 @@ dist-ssr
 *.sln
 *.sw?
 
+formacion.html
+.gitignore
+imagen.png
