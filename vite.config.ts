@@ -14,5 +14,12 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {},
     },
+
   },
+  server: {
+    host: true,        // CLAVE para Docker
+    port: 5173,
+    strictPort: true
+  }
+
 });
