@@ -1,13 +1,11 @@
 import { create } from "zustand";
-import { api, setAccessToken } from "../../../../shared/infrastructure/adapters/AxiosHttpClient";
+import { setAccessToken } from "../../../../shared/infrastructure/adapters/AxiosHttpClient";
+import { LoginUseCase } from "../../application/LoginUseCase";
+import { ApiAuthRepository } from "../adapters/ApiAuthRepository";
+import type { User } from "../../domain/entities/User";
 
-interface User {
-  email: string;
-}
-
-interface LoginResponse {
-  access_token: string;
-}
+const authRepository = new ApiAuthRepository();
+const loginUseCase = new LoginUseCase(authRepository);
 
 interface AuthState {
   user: User | null;
@@ -17,37 +15,48 @@ interface AuthState {
   logout: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  token: null,
-  isLoading: false,
+import { persist } from "zustand/middleware";
 
-  login: async (email, password) => {
-    set({ isLoading: true });
-
-    try {
-      const response = await api.post<LoginResponse>("/login", {
-        email,
-        password,
-      });
-
-      setAccessToken(response.data.access_token);
-      set({
-        user: { email },
-        token: response.data.access_token,
-        isLoading: false,
-      });
-    } catch (error) {
-      set({ isLoading: false });
-      throw error;
-    }
-  },
-
-  logout: () => {
-    setAccessToken(null);
-    set({
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
       user: null,
       token: null,
-    });
-  },
-}));
+      isLoading: false,
+
+      login: async (email, password) => {
+        set({ isLoading: true });
+
+        try {
+          const result = await loginUseCase.execute(email, password);
+
+          setAccessToken(result.accessToken);
+          set({
+            user: result.user,
+            token: result.accessToken,
+            isLoading: false,
+          });
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      logout: () => {
+        setAccessToken(null);
+        set({
+          user: null,
+          token: null,
+        });
+      },
+    }),
+    {
+      name: "auth-storage",
+      onRehydrateStorage: () => (state) => {
+        if (state?.token) {
+          setAccessToken(state.token);
+        }
+      },
+    }
+  )
+);
