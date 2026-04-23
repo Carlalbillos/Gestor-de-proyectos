@@ -1,4 +1,3 @@
-// src/shared/infrastructure/adapters/AxiosHttpClient.ts
 import axios from "axios";
 
 let accessToken: string | null = null;
@@ -8,7 +7,7 @@ export const setAccessToken = (token: string | null): void => {
 };
 
 export const api = axios.create({
-  baseURL: "http://localhost:8000/api/v1",
+  baseURL: import.meta.env.VITE_API_URL,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",

@@ -1,4 +1,3 @@
-// features/auth/infrastructure/ui/guards/AuthGuard.tsx
 import { Navigate, Outlet } from "react-router";
 import { useAuthStore } from "../../stores/auth.store";
 
