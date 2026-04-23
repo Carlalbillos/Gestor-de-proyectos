@@ -1,6 +1,5 @@
-// src/features/auth/infrastructure/stores/auth.store.ts
 import { create } from "zustand";
-import { api } from "../../../../shared/infrastructure/adapters/AxiosHttpClient";
+import { api, setAccessToken } from "../../../../shared/infrastructure/adapters/AxiosHttpClient";
 
 interface User {
   email: string;
@@ -32,6 +31,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         password,
       });
 
+      setAccessToken(response.data.access_token);
       set({
         user: { email },
         token: response.data.access_token,
@@ -44,6 +44,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: () => {
+    setAccessToken(null);
     set({
       user: null,
       token: null,
