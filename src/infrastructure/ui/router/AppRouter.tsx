@@ -21,7 +21,9 @@ const router = createBrowserRouter([
           },
           {
             path: "/proyectos",
-            element: <div className="p-8 text-center text-muted-foreground">Listado de Proyectos próximamente...</div>,
+            Component: () => (
+              <div className="p-8 text-center text-muted-foreground">Listado de Proyectos próximamente...</div>
+            ),
           },
           {
             path: "/personal",
