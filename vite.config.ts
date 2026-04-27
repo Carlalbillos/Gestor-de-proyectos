@@ -17,7 +17,7 @@ export default defineConfig({
 
   },
   server: {
-    host: true,        // CLAVE para Docker
+    host: true,
     port: 5173,
     strictPort: true
   }

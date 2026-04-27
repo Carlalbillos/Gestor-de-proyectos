@@ -89,7 +89,11 @@ export const ProjectsPage = () => {
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {projects.map((project) => (
-              <Card key={project.id} className="flex flex-col hover:border-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer group bg-card">
+              <Card 
+                key={project.id} 
+                className="flex flex-col hover:border-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer group bg-card"
+                onClick={() => navigate(`/proyectos/${project.id}`)}
+              >
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start mb-1">
                     <Badge 
@@ -118,47 +122,13 @@ export const ProjectsPage = () => {
                     )}
                     <div className="flex items-center text-sm text-muted-foreground px-2">
                       <Users className="mr-2.5 h-4 w-4 text-muted-foreground/70" />
-                      <span>{project.team_members || 0} miembros en el equipo</span>
+                      <span>{project.team_members || 0} miembros</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
-
-          {/* Pagination Controls */}
-          {total > 0 && (
-            <div className="flex items-center justify-between border-t pt-6 mt-6">
-              <div className="text-sm text-muted-foreground hidden sm:block">
-                Mostrando <span className="font-medium text-foreground">{projects.length}</span> de <span className="font-medium text-foreground">{total}</span> proyectos
-              </div>
-              <div className="flex justify-center sm:justify-end items-center gap-2 w-full sm:w-auto">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setPage(page - 1)} 
-                  disabled={page === 1 || isLoading}
-                  className="h-9"
-                >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
-                  Anterior
-                </Button>
-                <div className="flex items-center justify-center min-w-[2rem] font-medium text-sm">
-                  {page}
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setPage(page + 1)} 
-                  disabled={projects.length < 10 || isLoading}
-                  className="h-9"
-                >
-                  Siguiente
-                  <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
-              </div>
-            </div>
-          )}
         </>
       )}
     </div>

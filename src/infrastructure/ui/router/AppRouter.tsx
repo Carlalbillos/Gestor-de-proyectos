@@ -5,6 +5,7 @@ import { DashboardLayout } from "@/infrastructure/ui/components/layout/Dashboard
 import { HomePage } from "@/infrastructure/ui/pages/HomePage";
 import { ProjectsPage } from "@/infrastructure/ui/pages/ProjectsPage";
 import { CreateProjectPage } from "@/infrastructure/ui/pages/CreateProjectPage";
+import { ProjectDetailsPage } from "@/infrastructure/ui/pages/ProjectDetailsPage";
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
           {
             path: "/proyectos/nuevo",
             element: <CreateProjectPage />,
+          },
+          {
+            path: "/proyectos/:id",
+            element: <ProjectDetailsPage />,
           },
         ]
       },

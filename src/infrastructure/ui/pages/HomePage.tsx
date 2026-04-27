@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
+import { useNavigate } from "react-router";
 import { useDashboardStore } from "@/infrastructure/stores/dashboard.store";
 import { Button } from "@/infrastructure/ui/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/infrastructure/ui/components/ui/card";
@@ -8,6 +9,7 @@ import { Users, ChevronRight, Briefcase } from "lucide-react";
 
 export const HomePage = () => {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
   const { profile, projects, isLoading, error, fetchDashboardData } = useDashboardStore();
 
   useEffect(() => {
@@ -79,7 +81,7 @@ export const HomePage = () => {
               </h2>
               <p className="text-sm text-muted-foreground">Proyectos en los que estás asignado</p>
             </div>
-            <Button variant="outline" size="sm" className="hidden sm:flex">
+            <Button variant="outline" size="sm" className="hidden sm:flex" onClick={() => navigate("/proyectos")}>
               Ver Todos <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
@@ -91,7 +93,11 @@ export const HomePage = () => {
               </div>
             ) : (
               projects.map((project) => (
-                <Card key={project.id} className="flex flex-col hover:border-primary/50 transition-colors cursor-pointer group">
+                <Card 
+                  key={project.id} 
+                  className="flex flex-col hover:border-primary/50 transition-colors cursor-pointer group"
+                  onClick={() => navigate(`/proyectos/${project.id}`)}
+                >
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg group-hover:text-primary transition-colors">
                       {project.name}
@@ -119,7 +125,7 @@ export const HomePage = () => {
             )}
           </div>
 
-          <Button variant="outline" className="w-full sm:hidden mt-2">
+          <Button variant="outline" className="w-full sm:hidden mt-2" onClick={() => navigate("/proyectos")}>
             Ver Todos Proyectos
           </Button>
         </div>
