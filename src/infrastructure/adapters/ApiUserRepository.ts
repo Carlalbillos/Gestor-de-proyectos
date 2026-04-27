@@ -5,12 +5,12 @@ import type { Project } from "../../domain/entities/project.entity";
 
 export class ApiUserRepository implements UserRepository {
   async getById(id: string): Promise<User> {
-    const response = await api.get<User>(`/users/${id}`);
+    const response = await api.get<User>(`users/${id}`);
     return response.data;
   }
 
   async getUserProjects(id: string): Promise<Project[]> {
-    const response = await api.get<Project[]>(`/users/${id}/projects`);
+    const response = await api.get<Project[]>(`users/${id}/projects`);
     return response.data;
   }
 }

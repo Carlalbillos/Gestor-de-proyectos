@@ -22,7 +22,7 @@ interface JwtPayload {
 export class ApiAuthRepository implements AuthRepository {
   async login(credentials: AuthCredentials): Promise<AuthResponse> {
     try {
-      const response = await api.post<LoginApiResponse>("/login", {
+      const response = await api.post<LoginApiResponse>("login", {
         email: credentials.email,
         password: credentials.password,
       });

@@ -3,6 +3,8 @@ import { LoginPage } from "@/infrastructure/ui/pages/LoginPage";
 import { AuthGuard } from "@/infrastructure/ui/guards/AuthGuard";
 import { DashboardLayout } from "@/infrastructure/ui/components/layout/DashboardLayout";
 import { HomePage } from "@/infrastructure/ui/pages/HomePage";
+import { ProjectsPage } from "@/infrastructure/ui/pages/ProjectsPage";
+import { CreateProjectPage } from "@/infrastructure/ui/pages/CreateProjectPage";
 
 const router = createBrowserRouter([
   {
@@ -20,14 +22,20 @@ const router = createBrowserRouter([
             element: <HomePage />,
           },
           {
-            path: "/proyectos",
-            Component: () => (
-              <div className="p-8 text-center text-muted-foreground">Listado de Proyectos próximamente...</div>
-            ),
-          },
-          {
             path: "/personal",
             element: <div className="p-8 text-center text-muted-foreground">Listado de Personal próximamente...</div>,
+          },
+          {
+            path: "/clientes",
+            element: <div className="p-8 text-center text-muted-foreground">Listado de Clientes próximamente...</div>,
+          },
+          {
+            path: "/proyectos",
+            element: <ProjectsPage />,
+          },
+          {
+            path: "/proyectos/nuevo",
+            element: <CreateProjectPage />,
           },
         ]
       },

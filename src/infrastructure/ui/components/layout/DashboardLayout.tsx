@@ -1,6 +1,7 @@
 import { Outlet, NavLink, useNavigate } from "react-router";
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
 import { Button } from "@/infrastructure/ui/components/ui/button";
+import { Home, Users, Building2, Briefcase } from "lucide-react";
 
 export const DashboardLayout = () => {
   const { logout } = useAuthStore();
@@ -32,31 +33,41 @@ export const DashboardLayout = () => {
             to="/"
             end
             className={({ isActive }) =>
-              `${baseClasses} ${isActive ? activeClasses : inactiveClasses
-              }`
+              `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`
             }
           >
+            <Home className="h-4 w-4" />
             Inicio
-          </NavLink>
-
-          <NavLink
-            to="/proyectos"
-            className={({ isActive }) =>
-              `${baseClasses} ${isActive ? activeClasses : inactiveClasses
-              }`
-            }
-          >
-            Proyectos
           </NavLink>
 
           <NavLink
             to="/personal"
             className={({ isActive }) =>
-              `${baseClasses} ${isActive ? activeClasses : inactiveClasses
-              }`
+              `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`
             }
           >
+            <Users className="h-4 w-4" />
             Personal
+          </NavLink>
+
+          <NavLink
+            to="/clientes"
+            className={({ isActive }) =>
+              `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`
+            }
+          >
+            <Building2 className="h-4 w-4" />
+            Clientes
+          </NavLink>
+
+          <NavLink
+            to="/proyectos"
+            className={({ isActive }) =>
+              `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`
+            }
+          >
+            <Briefcase className="h-4 w-4" />
+            Proyectos
           </NavLink>
         </nav>
 

@@ -1,4 +1,4 @@
-import type { Project } from "../entities/project.entity";
+import type { Project, ProjectUser, ProjectDevelopment, CreateProjectDTO } from "../entities/project.entity";
 
 export interface ProjectQueryParams {
   page?: number;
@@ -12,4 +12,8 @@ export interface PaginatedResult<T> {
 
 export interface ProjectRepository {
   getProjects(params?: ProjectQueryParams): Promise<PaginatedResult<Project>>;
+  getProjectById(id: string): Promise<Project>;
+  createProject(project: CreateProjectDTO): Promise<void>;
+  getProjectUsers(id: string): Promise<ProjectUser[]>;
+  getProjectDevelopments(id: string): Promise<ProjectDevelopment[]>;
 }
