@@ -3,6 +3,7 @@ import type { Project, ProjectUser, ProjectDevelopment, CreateProjectDTO } from 
 export interface ProjectQueryParams {
   page?: number;
   search?: string;
+  allProjects?: boolean;
 }
 
 export interface PaginatedResult<T> {

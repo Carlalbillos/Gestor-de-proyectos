@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useProjectsListStore } from "@/infrastructure/stores/projects-list.store";
+import { useAuthStore } from "@/infrastructure/stores/auth.store";
+import { isAdmin } from "@/infrastructure/ui/lib/roleChecker";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/infrastructure/ui/components/ui/card";
 import { Badge } from "@/infrastructure/ui/components/ui/badge";
 import { Button } from "@/infrastructure/ui/components/ui/button";
 import { Input } from "@/infrastructure/ui/components/ui/input";
-import { Building2, Users, Search, FolderPlus, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Building2, Users, Search, FolderPlus, Loader2, Lock } from "lucide-react";
 
 export const ProjectsPage = () => {
   const navigate = useNavigate();
-  const { projects, total, isLoading, error, page, search, fetchProjects, setPage, setSearch } = useProjectsListStore();
+  const user = useAuthStore((state) => state.user);
+  const { projects, isLoading, error, search, fetchProjects, setSearch } = useProjectsListStore();
   const [searchInput, setSearchInput] = useState(search);
 
   useEffect(() => {
@@ -21,17 +24,32 @@ export const ProjectsPage = () => {
     setSearch(searchInput);
   };
 
+  const canCreateProject = isAdmin(user);
+
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Proyectos</h1>
-          <p className="text-muted-foreground">Gestiona los proyectos de tu organización</p>
+          <p className="text-muted-foreground">
+            {canCreateProject ? "Gestiona los proyectos de tu organización" : "Ve los proyectos de tu organización"}
+          </p>
         </div>
-        <Button className="w-full sm:w-auto shadow-sm" onClick={() => navigate("/proyectos/nuevo")}>
-          <FolderPlus className="mr-2 h-4 w-4" />
-          Nuevo Proyecto
-        </Button>
+        {canCreateProject ? (
+          <Button className="w-full sm:w-auto shadow-sm" onClick={() => navigate("/proyectos/nuevo")}>
+            <FolderPlus className="mr-2 h-4 w-4" />
+            Nuevo Proyecto
+          </Button>
+        ) : (
+          <Button 
+            className="w-full sm:w-auto shadow-sm" 
+            disabled 
+            title="Solo los administradores pueden crear proyectos"
+          >
+            <Lock className="mr-2 h-4 w-4" />
+            Nuevo Proyecto
+          </Button>
+        )}
       </div>
 
       <Card className="border-muted shadow-sm">
@@ -75,9 +93,9 @@ export const ProjectsPage = () => {
             <p className="text-muted-foreground max-w-sm mt-2 text-sm">
               {search 
                 ? "No hay resultados para tu búsqueda. Intenta con otros términos para encontrar lo que buscas." 
-                : "No hay proyectos registrados aún. Empieza creando tu primer proyecto en el sistema."}
+                : "No hay proyectos registrados aún."}
             </p>
-            {!search && (
+            {!search && canCreateProject && (
               <Button className="mt-6 shadow-sm" onClick={() => navigate("/proyectos/nuevo")}>
                 <FolderPlus className="mr-2 h-4 w-4" />
                 Crear el primer Proyecto

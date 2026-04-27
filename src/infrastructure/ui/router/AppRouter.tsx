@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { LoginPage } from "@/infrastructure/ui/pages/LoginPage";
 import { AuthGuard } from "@/infrastructure/ui/guards/AuthGuard";
+import { AdminGuard } from "@/infrastructure/ui/guards/AdminGuard";
 import { DashboardLayout } from "@/infrastructure/ui/components/layout/DashboardLayout";
 import { HomePage } from "@/infrastructure/ui/pages/HomePage";
 import { ProjectsPage } from "@/infrastructure/ui/pages/ProjectsPage";
@@ -35,12 +36,22 @@ const router = createBrowserRouter([
             element: <ProjectsPage />,
           },
           {
-            path: "/proyectos/nuevo",
-            element: <CreateProjectPage />,
-          },
-          {
             path: "/proyectos/:id",
             element: <ProjectDetailsPage />,
+          },
+        ]
+      },
+      {
+        element: <AdminGuard />,
+        children: [
+          {
+            element: <DashboardLayout />,
+            children: [
+              {
+                path: "/proyectos/nuevo",
+                element: <CreateProjectPage />,
+              },
+            ]
           },
         ]
       },

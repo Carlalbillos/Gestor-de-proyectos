@@ -4,7 +4,14 @@ import type { Project, ProjectUser, ProjectDevelopment, CreateProjectDTO } from 
 
 export class ApiProjectRepository implements ProjectRepository {
   async getProjects(params?: ProjectQueryParams): Promise<PaginatedResult<Project>> {
-    const response = await api.get<Project[]>("projects", { params });
+    const queryParams: any = {};
+    if (params?.search) {
+      queryParams.search = params.search;
+    }
+    if (params?.allProjects) {
+      queryParams.all_projects = true;
+    }
+    const response = await api.get<Project[]>("projects", { params: queryParams });
 
     // El backend devuelve un array directo, no un objeto con {items, total}
     const data = Array.isArray(response.data) ? response.data : [];

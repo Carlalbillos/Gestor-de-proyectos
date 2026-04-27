@@ -9,6 +9,8 @@ import { ApiProjectRepository } from "@/infrastructure/adapters/ApiProjectReposi
 import { ProjectService } from "@/application/services/project.service";
 import { ApiClientRepository } from "@/infrastructure/adapters/ApiClientRepository";
 import { ClientService } from "@/application/services/client.service";
+import { useAuthStore } from "@/infrastructure/stores/auth.store";
+import { isAdmin } from "@/infrastructure/ui/lib/roleChecker";
 import type { Client } from "@/domain/ports/ClientRepository";
 
 import { uuidv7 } from "@/infrastructure/ui/lib/uuid";
@@ -20,9 +22,17 @@ const clientService = new ClientService(clientRepository);
 
 export const CreateProjectPage = () => {
   const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
   const [isLoading, setIsLoading] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoadingClients, setIsLoadingClients] = useState(true);
+
+  // Validar que el usuario es admin
+  useEffect(() => {
+    if (user && !isAdmin(user)) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   const [formData, setFormData] = useState({
     name: "",

@@ -6,9 +6,7 @@ export const AuthGuard = () => {
   const user = useAuthStore((state) => state.user);
   const checkToken = useAuthStore((state) => state.checkToken);
 
-  // 4. Verificación periódica y 5. Middleware de ruta protegida
   useEffect(() => {
-    // Verificar token al montar el componente (cambio de ruta)
     checkToken();
 
     // Verificación periódica cada 5 minutos
