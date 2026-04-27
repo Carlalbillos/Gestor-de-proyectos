@@ -75,7 +75,6 @@ export const useAuthStore = create<AuthState>()(
         if (state?.token) {
           try {
             const decoded = jwtDecode(state.token);
-            // 1. Validación en rehidratación: Verificar expiración al cargar
             if (decoded.exp && decoded.exp * 1000 < Date.now()) {
               state.token = null;
               state.user = null;

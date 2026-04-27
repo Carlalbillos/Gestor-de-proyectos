@@ -13,7 +13,6 @@ export class ApiProjectRepository implements ProjectRepository {
     }
     const response = await api.get<Project[]>("projects", { params: queryParams });
 
-    // El backend devuelve un array directo, no un objeto con {items, total}
     const data = Array.isArray(response.data) ? response.data : [];
     const total = data.length;
 

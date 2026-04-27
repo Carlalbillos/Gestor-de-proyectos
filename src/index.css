@@ -90,7 +90,6 @@ body {
   --sidebar-ring: oklch(0.78 0.22 130);
 }
 
-
 /* ── Tailwind theme mapping ────────────────────────── */
 @theme inline {
   --font-heading: var(--font-sans);
