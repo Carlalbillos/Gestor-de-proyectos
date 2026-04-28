@@ -5,12 +5,22 @@ import type { Project, ProjectUser, ProjectDevelopment, CreateProjectDTO } from 
 export class ApiProjectRepository implements ProjectRepository {
   async getProjects(params?: ProjectQueryParams): Promise<PaginatedResult<Project>> {
     const queryParams: any = {};
-    if (params?.search) {
-      queryParams.search = params.search;
+    if (params?.page) {
+      queryParams.page = params.page;
     }
-    if (params?.allProjects) {
-      queryParams.all_projects = true;
+    if (params?.limit) {
+      queryParams.limit = params.limit;
     }
+    if (params?.client_id) {
+      queryParams.client_id = params.client_id;
+    }
+    if (params?.app_user_id) {
+      queryParams.app_user_id = params.app_user_id;
+    }
+    if (typeof params?.is_active === "boolean") {
+      queryParams.is_active = params.is_active;
+    }
+
     const response = await api.get<Project[]>("projects", { params: queryParams });
 
     const data = Array.isArray(response.data) ? response.data : [];

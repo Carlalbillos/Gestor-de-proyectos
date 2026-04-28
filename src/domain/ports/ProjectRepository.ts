@@ -2,8 +2,11 @@ import type { Project, ProjectUser, ProjectDevelopment, CreateProjectDTO } from 
 
 export interface ProjectQueryParams {
   page?: number;
-  search?: string;
-  allProjects?: boolean;
+  limit?: number;
+  client_id?: string;
+  app_user_id?: string;
+  is_active?: boolean;
+  search?: string; // Nota: el backend actual no define search en el contrato
 }
 
 export interface PaginatedResult<T> {

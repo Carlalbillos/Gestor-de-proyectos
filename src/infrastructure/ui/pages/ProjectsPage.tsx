@@ -72,11 +72,7 @@ export const ProjectsPage = () => {
         </CardContent>
       </Card>
 
-      {error && (
-        <div className="p-4 bg-destructive/10 text-destructive text-sm rounded-md border border-destructive/20 flex items-center">
-          <span className="font-medium mr-2">Error:</span> {error}
-        </div>
-      )}
+      
 
       {isLoading && projects.length === 0 ? (
         <div className="flex flex-col justify-center items-center py-24 space-y-4">

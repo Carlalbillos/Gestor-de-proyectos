@@ -3,7 +3,11 @@ import type { User } from "../../domain/entities/user.entity";
 import type { Project } from "../../domain/entities/project.entity";
 
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) { }
+  private readonly userRepository: UserRepository;
+
+  constructor(userRepository: UserRepository) {
+    this.userRepository = userRepository;
+  }
 
   async getUserProfile(id: string): Promise<User> {
     return await this.userRepository.getById(id);

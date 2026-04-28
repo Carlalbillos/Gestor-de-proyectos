@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useProjectDetailsStore } from "@/infrastructure/stores/project-details.store";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/infrastructure/ui/components/ui/card";

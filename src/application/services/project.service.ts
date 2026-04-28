@@ -2,7 +2,11 @@ import type { ProjectRepository, ProjectQueryParams, PaginatedResult } from "../
 import type { Project, ProjectUser, ProjectDevelopment, CreateProjectDTO } from "../../domain/entities/project.entity";
 
 export class ProjectService {
-  constructor(private readonly projectRepository: ProjectRepository) {}
+  private readonly projectRepository: ProjectRepository;
+
+  constructor(projectRepository: ProjectRepository) {
+    this.projectRepository = projectRepository;
+  }
 
   async getProjectsList(params?: ProjectQueryParams): Promise<PaginatedResult<Project>> {
     return await this.projectRepository.getProjects(params);

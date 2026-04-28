@@ -10,13 +10,22 @@ import { InvalidCredentialsError } from "@/domain/exceptions/InvalidCredentialsE
 import { jwtDecode } from "jwt-decode";
 
 interface LoginApiResponse {
-  token: string;
+  access_token?: string;
+  token?: string;
+  accessToken?: string;
+  token_type?: string;
+  expires_in?: number;
+  expires_at?: string;
 }
 
 interface JwtPayload {
   id?: string;
+  sub?: string;
   email?: string;
   role?: string;
+  name?: string;
+  given_name?: string;
+  family_name?: string;
 }
 
 export class ApiAuthRepository implements AuthRepository {
@@ -27,30 +36,40 @@ export class ApiAuthRepository implements AuthRepository {
         password: credentials.password,
       });
 
-      const token = response.data.token;
-      
+      const token = response.data.access_token ?? response.data.token ?? response.data.accessToken ?? response.data;
+      if (!token || typeof token !== "string") {
+        throw new Error("La respuesta de autenticación no contiene un token válido");
+      }
+
       let decodedId = "";
-      let decodedRole = "";
-      
+      let decodedRole = "ROLE_EMPLOYEE";
+      let decodedEmail = credentials.email;
+      let decodedName = "";
+      let decodedSurname = "";
+
       try {
         const decoded = jwtDecode<JwtPayload>(token);
-        if (!decoded.id) {
+        decodedId = decoded.id || decoded.sub || "";
+        decodedRole = decoded.role || "ROLE_EMPLOYEE";
+        decodedEmail = decoded.email || credentials.email;
+        decodedName = decoded.name || decoded.given_name || "";
+        decodedSurname = decoded.family_name || "";
+
+        if (!decodedId) {
           throw new Error("El token JWT no contiene el ID del usuario.");
         }
-        decodedId = decoded.id;
-        decodedRole = decoded.role || "ROLE_USER";
       } catch (e: any) {
         throw new Error("Error decodificando el token: " + e.message);
       }
 
       return {
-        user: { 
+        user: {
           id: decodedId,
-          email: credentials.email,
-          name: "", 
-          surname: "",
+          email: decodedEmail,
+          name: decodedName,
+          surname: decodedSurname,
           role: decodedRole,
-          is_active: true
+          is_active: true,
         },
         accessToken: token,
       };

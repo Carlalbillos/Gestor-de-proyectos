@@ -1,0 +1,3841 @@
+openapi: 3.0.3
+
+info:
+  title: Contrato de API para Inventario de Proyectos 480:DEV
+  version: 2.0.0
+  description: |
+    API de gestión de inventario de proyectos. Permite administrar usuarios, clientes,
+    proyectos, desarrollos e imputaciones de horas.
+  contact:
+    name: API Support
+
+servers:
+  - url: /api/v1
+    description: Base URL
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Authentication
+    description: Autenticación y MFA
+
+  - name: Users
+    description: Gestión de usuarios
+
+  - name: Dashboard
+    description: Operaciones del panel principal del usuario
+
+  - name: Clients
+    description: Gestión de clientes
+
+  - name: Projects
+    description: Gestión de proyectos
+
+  - name: Sectors
+    description: Catálogo de sectores
+
+  - name: Technologies
+    description: Gestión de tecnologías
+
+paths:
+
+  # ================================================================
+  #  AUTHENTICATION
+  # ================================================================
+
+  /login:
+    post:
+      tags: [ Authentication ]
+      summary: Autenticación de usuario
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: ana@empresa.com
+                password:
+                  type: string
+                  maxLength: 255
+                  example: "S3cur3P@ssword"
+              required: [ email, password ]
+      responses:
+        "200":
+          description: Autenticación correcta
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+                  token_type:
+                    type: string
+                    example: Bearer
+                  expires_in:
+                    type: integer
+                    description: Segundos hasta la expiración del token
+                    example: 3600
+                  expires_at:
+                    type: string
+                    format: date-time
+                    description: Fecha y hora de expiración del token
+                    example: "2025-04-09T12:00:00Z"
+                required: [ access_token, token_type, expires_in, expires_at ]
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - El email o contraseña son incorrectos
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+
+  /mfa:
+    post:
+      tags: [ Authentication ]
+      summary: Autenticación de múltiples factores
+      operationId: mfa
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                session_id:
+                  type: string
+                  format: uuid
+                  example: 00000000-0000-0000-0000-000000000004
+                code:
+                  type: string
+                  example: "123456"
+              required: [ session_id, code ]
+      responses:
+        "200":
+          description: MFA correcto
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+                  token_type:
+                    type: string
+                    example: Bearer
+                  expires_in:
+                    type: integer
+                    description: Segundos hasta la expiración del token
+                    example: 3600
+                  expires_at:
+                    type: string
+                    format: date-time
+                    description: Fecha y hora de expiración del token
+                    example: "2025-04-09T12:00:00Z"
+                required: [ access_token, token_type, expires_in, expires_at ]
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - El código MFA es inválido o ha expirado
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido, ausente o sesión MFA expirada
+                required: [ status, error, message ]
+
+  /users/{id}/password-change:
+    post:
+      tags: [ Authentication ]
+      summary: Cambiar contraseña de usuario con validación de contraseña original
+      operationId: changeUserPassword
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del usuario (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 00000000-0000-0000-0000-000000000001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                current_password:
+                  type: string
+                  maxLength: 255
+                  example: "S3cur3P@ssword"
+                new_password:
+                  type: string
+                  maxLength: 255
+                  example: "N3wP@ssw0rd"
+              required: [ current_password, new_password ]
+      responses:
+        "204":
+          description: Contraseña actualizada
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - Parámetros incorrectos
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Usuario no encontrado
+                required: [ status, error, message ]
+
+  /users/{id}/admin-password:
+    post:
+      tags: [ Authentication ]
+      summary: Cambiar contraseña de usuario con privilegios de administrador
+      operationId: changeUserPasswordAsAdmin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del usuario (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 00000000-0000-0000-0000-000000000001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_password:
+                  type: string
+                  maxLength: 255
+                  example: "N3wAdm1nP@ssw0rd"
+              required: [ new_password ]
+      responses:
+        "204":
+          description: Contraseña actualizada por administrador
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - La nueva contraseña no cumple los requisitos
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes (solo administradores)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: Solo los administradores pueden cambiar contraseñas de otros usuarios
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Usuario no encontrado
+                required: [ status, error, message ]
+
+  # ================================================================
+  #  USERS
+  # ================================================================
+
+  /users:
+
+    post:
+      tags: [ Users ]
+      summary: Crear usuario
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  example: 00000000-0000-0000-0000-000000000001
+                name:
+                  type: string
+                  maxLength: 100
+                  example: Carlos
+                surname:
+                  type: string
+                  maxLength: 100
+                  example: Ruiz
+                email:
+                  type: string
+                  format: email
+                  maxLength: 150
+                  example: carlos@empresa.com
+                password:
+                  type: string
+                  maxLength: 255
+                  example: "S3cur3P@ssword"
+                role:
+                  type: string
+                  enum: [ ROLE_ADMIN, ROLE_EMPLOYEE ]
+                  example: ROLE_EMPLOYEE
+              required: [ name, surname, email, password, role ]
+      responses:
+        "201":
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - El email o los datos requeridos son inválidos
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+        "409":
+          description: Conflicto - recurso ya existente (ej. email duplicado)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 409
+                  error:
+                    type: string
+                    example: Conflict
+                  message:
+                    type: string
+                    example: El email ya está registrado
+                required: [ status, error, message ]
+
+    get:
+      tags: [ Users ]
+      summary: Listado de usuarios
+      operationId: getUsers
+      parameters:
+        - name: is_active
+          in: query
+          description: Filtrar por usuarios activos o inactivos
+          schema:
+            type: boolean
+        - name: role
+          in: query
+          description: Filtrar por rol de usuario
+          schema:
+            type: string
+            enum: [ ROLE_ADMIN, ROLE_EMPLOYEE ]
+            example: ROLE_EMPLOYEE
+        - name: page
+          in: query
+          description: Página de resultados
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Límites de resultados por página
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Listado de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      example: 00000000-0000-0000-0000-000000000001
+                    name:
+                      type: string
+                      example: Ana
+                    surname:
+                      type: string
+                      example: García
+                    email:
+                      type: string
+                      format: email
+                      example: ana@empresa.com
+                    is_active:
+                      type: boolean
+                      example: true
+                    role:
+                      type: string
+                      enum: [ ROLE_ADMIN, ROLE_EMPLOYEE ]
+                      example: ROLE_EMPLOYEE
+                  required: [ id, name, surname, email, is_active, role ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+  /users/{id}:
+    get:
+      tags: [ Users ]
+      summary: Obtener usuario por ID
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del usuario (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 00000000-0000-0000-0000-000000000001
+      responses:
+        "200":
+          description: Usuario encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    example: 00000000-0000-0000-0000-000000000001
+                  name:
+                    type: string
+                    example: Ana
+                  surname:
+                    type: string
+                    example: García
+                  email:
+                    type: string
+                    format: email
+                    example: ana@empresa.com
+                  is_active:
+                    type: boolean
+                    example: true
+                  role:
+                    type: string
+                    enum: [ ROLE_ADMIN, ROLE_EMPLOYEE ]
+                    example: ROLE_EMPLOYEE
+                required: [ id, name, surname, email, is_active, role ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Usuario no encontrado
+                required: [ status, error, message ]
+
+    put:
+      tags: [ Users ]
+      summary: Actualizar usuario
+      operationId: updateUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del usuario (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 00000000-0000-0000-0000-000000000001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+                  example: Ana
+                surname:
+                  type: string
+                  maxLength: 100
+                  example: García López
+                email:
+                  type: string
+                  format: email
+                  maxLength: 150
+                  example: ana@empresa.com
+                is_active:
+                  type: boolean
+                  example: true
+                role:
+                  type: string
+                  enum: [ ROLE_ADMIN, ROLE_EMPLOYEE ]
+                  example: ROLE_EMPLOYEE
+              required: [ name, surname, email, is_active, role ]
+      responses:
+        "200":
+          description: Usuario actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - El email no es válido
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Usuario no encontrado
+                required: [ status, error, message ]
+        "409":
+          description: Conflicto - recurso ya existente (ej. email duplicado)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 409
+                  error:
+                    type: string
+                    example: Conflict
+                  message:
+                    type: string
+                    example: El email ya está registrado
+                required: [ status, error, message ]
+
+    delete:
+      tags: [ Users ]
+      summary: Borrar usuario
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del usuario (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 00000000-0000-0000-0000-000000000001
+      responses:
+        "204":
+          description: Usuario borrado
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Usuario no encontrado
+                required: [ status, error, message ]
+
+  /users/{id}/projects:
+    get:
+      tags: [ Users ]
+      summary: Listado de proyectos asociados a un usuario
+      operationId: getUserProjects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del usuario (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 00000000-0000-0000-0000-000000000001
+        - name: page
+          in: query
+          description: Página de resultados
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Límites de resultados por página
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Proyectos asociados al usuario
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    project_user_id:
+                      type: string
+                      format: uuid
+                      example: 00000000-0000-0000-0000-000000000001
+                    id:
+                      type: string
+                      format: uuid
+                      example: 00000000-0000-0000-0000-000000000001
+                    name:
+                      type: string
+                      example: Portal Cliente
+                    description:
+                      type: string
+                      nullable: true
+                      example: Rediseño del portal de clientes
+                    is_active:
+                      type: boolean
+                      example: true
+                    client:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          example: 00000000-0000-0000-0000-000000000001
+                        name:
+                          type: string
+                          example: Acme Corp
+                    team_members:
+                      type: integer
+                      example: 3
+                  required: [ project_user_id, id, name, is_active, client, team_members ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Usuario no encontrado
+                required: [ status, error, message ]
+
+  # ================================================================
+  #  DASHBOARD
+  # ================================================================
+
+  /users/{id}/time-entries:
+
+    post:
+      tags: [ Dashboard ]
+      summary: Registrar imputación de horas
+      operationId: createTimeEntry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del usuario (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 00000000-0000-0000-0000-000000000001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  example: 00000000-0000-0000-0000-000000000001
+                project_user_id:
+                  type: string
+                  format: uuid
+                  example: 00000000-0000-0000-0000-000000000001
+                date:
+                  type: string
+                  format: date
+                  example: "2025-04-09"
+                hour:
+                  type: number
+                  format: decimal
+                  minimum: 0.25
+                  maximum: 24
+                  example: 4.5
+                comment:
+                  type: string
+                  maxLength: 50
+                  example: Revisión de PRs
+              required: [ project_user_id, date, hour ]
+      responses:
+        "201":
+          description: Imputación creada
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - Parámetros incorrectos
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+    get:
+      tags: [ Dashboard ]
+      summary: Listado de imputaciones del usuario
+      operationId: getUserTimeEntries
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del usuario (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 00000000-0000-0000-0000-000000000001
+        - name: from
+          in: query
+          description: Fecha inicio (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+          example: "2025-04-01"
+        - name: to
+          in: query
+          description: Fecha fin (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+          example: "2025-04-30"
+        - name: project_id
+          in: query
+          description: Filtrar por proyecto (UUID v7)
+          schema:
+            type: string
+            format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+        - name: page
+          in: query
+          description: Página de resultados
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Límites de resultados por página
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Listado de imputaciones con total de horas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_hours:
+                    type: number
+                    example: 42.5
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                              example: 00000000-0000-0000-0000-000000000001
+                            project_user_id:
+                              type: string
+                              format: uuid
+                              example: 00000000-0000-0000-0000-000000000001
+                            date:
+                              type: string
+                              format: date
+                              example: "2025-04-09"
+                            hour:
+                              type: number
+                              example: 4.5
+                            comment:
+                              type: string
+                              nullable: true
+                              example: Revisión de PRs
+                          required: [ id, project_user_id, date, hour ]
+                        - type: object
+                          properties:
+                            project:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                  example: 00000000-0000-0000-0000-000000000001
+                                name:
+                                  type: string
+                                  example: Portal Cliente
+                required: [ total_hours, data ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+  # ================================================================
+  #  CLIENTS
+  # ================================================================
+
+  /clients:
+    post:
+      tags: [ Clients ]
+      summary: Crear cliente
+      operationId: createClient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 120
+                  example: Acme Corp
+                sector_id:
+                  type: string
+                  format: uuid
+                  example: 00000000-0000-0000-0000-000000000001
+              required: [ name, sector_id ]
+      responses:
+        "201":
+          description: Cliente creado
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - Parámetros incorrectos
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "409":
+          description: Conflicto - recurso ya existente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 409
+                  error:
+                    type: string
+                    example: Conflict
+                  message:
+                    type: string
+                    example: Ya existe un cliente con ese nombre
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+
+    get:
+      tags: [ Clients ]
+      summary: Listado de clientes
+      operationId: getClients
+      parameters:
+        - name: is_active
+          in: query
+          description: Filtrar por estado activo
+          schema:
+            type: boolean
+        - name: sector_id
+          in: query
+          description: Filtrar por sector (UUID v7)
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          description: Página de resultados
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Límites de resultados por página
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Listado de clientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      example: 00000000-0000-0000-0000-000000000001
+                    name:
+                      type: string
+                      example: Acme Corp
+                    is_active:
+                      type: boolean
+                      example: true
+                    sector:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          example: 00000000-0000-0000-0000-000000000001
+                        name:
+                          type: string
+                          example: Tecnología
+                      required: [ id, name ]
+                  required: [ id, name, is_active, sector ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+
+  /clients/{id}:
+    get:
+      tags: [ Clients ]
+      summary: Detalle de cliente
+      operationId: getClientById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del cliente (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 00000000-0000-0000-0000-000000000002
+      responses:
+        "200":
+          description: Cliente encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    example: 00000000-0000-0000-0000-000000000001
+                  name:
+                    type: string
+                    example: Acme Corp
+                  is_active:
+                    type: boolean
+                    example: true
+                  sector:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        example: 00000000-0000-0000-0000-000000000001
+                      name:
+                        type: string
+                        example: Tecnología
+                    required: [ id, name ]
+                required: [ id, name, is_active, sector ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+    put:
+      tags: [ Clients ]
+      summary: Actualizar cliente
+      operationId: updateClient
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del cliente (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 00000000-0000-0000-0000-000000000002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 120
+                  example: Acme Corporation
+                sector_id:
+                  type: string
+                  format: uuid
+                  example: 00000000-0000-0000-0000-000000000001
+                is_active:
+                  type: boolean
+                  example: true
+                contacts:
+                  type: array
+                  description: |
+                    Upsert de contactos del cliente mediante UUID.
+                    Si el id existe, se actualiza el contacto; si no existe, se crea uno nuevo.
+                    Los contactos no presentes en el array no se eliminan - para desactivar uno usa is_active: false.
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        description: UUID del contacto (generado por frontend)
+                        example: 00000000-0000-0000-0000-000000000001
+                      full_name:
+                        type: string
+                        example: Juan Pérez
+                      phone_number:
+                        type: string
+                        maxLength: 30
+                        nullable: true
+                        example: "+34600000001"
+                      email:
+                        type: string
+                        format: email
+                        example: juan@acme.com
+                      is_active:
+                        type: boolean
+                        nullable: true
+                        example: true
+                      is_main:
+                        type: boolean
+                        nullable: true
+                        description: Solo puede haber un contacto principal por cliente
+                        example: false
+                      note:
+                        type: string
+                        maxLength: 100
+                        nullable: true
+                        example: Contacto técnico principal
+                    required: [ full_name, email ]
+              required: [ name, sector_id, is_active ]
+      responses:
+        "200":
+          description: Cliente actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - Parámetros incorrectos
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+    delete:
+      tags: [ Clients ]
+      summary: Borrar cliente
+      operationId: deleteClient
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del cliente (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 00000000-0000-0000-0000-000000000002
+      responses:
+        "204":
+          description: Cliente borrado
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+  /clients/{id}/contacts:
+    get:
+      tags: [ Clients ]
+      summary: Listado de contactos del cliente
+      operationId: getClientContacts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del cliente (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 00000000-0000-0000-0000-000000000002
+        - name: page
+          in: query
+          description: Página de resultados
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Límites de resultados por página
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Contactos del cliente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      example: 00000000-0000-0000-0000-000000000001
+                    full_name:
+                      type: string
+                      example: Juan Pérez
+                    phone_number:
+                      type: string
+                      nullable: true
+                      example: "+34600000001"
+                    email:
+                      type: string
+                      format: email
+                      example: juan@acme.com
+                    is_active:
+                      type: boolean
+                      nullable: true
+                      example: true
+                    is_main:
+                      type: boolean
+                      nullable: true
+                      example: true
+                    note:
+                      type: string
+                      nullable: true
+                      maxLength: 100
+                      example: Contacto técnico principal
+                  required: [ id, full_name, email ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+  /clients/{id}/projects:
+    get:
+      tags: [ Clients ]
+      summary: Listado de proyectos del cliente
+      operationId: getClientProjects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del cliente (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 00000000-0000-0000-0000-000000000002
+        - name: page
+          in: query
+          description: Página de resultados
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Límites de resultados por página
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Proyectos del cliente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      example: 00000000-0000-0000-0000-000000000001
+                    name:
+                      type: string
+                      example: Portal Cliente
+                    description:
+                      type: string
+                      nullable: true
+                      example: Rediseño del portal
+                    start_date:
+                      type: string
+                      format: date
+                      nullable: true
+                      example: "2025-01-01"
+                    is_active:
+                      type: boolean
+                      example: true
+                    client:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          example: 00000000-0000-0000-0000-000000000001
+                        name:
+                          type: string
+                          example: Acme Corp
+                    team_members:
+                      type: integer
+                      example: 3
+                  required: [ id, name, is_active, client, team_members ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+  # ================================================================
+  #  PROJECTS
+  # ================================================================
+
+  /projects:
+
+    post:
+      tags: [ Projects ]
+      summary: Crear proyecto
+      operationId: createProject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  example: 00000000-0000-0000-0000-000000000001
+                name:
+                  type: string
+                  maxLength: 150
+                  example: Portal Cliente v2
+                description:
+                  type: string
+                  nullable: true
+                  example: Nueva versión del portal
+                start_date:
+                  type: string
+                  format: date
+                  nullable: true
+                  example: "2025-05-01"
+                client_id:
+                  type: string
+                  format: uuid
+                  example: 00000000-0000-0000-0000-000000000001
+              required: [ name, client_id ]
+      responses:
+        "201":
+          description: Proyecto creado
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - El nombre del proyecto es requerido
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+        "404":
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: El cliente especificado no existe
+                required: [ status, error, message ]
+
+    get:
+      tags: [ Projects ]
+      summary: Listado de proyectos
+      operationId: getProjects
+      parameters:
+        - name: is_active
+          in: query
+          description: Filtrar por proyectos activos
+          schema:
+            type: boolean
+        - name: client_id
+          in: query
+          description: Filtrar por cliente (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 00000000-0000-0000-0000-000000000001
+        - name: app_user_id
+          in: query
+          description: Proyectos en los que participa el usuario (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 00000000-0000-0000-0000-000000000001
+        - name: page
+          in: query
+          description: Página de resultados
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Límites de resultados por página
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Listado de proyectos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      example: 00000000-0000-0000-0000-000000000001
+                    name:
+                      type: string
+                      example: Portal Cliente
+                    description:
+                      type: string
+                      nullable: true
+                      example: Rediseño del portal
+                    start_date:
+                      type: string
+                      format: date
+                      nullable: true
+                      example: "2025-01-01"
+                    is_active:
+                      type: boolean
+                      example: true
+                    client:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          example: 00000000-0000-0000-0000-000000000001
+                        name:
+                          type: string
+                          example: Acme Corp
+                    team_members:
+                      type: integer
+                      example: 3
+                  required: [ id, name, is_active, client, team_members ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+  /projects/{id}:
+    get:
+      tags: [ Projects ]
+      summary: Detalle completo del proyecto
+      operationId: getProjectById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del proyecto (UUID v7)
+          schema:
+            type: string
+            format: uuid
+          example: 00000000-0000-0000-0000-000000000003
+      responses:
+        "200":
+          description: Proyecto encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    example: 00000000-0000-0000-0000-000000000001
+                  name:
+                    type: string
+                    example: Portal Cliente
+                  description:
+                    type: string
+                    nullable: true
+                    example: Rediseño del portal
+                  start_date:
+                    type: string
+                    format: date
+                    nullable: true
+                    example: "2025-01-01"
+                  is_active:
+                    type: boolean
+                    example: true
+                  client:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        example: 00000000-0000-0000-0000-000000000001
+                      name:
+                        type: string
+                        example: Acme Corp
+                required: [ id, name, is_active, client ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+    put:
+      tags: [ Projects ]
+      summary: Actualizar datos del proyecto
+      operationId: updateProject
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del proyecto (UUID v7)
+          schema:
+            type: string
+            format: uuid
+          example: 00000000-0000-0000-0000-000000000003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 150
+                  example: Portal Cliente
+                description:
+                  type: string
+                  nullable: true
+                  example: Descripción actualizada
+                start_date:
+                  type: string
+                  format: date
+                  nullable: true
+                  example: "2025-01-01"
+                is_active:
+                  type: boolean
+                  example: true
+                client_id:
+                  type: string
+                  format: uuid
+                  example: 00000000-0000-0000-0000-000000000001
+              required: [ name, is_active, client_id ]
+      responses:
+        "200":
+          description: Proyecto actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - El nombre del proyecto es requerido
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: El cliente o proyecto especificado no existe
+                required: [ status, error, message ]
+
+    delete:
+      tags: [ Projects ]
+      summary: Borrar proyecto
+      operationId: deleteProject
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del proyecto (UUID v7)
+          schema:
+            type: string
+            format: uuid
+          example: 00000000-0000-0000-0000-000000000003
+      responses:
+        "204":
+          description: Proyecto borrado
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Proyecto no encontrado
+                required: [ status, error, message ]
+
+  /projects/{id}/users:
+    get:
+      tags: [ Projects ]
+      summary: Listado de usuarios del proyecto
+      operationId: getProjectUsers
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del proyecto (UUID v7)
+          schema:
+            type: string
+            format: uuid
+          example: 00000000-0000-0000-0000-000000000003
+        - name: page
+          in: query
+          description: Página de resultados
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Límites de resultados por página
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Usuarios del proyecto
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    app_user_id:
+                      type: string
+                      format: uuid
+                      example: 019d8b28-13a8-7e72-886a-d5147f9dc808
+                    name:
+                      type: string
+                      example: Ana
+                    surname:
+                      type: string
+                      example: García
+                    role:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          example: 00000000-0000-0000-0000-000000000001
+                        name:
+                          type: string
+                          example: DEVELOPER
+                      required: [ id, name ]
+                  required: [ app_user_id, name, surname, role ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+    put:
+      tags: [ Projects ]
+      summary: Gestionar usuarios del proyecto (upsert)
+      description: |
+        Reemplaza la lista completa de usuarios asignados al proyecto.
+        Usa el índice único `(project_id, app_user_id)` como base para el upsert en `project_user_id`.
+      operationId: updateProjectUsers
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del proyecto (UUID v7)
+          schema:
+            type: string
+            format: uuid
+          example: 00000000-0000-0000-0000-000000000003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                users:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      app_user_id:
+                        type: string
+                        format: uuid
+                        example: 019d8b28-13a8-7e72-886a-d5147f9dc808
+                      project_role_id:
+                        type: string
+                        format: uuid
+                        example: 019d8b28-13a8-7e72-886a-d5147f9dc808
+                    required: [ app_user_id, project_role_id ]
+              required: [ users ]
+      responses:
+        "200":
+          description: Usuarios del proyecto actualizados
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - Parámetros incorrectos
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+  /projects/{id}/developments:
+    get:
+      tags: [ Projects ]
+      summary: Listado de desarrollos del proyecto
+      operationId: getProjectDevelopments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del proyecto (UUID v7)
+          schema:
+            type: string
+            format: uuid
+          example: 00000000-0000-0000-0000-000000000003
+        - name: page
+          in: query
+          description: Página de resultados
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Límites de resultados por página
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Desarrollos del proyecto
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      example: 00000000-0000-0000-0000-000000000001
+                    name:
+                      type: string
+                      example: Frontend
+                    description:
+                      type: string
+                      example: SPA React
+                    technology:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          example: 019d8ad8-1382-72b4-83aa-7dfb1e6bd05f
+                        name:
+                          type: string
+                          example: React
+                      required: [ id, name ]
+                    url_repository:
+                      type: string
+                      format: uri
+                      example: "https://github.com/org/front"
+                    links:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                            example: 00000000-0000-0000-0000-000000000001
+                          environment:
+                            type: string
+                            enum: [ STAGE, PREPRODUCTION, PRODUCTION ]
+                            example: PRODUCTION
+                          url:
+                            type: string
+                            format: uri
+                            example: "https://app.client.com"
+                        required: [ id, environment, url ]
+                  required: [ id, name, description, technology, url_repository ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+    put:
+      tags: [ Projects ]
+      summary: Gestionar desarrollos del proyecto
+      description: |
+        Upsert de desarrollos y sus links por entorno.
+        `id: null` crea un nuevo desarrollo. `id: N` actualiza el existente.
+      operationId: updateProjectDevelopments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del proyecto (UUID v7)
+          schema:
+            type: string
+            format: uuid
+          example: 00000000-0000-0000-0000-000000000003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                developments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        nullable: true
+                        description: null para crear, ID numérico para actualizar
+                        example: null
+                      name:
+                        type: string
+                        maxLength: 100
+                        example: Frontend
+                      description:
+                        type: string
+                        maxLength: 150
+                        example: SPA React
+                      technology_id:
+                        type: string
+                        format: uuid
+                        example: 019d8ad8-1382-72b4-83aa-7dfb1e6bd05f
+                      url_repository:
+                        type: string
+                        format: uri
+                        example: "https://github.com/org/front"
+                      links:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            environment:
+                              type: string
+                              enum: [ STAGE, PREPRODUCTION, PRODUCTION ]
+                              example: PRODUCTION
+                            url:
+                              type: string
+                              format: uri
+                              example: "https://app.client.com"
+                          required: [ environment, url ]
+                    required: [ name, description, technology_id, url_repository ]
+              required: [ developments ]
+      responses:
+        "200":
+          description: Desarrollos actualizados
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - Parámetros incorrectos
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+  /projects/{id}/time-entries:
+    get:
+      tags: [ Projects ]
+      summary: Listado de imputaciones del proyecto
+      operationId: getProjectTimeEntries
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del proyecto (UUID v7)
+          schema:
+            type: string
+            format: uuid
+          example: 00000000-0000-0000-0000-000000000003
+        - name: page
+          in: query
+          description: Página de resultados
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Límites de resultados por página
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Imputaciones del proyecto
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      example: 00000000-0000-0000-0000-000000000001
+                    project_user_id:
+                      type: string
+                      format: uuid
+                      example: 00000000-0000-0000-0000-000000000001
+                    date:
+                      type: string
+                      format: date
+                      example: "2025-04-09"
+                    hour:
+                      type: number
+                      example: 4.5
+                    comment:
+                      type: string
+                      nullable: true
+                      example: Revisión de PRs
+                  required: [ id, project_user_id, date, hour ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+  /projects/{id}/time-entries/{entry_id}:
+    put:
+      tags: [ Projects ]
+      summary: Actualizar imputación de horas del proyecto
+      description: |
+        Actualiza una imputación existente. Valida que la imputación pertenezca
+        a un `project_user` del proyecto indicado.
+      operationId: updateProjectTimeEntry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del proyecto (UUID v7)
+          schema:
+            type: string
+            format: uuid
+          example: 00000000-0000-0000-0000-000000000003
+        - name: entry_id
+          in: path
+          required: true
+          description: ID de la imputación (time_entry, UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  format: date
+                  example: "2025-04-09"
+                hour:
+                  type: number
+                  format: decimal
+                  minimum: 0.25
+                  maximum: 24
+                  example: 6.0
+                comment:
+                  type: string
+                  maxLength: 50
+                  example: Actualización de tarea
+              required: [ date, hour ]
+      responses:
+        "200":
+          description: Imputación actualizada
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - Parámetros incorrectos
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+  # ================================================================
+  #  SECTORS
+  # ================================================================
+
+  /sectors:
+    post:
+      tags: [ Sectors ]
+      summary: Crear sector
+      operationId: createSector
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  example: 00000000-0000-0000-0000-000000000001
+                name:
+                  type: string
+                  maxLength: 100
+                  example: Tecnología
+              required: [ id, name ]
+      responses:
+        "201":
+          description: Sector creado
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - Parámetros incorrectos
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "409":
+          description: Conflicto - recurso ya existente (ej. email duplicado)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 409
+                  error:
+                    type: string
+                    example: Conflict
+                  message:
+                    type: string
+                    example: El recurso ya existe
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+
+    get:
+      tags: [ Sectors ]
+      summary: Catálogo de sectores
+      operationId: getSectors
+      parameters:
+        - name: page
+          in: query
+          description: Página de resultados
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Límites de resultados por página
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Listado de sectores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      example: 00000000-0000-0000-0000-000000000001
+                    name:
+                      type: string
+                      example: Tecnología
+                  required: [ id, name ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+
+  /sectors/{id}:
+    put:
+      tags: [ Sectors ]
+      summary: Actualizar sector
+      operationId: updateSector
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del sector (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 00000000-0000-0000-0000-000000000001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+                  example: Tecnología
+              required: [ name ]
+      responses:
+        "200":
+          description: Sector actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - Parámetros incorrectos
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+    delete:
+      tags: [ Sectors ]
+      summary: Borrar sector
+      operationId: deleteSector
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del sector (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 00000000-0000-0000-0000-000000000001
+      responses:
+        "204":
+          description: Sector borrado
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+  # ================================================================
+  #  TECHNOLOGIES
+  # ================================================================
+
+  /technologies:
+
+    post:
+      tags: [ Technologies ]
+      summary: Crear tecnología
+      operationId: createTechnology
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  example: 00000000-0000-0000-0000-000000000001
+                name:
+                  type: string
+                  example: React
+              required: [ id, name ]
+      responses:
+        "201":
+          description: Tecnología creada
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - Parámetros incorrectos
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+
+    get:
+      tags: [ Technologies ]
+      summary: Listado de tecnologías
+      operationId: getTechnologies
+      parameters:
+        - name: page
+          in: query
+          description: Página de resultados
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Límites de resultados por página
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Listado de tecnologías
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      example: 019d8ad8-1382-72b4-83aa-7dfb1e6bd05f
+                    name:
+                      type: string
+                      example: React
+                  required: [ id, name ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+
+  /technologies/{id}:
+    put:
+      tags: [ Technologies ]
+      summary: Actualizar tecnología
+      operationId: updateTechnology
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la tecnología (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 019d8ad8-1382-72b4-83aa-7dfb1e6bd05f
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: React
+              required: [ name ]
+      responses:
+        "200":
+          description: Tecnología actualizada
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Bad Request
+                  message:
+                    type: string
+                    example: Error de validación - Parámetros incorrectos
+                required: [ status, error, message ]
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+    delete:
+      tags: [ Technologies ]
+      summary: Borrar  tecnología
+      operationId: deleteTechnology
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la tecnología (UUID v7)
+          schema:
+            type: string
+            format: uuid
+            example: 019d8ad8-1382-72b4-83aa-7dfb1e6bd05f
+      responses:
+        "204":
+          description: Tecnología borrada
+        "401":
+          description: No autenticado - token ausente o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  error:
+                    type: string
+                    example: Unauthorized
+                  message:
+                    type: string
+                    example: Token inválido o ausente
+                required: [ status, error, message ]
+        "403":
+          description: Prohibido - permisos insuficientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Forbidden
+                  message:
+                    type: string
+                    example: No tienes permisos para acceder a este recurso
+                required: [ status, error, message ]
+        "404":
+          description: Recurso no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Not Found
+                  message:
+                    type: string
+                    example: Recurso no encontrado
+                required: [ status, error, message ]
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
