@@ -24,14 +24,6 @@ const router = createBrowserRouter([
             element: <HomePage />,
           },
           {
-            path: "/personal",
-            element: <div className="p-8 text-center text-muted-foreground">Listado de Personal próximamente...</div>,
-          },
-          {
-            path: "/clientes",
-            element: <div className="p-8 text-center text-muted-foreground">Listado de Clientes próximamente...</div>,
-          },
-          {
             path: "/proyectos",
             element: <ProjectsPage />,
           },
@@ -39,21 +31,24 @@ const router = createBrowserRouter([
             path: "/proyectos/:id",
             element: <ProjectDetailsPage />,
           },
-        ]
-      },
-      {
-        element: <AdminGuard />,
-        children: [
           {
-            element: <DashboardLayout />,
+            element: <AdminGuard />,
             children: [
+              {
+                path: "/personal",
+                element: <div className="p-8 text-center text-muted-foreground">Listado de Personal próximamente...</div>,
+              },
+              {
+                path: "/clientes",
+                element: <div className="p-8 text-center text-muted-foreground">Listado de Clientes próximamente...</div>,
+              },
               {
                 path: "/proyectos/nuevo",
                 element: <CreateProjectPage />,
               },
-            ]
+            ],
           },
-        ]
+        ],
       },
     ],
   },

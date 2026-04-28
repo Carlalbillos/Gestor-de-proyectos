@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from "react-router";
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
+import { isAdmin } from "@/infrastructure/ui/lib/roleChecker";
 
 export const AdminGuard = () => {
   const user = useAuthStore((state) => state.user);
@@ -8,7 +9,7 @@ export const AdminGuard = () => {
     return <Navigate to="/login" replace />;
   }
 
-  if (user.role !== "ROLE_ADMIN" && user.role !== "admin") {
+  if (!isAdmin(user)) {
     return <Navigate to="/" replace />;
   }
 

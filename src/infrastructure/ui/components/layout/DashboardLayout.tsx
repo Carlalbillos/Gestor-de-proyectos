@@ -18,6 +18,18 @@ export const DashboardLayout = () => {
   const activeClasses = "bg-muted text-foreground";
   const inactiveClasses = "text-muted-foreground hover:bg-muted";
 
+  const loggedAsAdmin = useAuthStore((state) => {
+    const role = state.user?.role;
+    if (!role) return false;
+    if (typeof role === "string") {
+      return role === "ROLE_ADMIN" || role === "admin";
+    }
+    return (role as any).name === "ROLE_ADMIN" || (role as any).name === "admin";
+  });
+
+  console.log(useAuthStore((state) => state.user));
+  console.log("Logged as admin:", loggedAsAdmin);
+
   return (
     <div className="min-h-screen flex bg-muted/20">
       {/* Sidebar */}
@@ -40,25 +52,41 @@ export const DashboardLayout = () => {
             Inicio
           </NavLink>
 
-          <NavLink
-            to="/personal"
-            className={({ isActive }) =>
-              `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`
-            }
-          >
-            <Users className="h-4 w-4" />
-            Personal
-          </NavLink>
+          {loggedAsAdmin && (
+            <NavLink
+              to="/proyectos/nuevo"
+              className={({ isActive }) =>
+                `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`
+              }
+            >
+              <Briefcase className="h-4 w-4" />
+              Nuevo Proyecto
+            </NavLink>
+          )}
 
-          <NavLink
-            to="/clientes"
-            className={({ isActive }) =>
-              `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`
-            }
-          >
-            <Building2 className="h-4 w-4" />
-            Clientes
-          </NavLink>
+          {loggedAsAdmin && (
+            <>
+              <NavLink
+                to="/personal"
+                className={({ isActive }) =>
+                  `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`
+                }
+              >
+                <Users className="h-4 w-4" />
+                Personal
+              </NavLink>
+
+              <NavLink
+                to="/clientes"
+                className={({ isActive }) =>
+                  `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`
+                }
+              >
+                <Building2 className="h-4 w-4" />
+                Clientes
+              </NavLink>
+            </>
+          )}
 
           <NavLink
             to="/proyectos"
