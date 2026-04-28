@@ -16,8 +16,10 @@ export const ProjectsPage = () => {
   const [searchInput, setSearchInput] = useState(search);
 
   useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
+    if (user) {
+      fetchProjects();
+    }
+  }, [fetchProjects, user]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
