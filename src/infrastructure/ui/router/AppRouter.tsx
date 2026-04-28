@@ -1,17 +1,26 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
-import { LoginPage } from "@/infrastructure/ui/pages/LoginPage";
-import { AuthGuard } from "@/infrastructure/ui/guards/AuthGuard";
-import { AdminGuard } from "@/infrastructure/ui/guards/AdminGuard";
+
 import { DashboardLayout } from "@/infrastructure/ui/components/layout/DashboardLayout";
+
+import { LoginPage } from "@/infrastructure/ui/pages/LoginPage";
 import { HomePage } from "@/infrastructure/ui/pages/HomePage";
 import { ProjectsPage } from "@/infrastructure/ui/pages/ProjectsPage";
 import { CreateProjectPage } from "@/infrastructure/ui/pages/CreateProjectPage";
 import { ProjectDetailsPage } from "@/infrastructure/ui/pages/ProjectDetailsPage";
 
+import { AuthGuard } from "@/infrastructure/ui/guards/AuthGuard";
+import { AdminGuard } from "@/infrastructure/ui/guards/AdminGuard";
+import { UnauthGuard } from "@/infrastructure/ui/guards/UnauthGuard";
+
 const router = createBrowserRouter([
-  {
-    path: "/login",
-    element: <LoginPage />,
+    {
+    element: <UnauthGuard />,
+    children: [
+      {
+        path: "/login",
+        element: <LoginPage />,
+      },
+    ],
   },
   {
     element: <AuthGuard />,

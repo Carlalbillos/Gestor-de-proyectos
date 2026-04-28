@@ -27,9 +27,6 @@ export const DashboardLayout = () => {
     return (role as any).name === "ROLE_ADMIN" || (role as any).name === "admin";
   });
 
-  console.log(useAuthStore((state) => state.user));
-  console.log("Logged as admin:", loggedAsAdmin);
-
   return (
     <div className="min-h-screen flex bg-muted/20">
       {/* Sidebar */}
@@ -51,18 +48,6 @@ export const DashboardLayout = () => {
             <Home className="h-4 w-4" />
             Inicio
           </NavLink>
-
-          {loggedAsAdmin && (
-            <NavLink
-              to="/proyectos/nuevo"
-              className={({ isActive }) =>
-                `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`
-              }
-            >
-              <Briefcase className="h-4 w-4" />
-              Nuevo Proyecto
-            </NavLink>
-          )}
 
           {loggedAsAdmin && (
             <>
