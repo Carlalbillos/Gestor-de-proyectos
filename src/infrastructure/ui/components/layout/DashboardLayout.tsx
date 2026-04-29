@@ -1,4 +1,5 @@
 import { Outlet, NavLink, useNavigate } from "react-router";
+
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
 import { Button } from "@/infrastructure/ui/components/ui/button";
 import { Home, Users, Building2, Briefcase } from "lucide-react";

@@ -1,7 +1,9 @@
 import { useEffect } from "react";
-import { useAuthStore } from "@/infrastructure/stores/auth.store";
 import { useNavigate } from "react-router";
+
+import { useAuthStore } from "@/infrastructure/stores/auth.store";
 import { useDashboardStore } from "@/infrastructure/stores/dashboard.store";
+
 import { Button } from "@/infrastructure/ui/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/infrastructure/ui/components/ui/card";
 import { Badge } from "@/infrastructure/ui/components/ui/badge";

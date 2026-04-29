@@ -12,7 +12,7 @@ import { Building2, Users, Search, FolderPlus, Loader2, Lock } from "lucide-reac
 export const ProjectsPage = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
-  const { projects, isLoading, error, search, fetchProjects, setSearch } = useProjectsListStore();
+  const { projects, isLoading, error, search, filterStatus, fetchProjects, setSearch, setFilterStatus } = useProjectsListStore();
   const [searchInput, setSearchInput] = useState(search);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export const ProjectsPage = () => {
 
       <Card className="border-muted shadow-sm">
         <CardContent className="p-4">
-          <form onSubmit={handleSearch} className="flex gap-2">
+          <form onSubmit={handleSearch} className="flex flex-col gap-2 md:flex-row md:items-end">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -67,10 +67,24 @@ export const ProjectsPage = () => {
                 onChange={(e) => setSearchInput(e.target.value)}
               />
             </div>
-            <Button type="submit" variant="secondary" disabled={isLoading} className="px-6">
-              Buscar
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <label className="sr-only" htmlFor="project-filter-status">Filtrar estado</label>
+              <select
+                id="project-filter-status"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value as "all" | "active" | "inactive")}
+                className="h-10 rounded-lg border border-input bg-background px-3 text-sm text-foreground"
+              >
+                <option value="all">Todos</option>
+                <option value="active">Activos</option>
+                <option value="inactive">No activos</option>
+              </select>
+              <Button type="submit" variant="secondary" disabled={isLoading} className="px-6 h-10">
+                Buscar
+              </Button>
+            </div>
           </form>
+
         </CardContent>
       </Card>
 
@@ -78,7 +92,7 @@ export const ProjectsPage = () => {
 
       {isLoading && projects.length === 0 ? (
         <div className="flex flex-col justify-center items-center py-24 space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary/60" />
+          <Loader2 className="h-10 w-8 animate-spin text-primary/60" />
           <p className="text-sm text-muted-foreground">Cargando proyectos...</p>
         </div>
       ) : projects.length === 0 && !error ? (

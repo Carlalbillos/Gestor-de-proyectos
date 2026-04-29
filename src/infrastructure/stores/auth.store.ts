@@ -1,10 +1,13 @@
 import { create } from "zustand";
-import { setAccessToken } from "@/infrastructure/adapters/AxiosHttpClient";
-import { LoginUseCase } from "@/application/services/LoginUseCase";
-import { ApiAuthRepository } from "@/infrastructure/adapters/ApiAuthRepository";
-import type { User } from "@/domain/entities/user.entity";
 import { persist } from "zustand/middleware";
 import { jwtDecode } from "jwt-decode";
+
+import type { User } from "@/domain/entities/user.entity";
+
+import { setAccessToken } from "@/infrastructure/adapters/AxiosHttpClient";
+import { ApiAuthRepository } from "@/infrastructure/adapters/ApiAuthRepository";
+
+import { LoginUseCase } from "@/application/services/LoginUseCase";
 
 const authRepository = new ApiAuthRepository();
 const loginUseCase = new LoginUseCase(authRepository);
