@@ -57,12 +57,12 @@ export const ProjectsPage = () => {
       <Card className="border-muted shadow-sm">
         <CardContent className="p-4">
           <form onSubmit={handleSearch} className="flex flex-col gap-2 md:flex-row md:items-end">
-            <div className="relative flex-1">
+            <div className="relative flex-1 w-4">
               <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Buscar proyectos por nombre..."
-                className="pl-9 bg-muted/30"
+                className="pl-9 bg-muted/30 h-10"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
               />
