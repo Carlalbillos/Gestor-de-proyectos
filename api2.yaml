@@ -1,0 +1,408 @@
+openapi: 3.0.0
+
+info:
+  title: 480 Project API
+  description: Documentación de la API del backend
+  version: 1.0.0
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Clients
+    description: Clients
+  - name: Project
+    description: Project
+  - name: Sector
+    description: Sector
+  - name: Technology
+    description: Technology
+  - name: Users
+    description: Users
+
+paths:
+
+  /480project/clients:
+    get:
+      tags: [Clients]
+      summary: Obtiene un listado de clientes.
+      description: Devuelve el listado de clientes. Solo los administradores pueden acceder a este endpoint.
+      operationId: get_get_clients
+      responses:
+        "200":
+          description: Listado de clientes obtenido correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                    name:
+                      type: string
+                    is_active:
+                      type: boolean
+                    sector:
+                      type: object
+                      nullable: true
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+        "401":
+          description: Token no proporcionado o inválido
+        "403":
+          description: Acceso denegado
+
+    post:
+      tags: [Clients]
+      summary: Crea un nuevo cliente
+      description: Permite crear un nuevo cliente asociado a un sector existente.
+      operationId: post_create_client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, name, sector_id]
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                sector_id:
+                  type: string
+                  format: uuid
+      responses:
+        "201":
+          description: Cliente creado correctamente
+        "400":
+          description: Datos de entrada inválidos
+        "401":
+          description: Token no proporcionado o inválido
+        "403":
+          description: Acceso denegado
+        "404":
+          description: Sector no encontrado
+        "409":
+          description: Conflicto al crear el cliente
+
+  /480project/clients/{id}:
+    get:
+      tags: [Clients]
+      summary: Obtiene información de un cliente concreto.
+      operationId: get_get_client_by_id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Cliente obtenido correctamente
+        "401":
+          description: Usuario no autenticado
+        "404":
+          description: Cliente no encontrado
+
+  /480project/clients/{id}/projects:
+    get:
+      tags: [Clients]
+      summary: Obtiene proyectos de un cliente.
+      operationId: get_get_client_projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Listado de proyectos del cliente obtenido correctamente
+        "401":
+          description: Usuario no autenticado
+        "404":
+          description: Cliente no encontrado
+
+  /480project/clients/{id}/contacts:
+    get:
+      tags: [Clients]
+      summary: Obtiene contactos de un cliente.
+      operationId: get_get_clients_contacts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Listado de contactos del cliente obtenido correctamente
+        "401":
+          description: Usuario no autenticado
+        "404":
+          description: Cliente no encontrado
+
+  /480project/projects:
+    get:
+      tags: [Project]
+      summary: Obtiene un listado de proyectos.
+      operationId: get_get_projects
+      responses:
+        "200":
+          description: Listado de proyectos obtenido correctamente
+        "401":
+          description: Token no proporcionado o inválido
+        "403":
+          description: Acceso denegado
+
+    post:
+      tags: [Project]
+      summary: Crea un nuevo proyecto
+      operationId: post_create_project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, name, description, start_date, client_id]
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                description:
+                  type: string
+                start_date:
+                  type: string
+                  format: date
+                client_id:
+                  type: string
+                  format: uuid
+      responses:
+        "201":
+          description: Proyecto creado correctamente
+        "400":
+          description: Datos de entrada inválidos
+        "401":
+          description: Token no proporcionado o inválido
+        "403":
+          description: Acceso denegado
+        "404":
+          description: Cliente no encontrado
+        "409":
+          description: Conflicto al crear el proyecto
+
+  /480project/projects/{id}:
+    get:
+      tags: [Project]
+      summary: Obtiene un proyecto por su identificador.
+      operationId: get_get_project_by_id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Proyecto obtenido correctamente
+        "401":
+          description: Usuario no autenticado
+        "404":
+          description: Proyecto no encontrado
+
+  /480project/projects/{id}/users:
+    get:
+      tags: [Project]
+      summary: Obtiene usuarios de un proyecto.
+      operationId: get_get_project_users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Listado de usuarios del proyecto obtenido correctamente
+        "401":
+          description: Usuario no autenticado
+        "404":
+          description: Proyecto no encontrado
+
+  /480project/projects/{id}/developments:
+    get:
+      tags: [Project]
+      summary: Obtiene los desarrollos de un proyecto.
+      operationId: get_get_project_developments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Listado de desarrollos obtenido correctamente
+        "401":
+          description: Usuario no autenticado
+        "404":
+          description: Proyecto no encontrado
+
+  /480project/sectors:
+    get:
+      tags: [Sector]
+      summary: Obtiene un listado de sectores.
+      operationId: get_get_sectors
+      responses:
+        "200":
+          description: Listado de sectores obtenido correctamente
+        "401":
+          description: Token no proporcionado o inválido
+        "403":
+          description: Acceso denegado
+
+    post:
+      tags: [Sector]
+      summary: Crea un nuevo sector
+      operationId: post_create_sector
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, name]
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+      responses:
+        "201":
+          description: Sector creado correctamente
+        "400":
+          description: Datos de entrada inválidos
+        "401":
+          description: Token no proporcionado o inválido
+        "403":
+          description: Acceso denegado
+        "409":
+          description: Conflicto al crear el sector
+
+  /480project/technologies:
+    get:
+      tags: [Technology]
+      summary: Obtiene un listado de tecnologías.
+      operationId: get_get_technologies
+      responses:
+        "200":
+          description: Listado de tecnologías obtenido correctamente
+        "401":
+          description: Token no proporcionado o inválido
+
+    post:
+      tags: [Technology]
+      summary: Crea una nueva tecnología
+      operationId: post_create_technology
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, name]
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+      responses:
+        "201":
+          description: Tecnología creada correctamente
+        "400":
+          description: Datos de entrada inválidos
+        "401":
+          description: Token no proporcionado o inválido
+        "403":
+          description: Acceso denegado
+        "409":
+          description: Conflicto al crear la tecnología
+
+  /480project/users:
+    get:
+      tags: [Users]
+      summary: Obtiene el listado de usuarios
+      operationId: get_get_users
+      responses:
+        "200":
+          description: Listado de usuarios obtenido correctamente
+        "401":
+          description: Token no proporcionado o inválido
+        "403":
+          description: Acceso denegado
+
+    post:
+      tags: [Users]
+      summary: Crea un nuevo usuario
+      operationId: post_create_user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, name, surname, email, password, role]
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                surname:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                role:
+                  type: string
+                  enum: [ROLE_ADMIN, ROLE_EMPLOYEE]
+      responses:
+        "201":
+          description: Usuario creado correctamente
+        "400":
+          description: Datos de entrada inválidos
+        "401":
+          description: Token no proporcionado o inválido
+        "403":
+          description: Acceso denegado
+        "409":
+          description: Conflicto al crear el usuario
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
