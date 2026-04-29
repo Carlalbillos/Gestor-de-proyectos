@@ -57,7 +57,7 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
   },
 
   fetchProjects: async () => {
-    const { page, filterStatus } = get();
+    const { page, filterStatus, search } = get();
     const user = useAuthStore.getState().user;
     const isAdminUser = isAdmin(user);
         
@@ -80,8 +80,12 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
           params.is_active = false;
         }
 
+        if (search.trim()) {
+          params.search = search.trim();
+        }
+
         const result = await service.getProjectsList(params);
-        const filteredProjects =
+        let filteredProjects =
           filterStatus === "all"
             ? result.data
             : result.data.filter((project) => {
@@ -89,18 +93,32 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
                 return projectIsActive === (filterStatus === "active");
               });
 
+        if (search.trim()) {
+          const term = search.trim().toLowerCase();
+          filteredProjects = filteredProjects.filter((project) =>
+            project.name.toLowerCase().includes(term)
+          );
+        }
+
         set({ projects: filteredProjects, total: filteredProjects.length, isLoading: false });
         return;
       }
 
       const userProjects = await userService.getUserProjects(user.id);
-      const filteredProjects =
+      let filteredProjects =
         filterStatus === "all"
           ? userProjects
           : userProjects.filter((project) => {
               const projectIsActive = Boolean(project.is_active);
               return projectIsActive === (filterStatus === "active");
             });
+
+      if (search.trim()) {
+        const term = search.trim().toLowerCase();
+        filteredProjects = filteredProjects.filter((project) =>
+          project.name.toLowerCase().includes(term)
+        );
+      }
 
       set({ projects: filteredProjects, total: filteredProjects.length, isLoading: false });
     } catch (error: any) {

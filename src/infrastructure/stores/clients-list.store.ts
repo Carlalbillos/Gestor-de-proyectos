@@ -15,8 +15,10 @@ interface ClientsListState {
   total: number;
   isLoading: boolean;
   error: string | null;
+  search: string;
   filterStatus: "all" | "active" | "inactive";
 
+  setSearch: (search: string) => void;
   setFilterStatus: (filterStatus: "all" | "active" | "inactive") => void;
   fetchClients: () => Promise<void>;
 }
@@ -26,7 +28,13 @@ export const useClientsListStore = create<ClientsListState>((set, get) => ({
   total: 0,
   isLoading: false,
   error: null,
+  search: "",
   filterStatus: "all",
+
+  setSearch: (search: string) => {
+    set({ search });
+    get().fetchClients();
+  },
 
   setFilterStatus: (filterStatus: "all" | "active" | "inactive") => {
     set({ filterStatus });
@@ -34,7 +42,7 @@ export const useClientsListStore = create<ClientsListState>((set, get) => ({
   },
 
   fetchClients: async () => {
-    const { filterStatus } = get();
+    const { filterStatus, search } = get();
     const user = useAuthStore.getState().user;
     const isAdminUser = isAdmin(user);
 
@@ -46,6 +54,13 @@ export const useClientsListStore = create<ClientsListState>((set, get) => ({
       }
 
       let allClients = await service.getClients();
+
+      if (search.trim()) {
+        const term = search.trim().toLowerCase();
+        allClients = allClients.filter((client) =>
+          client.name.toLowerCase().includes(term)
+        );
+      }
 
       if (filterStatus !== "all") {
         allClients = allClients.filter((client) => {

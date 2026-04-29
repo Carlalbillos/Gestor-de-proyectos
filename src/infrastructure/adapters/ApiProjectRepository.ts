@@ -20,6 +20,9 @@ export class ApiProjectRepository implements ProjectRepository {
     if (typeof params?.is_active === "boolean") {
       queryParams.is_active = params.is_active;
     }
+    if (params?.search) {
+      queryParams.search = params.search;
+    }
 
     const response = await api.get<Project[]>("projects", { params: queryParams });
 
