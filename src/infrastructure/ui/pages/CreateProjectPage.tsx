@@ -27,7 +27,6 @@ export const CreateProjectPage = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoadingClients, setIsLoadingClients] = useState(true);
 
-  // Validar que el usuario es admin
   useEffect(() => {
     if (user && !isAdmin(user)) {
       navigate("/");
