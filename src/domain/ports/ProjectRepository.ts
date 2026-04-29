@@ -6,7 +6,7 @@ export interface ProjectQueryParams {
   client_id?: string;
   app_user_id?: string;
   is_active?: boolean;
-  search?: string; // Nota: el backend actual no define search en el contrato
+  search?: string;
 }
 
 export interface PaginatedResult<T> {

@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 
 import { DashboardLayout } from "@/infrastructure/ui/components/layout/DashboardLayout";
 
@@ -12,8 +12,9 @@ import { AuthGuard } from "@/infrastructure/ui/guards/AuthGuard";
 import { AdminGuard } from "@/infrastructure/ui/guards/AdminGuard";
 import { UnauthGuard } from "@/infrastructure/ui/guards/UnauthGuard";
 
+
 const router = createBrowserRouter([
-    {
+  {
     element: <UnauthGuard />,
     children: [
       {
@@ -33,29 +34,37 @@ const router = createBrowserRouter([
             element: <HomePage />,
           },
           {
-            path: "/proyectos",
+            path: "proyectos",
             element: <ProjectsPage />,
           },
           {
-            path: "/proyectos/:id",
+            path: "proyectos/:id",
             element: <ProjectDetailsPage />,
           },
           {
             element: <AdminGuard />,
             children: [
               {
-                path: "/personal",
-                element: <div className="p-8 text-center text-muted-foreground">Listado de Personal próximamente...</div>,
+                path: "personal",
+                element: <div className="p-8 text-center text-muted-foreground">
+                  Listado de Personal próximamente...
+                </div>,
               },
               {
-                path: "/clientes",
-                element: <div className="p-8 text-center text-muted-foreground">Listado de Clientes próximamente...</div>,
+                path: "clientes",
+                element: <div className="p-8 text-center text-muted-foreground">
+                  Listado de Clientes próximamente...
+                </div>,
               },
               {
-                path: "/proyectos/nuevo",
+                path: "proyectos/nuevo",
                 element: <CreateProjectPage />,
               },
             ],
+          },
+          {
+            path: "*",
+            element: <Navigate replace to="/" />,
           },
         ],
       },
@@ -63,6 +72,4 @@ const router = createBrowserRouter([
   },
 ]);
 
-export const AppRouter = () => {
-  return <RouterProvider router={router} />;
-};
+export const AppRouter = () => <RouterProvider router={router} />;
