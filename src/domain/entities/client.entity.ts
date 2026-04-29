@@ -10,6 +10,16 @@ export interface Client {
     sector: ClientSector;
 }
 
+export interface ClientContact {
+    id: string;
+    full_name: string;
+    phone_number: string | null;
+    email: string;
+    is_active: boolean;
+    is_main: boolean;
+    note: string | null;
+}
+
 export interface CreateClientDTO {
     id: string;
     name: string;

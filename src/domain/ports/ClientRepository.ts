@@ -1,11 +1,12 @@
-import type { Client } from "../entities/client.entity";
+import type { Client, ClientContact } from "../entities/client.entity";
+import type { Project } from "../entities/project.entity";
 
-export type { Client };
+export type { Client, ClientContact, Project };
 
 export interface ClientRepository {
   getClients(): Promise<Client[]>;
   getClientById(id: string): Promise<Client | null>;
   createClient(client: Client): Promise<void>;
-  getClientsByProjectId(projectId: string): Promise<Client[]>;
-  getClientsByContactId(contactId: string): Promise<Client[]>;
+  getClientProjects(clientId: string): Promise<Project[]>;
+  getClientContacts(clientId: string): Promise<ClientContact[]>;
 }
