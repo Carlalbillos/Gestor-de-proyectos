@@ -1,14 +1,19 @@
 import { create } from "zustand";
+
 import { ProjectService } from "../../application/services/project.service";
 import { UserService } from "../../application/services/user.service";
+
 import { ApiProjectRepository } from "../adapters/ApiProjectRepository";
 import { ApiUserRepository } from "../adapters/ApiUserRepository";
+
 import { useAuthStore } from "./auth.store";
 import { isAdmin } from "../ui/lib/roleChecker";
+
 import type { Project } from "../../domain/entities/project.entity";
 
 const repository = new ApiProjectRepository();
 const service = new ProjectService(repository);
+
 const userRepository = new ApiUserRepository();
 const userService = new UserService(userRepository);
 
