@@ -1,4 +1,4 @@
-import type { SectorRepository } from "../../domain/ports/SectorRepository";
+import type { SectorRepository, CreateSectorDTO } from "../../domain/ports/SectorRepository";
 import type { Sector } from "../../domain/entities/sector.entity";
 
 export class SectorService {
@@ -10,5 +10,9 @@ export class SectorService {
 
   async getSectors(): Promise<Sector[]> {
     return await this.sectorRepository.getSectors();
+  }
+
+  async createSector(dto: CreateSectorDTO): Promise<void> {
+    return await this.sectorRepository.createSector(dto);
   }
 }
