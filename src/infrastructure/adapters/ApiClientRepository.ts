@@ -1,5 +1,5 @@
 import { api } from "./AxiosHttpClient";
-import type { ClientRepository, Client, ClientContact, Project } from "../../domain/ports/ClientRepository";
+import type { ClientRepository, Client, ClientContact, CreateClientDTO, Project } from "../../domain/ports/ClientRepository";
 
 export class ApiClientRepository implements ClientRepository {
   async getClients(): Promise<Client[]> {
@@ -19,11 +19,11 @@ export class ApiClientRepository implements ClientRepository {
     }
   }
 
-  async createClient(client: Client): Promise<void> {
+  async createClient(dto: CreateClientDTO): Promise<void> {
     await api.post("clients", {
-      id: client.id,
-      name: client.name,
-      sector_id: client.sector.id,
+      id: dto.id,
+      name: dto.name,
+      sector_id: dto.sector_id,
     });
   }
 

@@ -1,4 +1,4 @@
-import type { ClientRepository, Client, Project, ClientContact } from "../../domain/ports/ClientRepository";
+import type { ClientRepository, Client, CreateClientDTO, Project, ClientContact } from "../../domain/ports/ClientRepository";
 
 export class ClientService {
   private readonly clientRepository: ClientRepository;
@@ -15,8 +15,8 @@ export class ClientService {
     return await this.clientRepository.getClientById(id);
   }
 
-  async createClient(client: Client): Promise<void> {
-    return await this.clientRepository.createClient(client);
+  async createClient(dto: CreateClientDTO): Promise<void> {
+    return await this.clientRepository.createClient(dto);
   }
 
   async getClientProjects(clientId: string): Promise<Project[]> {
