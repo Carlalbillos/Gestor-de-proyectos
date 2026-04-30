@@ -5,7 +5,7 @@ export const createClientSchema = z.object({
     .string()
     .trim()
     .min(1, "El nombre es obligatorio")
-    .max(150, "El nombre no puede superar los 150 caracteres"),
+    .max(120, "El nombre no puede superar los 120 caracteres"),
 
   sector_id: z
     .string()
