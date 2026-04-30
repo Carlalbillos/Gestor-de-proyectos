@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/inf
 import { Badge } from "@/infrastructure/ui/components/ui/badge";
 import { Button } from "@/infrastructure/ui/components/ui/button";
 import { Input } from "@/infrastructure/ui/components/ui/input";
-import { Building2, Briefcase, UserPlus, Loader2, Search } from "lucide-react";
+import { Building2, Briefcase, UserPlus, Loader2, Search, Tags } from "lucide-react";
 
 export const ClientsPage = () => {
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ export const ClientsPage = () => {
   }, [fetchClients, user]);
 
   return (
-    <div className="space-y-6 animate-in fade-in-50 duration-500">
+    <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Clientes</h1>
@@ -34,10 +34,16 @@ export const ClientsPage = () => {
             Gestiona los clientes de tu organización
           </p>
         </div>
-        <Button className="w-full sm:w-auto shadow-sm" onClick={() => navigate("/clientes/nuevo")}>
-          <UserPlus className="mr-2 h-4 w-4" />
-          Nuevo Cliente
-        </Button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button variant="outline" className="flex-1 sm:flex-none shadow-sm" onClick={() => navigate("/sectores/nuevo")}>
+            <Tags className="mr-2 h-4 w-4" />
+            Nuevo Sector
+          </Button>
+          <Button className="flex-1 sm:flex-none shadow-sm" onClick={() => navigate("/clientes/nuevo")}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Nuevo Cliente
+          </Button>
+        </div>
       </div>
 
       <Card className="border-muted shadow-sm">
