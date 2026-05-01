@@ -3,41 +3,38 @@ import { persist } from "zustand/middleware";
 import { jwtDecode } from "jwt-decode";
 
 import type { User } from "@/domain/entities/user.entity";
-
 import { setAccessToken } from "@/infrastructure/adapters/AxiosHttpClient";
 import { ApiAuthRepository } from "@/infrastructure/adapters/ApiAuthRepository";
-
 import { LoginUseCase } from "@/application/services/LoginUseCase";
 
-const authRepository = new ApiAuthRepository();
-const loginUseCase = new LoginUseCase(authRepository);
+const loginUseCase = new LoginUseCase(new ApiAuthRepository());
 
 interface AuthState {
   user: User | null;
   token: string | null;
   isLoading: boolean;
+  isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  checkToken: () => boolean;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       token: null,
       isLoading: false,
+      isAuthenticated: false,
 
       login: async (email, password) => {
         set({ isLoading: true });
-
         try {
           const result = await loginUseCase.execute(email, password);
-
           setAccessToken(result.accessToken);
           set({
             user: result.user,
             token: result.accessToken,
+            isAuthenticated: true,
             isLoading: false,
           });
         } catch (error) {
@@ -48,48 +45,25 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         setAccessToken(null);
-        set({
-          user: null,
-          token: null,
-        });
+        set({ user: null, token: null, isAuthenticated: false });
       },
-
-      checkToken: () => {
-        const { token, logout } = get();
-        if (!token) return false;
-
-        try {
-          const decoded = jwtDecode(token);
-          // Si el token ha expirado, cerramos la sesión
-          if (decoded.exp && decoded.exp * 1000 < Date.now()) {
-            logout();
-            return false;
-          }
-          return true;
-        } catch {
-          logout();
-          return false;
-        }
-      }
     }),
     {
       name: "auth-storage",
+      partialize: (state) => ({ user: state.user, token: state.token }),
       onRehydrateStorage: () => (state) => {
-        if (state?.token) {
-          try {
-            const decoded = jwtDecode(state.token);
-            if (decoded.exp && decoded.exp * 1000 < Date.now()) {
-              state.token = null;
-              state.user = null;
-              setAccessToken(null);
-            } else {
-              setAccessToken(state.token);
-            }
-          } catch {
-            state.token = null;
-            state.user = null;
-            setAccessToken(null);
+        if (!state?.token) return;
+
+        try {
+          const { exp } = jwtDecode<{ exp?: number }>(state.token);
+          if (exp && exp * 1000 < Date.now()) {
+            state.logout();
+          } else {
+            setAccessToken(state.token);
+            state.isAuthenticated = true;
           }
+        } catch {
+          state.logout();
         }
       },
     }

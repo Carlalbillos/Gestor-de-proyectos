@@ -39,7 +39,7 @@ export const HomePage = () => {
   const roleName = profile.role === "ROLE_ADMIN" ? "Administrador" : "Usuario";
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="max-w-6xl mx-auto space-y-8">
       {/* Cabecera de Bienvenida */}
       <div className="space-y-1">
         <h1 className="text-3xl font-bold tracking-tight">¡Hola, {profile.name}!</h1>
@@ -52,7 +52,7 @@ export const HomePage = () => {
 
         {/* Columna Izquierda: Perfil del Usuario */}
         <div className="md:col-span-1 space-y-6">
-          <Card className="border-t-4 border-t-primary shadow-sm hover:shadow-md transition-shadow">
+          <Card className="">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl">Tu Perfil</CardTitle>
             </CardHeader>

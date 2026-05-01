@@ -7,6 +7,9 @@ import { HomePage } from "@/infrastructure/ui/pages/HomePage";
 import { ProjectsPage } from "@/infrastructure/ui/pages/ProjectsPage";
 import { CreateProjectPage } from "@/infrastructure/ui/pages/CreateProjectPage";
 import { ProjectDetailsPage } from "@/infrastructure/ui/pages/ProjectDetailsPage";
+import { ClientsPage } from "@/infrastructure/ui/pages/ClientsPage";
+import { CreateClientPage } from "@/infrastructure/ui/pages/CreateClientPage";
+import { CreateSectorPage } from "@/infrastructure/ui/pages/CreateSectorPage";
 
 import { AuthGuard } from "@/infrastructure/ui/guards/AuthGuard";
 import { AdminGuard } from "@/infrastructure/ui/guards/AdminGuard";
@@ -52,9 +55,15 @@ const router = createBrowserRouter([
               },
               {
                 path: "clientes",
-                element: <div className="p-8 text-center text-muted-foreground">
-                  Listado de Clientes próximamente...
-                </div>,
+                element: <ClientsPage />,
+              },
+              {
+                path: "clientes/nuevo",
+                element: <CreateClientPage />,
+              },
+              {
+                path: "sectores/nuevo",
+                element: <CreateSectorPage />,
               },
               {
                 path: "proyectos/nuevo",

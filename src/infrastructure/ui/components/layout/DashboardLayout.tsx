@@ -2,10 +2,11 @@ import { Outlet, NavLink, useNavigate } from "react-router";
 
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
 import { Button } from "@/infrastructure/ui/components/ui/button";
+import { isAdmin } from "@/infrastructure/ui/lib/roleChecker";
 import { Home, Users, Building2, Briefcase } from "lucide-react";
 
 export const DashboardLayout = () => {
-  const { logout } = useAuthStore();
+  const { logout, user } = useAuthStore();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -19,14 +20,7 @@ export const DashboardLayout = () => {
   const activeClasses = "bg-muted text-foreground";
   const inactiveClasses = "text-muted-foreground hover:bg-muted";
 
-  const loggedAsAdmin = useAuthStore((state) => {
-    const role = state.user?.role;
-    if (!role) return false;
-    if (typeof role === "string") {
-      return role === "ROLE_ADMIN" || role === "admin";
-    }
-    return (role as any).name === "ROLE_ADMIN" || (role as any).name === "admin";
-  });
+  const loggedAsAdmin = isAdmin(user);
 
   return (
     <div className="min-h-screen flex bg-muted/20">

@@ -37,12 +37,28 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
+    "prettier": "^3.8.3",
     "sass-embedded": "^1.99.0",
     "typescript": "~6.0.2",
-    "typescript-eslint": "^8.58.2",
+    "typescript-eslint": "^8.59.1",
     "vite": "^8.0.9"
-  }
+  },
+  "description": "",
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CarlosAlbillos/480-project-react-frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CarlosAlbillos/480-project-react-frontend/issues"
+  },
+  "homepage": "https://github.com/CarlosAlbillos/480-project-react-frontend#readme"
 }
