@@ -14,6 +14,9 @@ import { CreateSectorPage } from "@/infrastructure/ui/pages/CreateSectorPage";
 import { AuthGuard } from "@/infrastructure/ui/guards/AuthGuard";
 import { AdminGuard } from "@/infrastructure/ui/guards/AdminGuard";
 import { UnauthGuard } from "@/infrastructure/ui/guards/UnauthGuard";
+import { UsersPage } from "../pages/UsersPage";
+import { CreateUserPage } from "@/infrastructure/ui/pages/CreateUserPage";
+import { UserDetailsPage } from "@/infrastructure/ui/pages/UserDetailsPage";
 
 
 const router = createBrowserRouter([
@@ -49,9 +52,15 @@ const router = createBrowserRouter([
             children: [
               {
                 path: "personal",
-                element: <div className="p-8 text-center text-muted-foreground">
-                  Listado de Personal próximamente...
-                </div>,
+                element: <UsersPage />,
+              },
+              {
+                path: "personal/nuevo",
+                element: <CreateUserPage />,
+              },
+              {
+                path: "personal/:id",
+                element: <UserDetailsPage />,
               },
               {
                 path: "clientes",
