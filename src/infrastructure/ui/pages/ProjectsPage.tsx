@@ -12,7 +12,7 @@ import { Building2, Users, Search, FolderPlus, Loader2, Lock } from "lucide-reac
 export const ProjectsPage = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
-  const { projects, isLoading, error, search, filterStatus, fetchProjects, setSearch, setFilterStatus } = useProjectsListStore();
+  const { items: projects, isLoading, error, search, filterStatus, fetchProjects, setSearch, setFilterStatus } = useProjectsListStore();
   const [searchInput, setSearchInput] = useState(search);
 
   useEffect(() => {

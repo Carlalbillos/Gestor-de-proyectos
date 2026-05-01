@@ -12,7 +12,7 @@ import { isAdmin } from "@/infrastructure/ui/lib/roleChecker";
 export const UsersPage = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
-  const { users, isLoading, error, search, filterStatus, filterRole, fetchUsers, setSearch, setFilterStatus, setFilterRole } = useUsersListStore();
+  const { items: users, isLoading, error, search, filterStatus, filterRole, fetchUsers, setSearch, setFilterStatus, setFilterRole } = useUsersListStore();
   const [searchInput, setSearchInput] = useState(search);
 
   const handleSearch = (e: React.FormEvent) => {

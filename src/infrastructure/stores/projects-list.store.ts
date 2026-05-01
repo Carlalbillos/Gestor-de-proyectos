@@ -10,6 +10,8 @@ import { useAuthStore } from "./auth.store";
 import { isAdmin } from "../ui/lib/roleChecker";
 
 import type { Project } from "../../domain/entities/project.entity";
+import { createBaseListSlice, handleListFetch } from "./factories/list-factory";
+import type { BaseListState } from "./factories/list-factory";
 
 const repository = new ApiProjectRepository();
 const service = new ProjectService(repository);
@@ -17,112 +19,89 @@ const service = new ProjectService(repository);
 const userRepository = new ApiUserRepository();
 const userService = new UserService(userRepository);
 
-interface ProjectsListState {
-  projects: Project[];
-  total: number;
-  isLoading: boolean;
-  error: string | null;
+interface ProjectsListState extends BaseListState<Project> {
   page: number;
-  search: string;
-  filterStatus: "all" | "active" | "inactive";
-
   setPage: (page: number) => void;
-  setSearch: (search: string) => void;
-  setFilterStatus: (filterStatus: "all" | "active" | "inactive") => void;
   fetchProjects: () => Promise<void>;
 }
 
 export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
-  projects: [],
-  total: 0,
-  isLoading: false,
-  error: null,
+  ...createBaseListSlice<Project, ProjectsListState>(set, get, "fetchProjects"),
   page: 1,
-  filterStatus: "all",
-  search: "",
 
   setPage: (page: number) => {
     set({ page });
     get().fetchProjects();
   },
 
+  // Override base methods to reset pagination
   setSearch: (search: string) => {
     set({ search, page: 1 });
     get().fetchProjects();
   },
 
-  setFilterStatus: (filterStatus: "all" | "active" | "inactive") => {
+  setFilterStatus: (filterStatus) => {
     set({ filterStatus, page: 1 });
     get().fetchProjects();
   },
 
   fetchProjects: async () => {
-    const { page, filterStatus, search } = get();
-    const user = useAuthStore.getState().user;
-    const isAdminUser = isAdmin(user);
-        
-    set({ isLoading: true, error: null });
-    try {
-      if (!user) {
-        set({ projects: [], total: 0, isLoading: false });
-        return;
-      }
+    // We pass requireAdmin: false because employees can see their assigned projects
+    await handleListFetch<Project, ProjectsListState>(
+      set,
+      get,
+      async () => {
+        const state = get();
+        const user = useAuthStore.getState().user;
+        const isAdminUser = isAdmin(user);
 
-      if (isAdminUser) {
-        const params: any = {
-          page,
-          limit: 20,
-        };
+        if (!user) return [];
 
-        if (filterStatus === "active") {
-          params.is_active = true;
-        } else if (filterStatus === "inactive") {
-          params.is_active = false;
+        if (isAdminUser) {
+          const params: any = {
+            page: state.page,
+            limit: 20,
+          };
+
+          if (state.filterStatus === "active") {
+            params.is_active = true;
+          } else if (state.filterStatus === "inactive") {
+            params.is_active = false;
+          }
+
+          if (state.search.trim()) {
+            params.search = state.search.trim();
+          }
+
+          const result = await service.getProjectsList(params);
+          return result.data;
         }
 
-        if (search.trim()) {
-          params.search = search.trim();
-        }
+        // Non-admin flow: fetch only assigned projects
+        return await userService.getUserProjects(user.id);
+      },
+      (projects, state) => {
+        let filteredProjects = projects;
 
-        const result = await service.getProjectsList(params);
-        let filteredProjects =
-          filterStatus === "all"
-            ? result.data
-            : result.data.filter((project) => {
-                const projectIsActive = Boolean(project.is_active);
-                return projectIsActive === (filterStatus === "active");
-              });
-
-        if (search.trim()) {
-          const term = search.trim().toLowerCase();
+        // Apply client-side search only (admin already filtered in backend, but we need this for employee flow)
+        if (state.search.trim()) {
+          const term = state.search.trim().toLowerCase();
           filteredProjects = filteredProjects.filter((project) =>
             project.name.toLowerCase().includes(term)
           );
         }
 
-        set({ projects: filteredProjects, total: filteredProjects.length, isLoading: false });
-        return;
-      }
+        // Apply client-side status filter (admin already filtered in backend, but we need this for employee flow)
+        if (state.filterStatus !== "all") {
+          filteredProjects = filteredProjects.filter((project) => {
+            const projectIsActive = Boolean(project.is_active);
+            return projectIsActive === (state.filterStatus === "active");
+          });
+        }
 
-      const userProjects = await userService.getUserProjects(user.id);
-      let filteredProjects =
-        filterStatus === "all"
-          ? userProjects
-          : userProjects.filter((project) => {
-              const projectIsActive = Boolean(project.is_active);
-              return projectIsActive === (filterStatus === "active");
-            });
-
-      if (search.trim()) {
-        const term = search.trim().toLowerCase();
-        filteredProjects = filteredProjects.filter((project) =>
-          project.name.toLowerCase().includes(term)
-        );
-      }
-
-      set({ projects: filteredProjects, total: filteredProjects.length, isLoading: false });
-    } catch (error: any) {
-      set({ isLoading: false, error: error.message || "Error al cargar la lista de proyectos" });
-    }
-  }
+        return filteredProjects;
+      },
+      false // requireAdmin
+    );
+  },
 }));

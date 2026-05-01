@@ -11,7 +11,7 @@ import { Building2, Briefcase, UserPlus, Loader2, Search, Tags } from "lucide-re
 export const ClientsPage = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
-  const { clients, isLoading, error, search, filterStatus, fetchClients, setSearch, setFilterStatus } = useClientsListStore();
+  const { items: clients, isLoading, error, search, filterStatus, fetchClients, setSearch, setFilterStatus } = useClientsListStore();
   const [searchInput, setSearchInput] = useState(search);
 
   const handleSearch = (e: React.FormEvent) => {
