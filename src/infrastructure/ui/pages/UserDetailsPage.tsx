@@ -15,6 +15,7 @@ import {
   Clock,
   Calendar,
 } from "lucide-react";
+import { isAdmin } from "@/infrastructure/ui/lib/roleChecker";
 
 export const UserDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -96,7 +97,7 @@ export const UserDetailsPage = () => {
           </Badge>
           <Badge variant="outline" className="bg-background">
             <Shield className="mr-1 h-3 w-3" />
-            {user.role}
+            {isAdmin(user) ? "Administrador" : "Empleado"}
           </Badge>
         </div>
       </div>

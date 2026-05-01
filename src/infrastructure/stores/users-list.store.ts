@@ -80,7 +80,7 @@ export const useUsersListStore = create<UsersListState>((set, get) => ({
 
       if (filterRole !== "all") {
         allUsers = allUsers.filter((u) =>
-          u.role.toLowerCase() === filterRole
+          filterRole === "admin" ? isAdmin(u) : !isAdmin(u)
         );
       }
 

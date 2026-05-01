@@ -7,6 +7,7 @@ import { Badge } from "@/infrastructure/ui/components/ui/badge";
 import { Button } from "@/infrastructure/ui/components/ui/button";
 import { Input } from "@/infrastructure/ui/components/ui/input";
 import { Users, UserPlus, Loader2, Search, Mail, Shield } from "lucide-react";
+import { isAdmin } from "@/infrastructure/ui/lib/roleChecker";
 
 export const UsersPage = () => {
   const navigate = useNavigate();
@@ -127,7 +128,7 @@ export const UsersPage = () => {
                   </Badge>
                   <Badge variant="outline" className="text-[10px] h-5 bg-background">
                     <Shield className="mr-1 h-3 w-3" />
-                    {u.role}
+                    {isAdmin(u) ? "Administrador" : "Empleado"}
                   </Badge>
                 </div>
                 <CardTitle className="group-hover:text-primary transition-colors line-clamp-1" title={`${u.name} ${u.surname}`}>
