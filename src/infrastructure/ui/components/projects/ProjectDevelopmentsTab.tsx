@@ -11,11 +11,7 @@ interface ProjectDevelopmentsTabProps {
 export const ProjectDevelopmentsTab = ({ developments }: ProjectDevelopmentsTabProps) => {
   return (
     <>
-      <div className="flex items-center gap-2 mb-4">
-        <Code2 className="h-5 w-5 text-primary" />
-        <h2 className="text-2xl font-bold tracking-tight">Desarrollos y Entornos</h2>
-      </div>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-1">
         {developments.length > 0 ? (
           developments.map((dev) => (
             <Card key={dev.id} className="border-muted/60 shadow-sm overflow-hidden flex flex-col h-full">

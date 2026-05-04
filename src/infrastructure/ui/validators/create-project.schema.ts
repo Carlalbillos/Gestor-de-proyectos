@@ -5,7 +5,7 @@ export const createProjectSchema = z.object({
     .string()
     .trim()
     .min(1, "El nombre es obligatorio")
-    .max(150, "El nombre no puede superar los 100 caracteres"),
+    .max(150, "El nombre no puede superar los 150 caracteres"),
 
   description: z
     .string()

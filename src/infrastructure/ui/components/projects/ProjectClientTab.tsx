@@ -1,13 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/infrastructure/ui/components/ui/card";
-import { Briefcase } from "lucide-react";
 import type { ProjectClient } from "@/domain/entities/project.entity";
 import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface ProjectClientTabProps {
   client?: ProjectClient | null;
 }
 
 export const ProjectClientTab = ({ client }: ProjectClientTabProps) => {
+  const navigate = useNavigate();
+
   return (
     <>
       {client ? (
@@ -20,10 +22,8 @@ export const ProjectClientTab = ({ client }: ProjectClientTabProps) => {
                 </p>
                 <p className="text-lg font-bold">{client.name}</p>
               </div>
-              <Button variant="outline" size="sm" asChild className="h-8">
-                <a href={`/clientes/${client.id}`} target="_blank" rel="noopener noreferrer">
-                  Ficha de cliente
-                </a>
+              <Button variant="outline" size="sm" className="h-8" onClick={() => navigate(`/clientes/${client.id}`)}>
+                Ficha de cliente
               </Button>
             </CardContent>
           </Card>
@@ -33,15 +33,7 @@ export const ProjectClientTab = ({ client }: ProjectClientTabProps) => {
               <CardTitle>Contactos</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center justify-center py-2 px-2 text-center border rounded-md border-dashed bg-muted/10">
-                <Briefcase
-                  aria-hidden
-                  className="h-8 w-8 text-muted-foreground/50 mb-2"
-                />
-                <p className="text-sm text-muted-foreground">
-                  El listado de contactos se implementará más adelante.
-                </p>
-              </div>
+
             </CardContent>
           </Card>
         </div>

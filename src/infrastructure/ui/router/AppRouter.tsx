@@ -9,6 +9,7 @@ import { CreateProjectPage } from "@/infrastructure/ui/pages/CreateProjectPage";
 import { ProjectDetailsPage } from "@/infrastructure/ui/pages/ProjectDetailsPage";
 import { ClientsPage } from "@/infrastructure/ui/pages/ClientsPage";
 import { CreateClientPage } from "@/infrastructure/ui/pages/CreateClientPage";
+import { ClientsDetailsPage } from "@/infrastructure/ui/pages/ClientsDetailsPage";
 import { CreateSectorPage } from "@/infrastructure/ui/pages/CreateSectorPage";
 
 import { AuthGuard } from "@/infrastructure/ui/guards/AuthGuard";
@@ -69,6 +70,10 @@ const router = createBrowserRouter([
               {
                 path: "clientes/nuevo",
                 element: <CreateClientPage />,
+              },
+              {
+                path: "clientes/:id",
+                element: <ClientsDetailsPage />,
               },
               {
                 path: "sectores/nuevo",

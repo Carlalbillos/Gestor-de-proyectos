@@ -17,7 +17,8 @@ export const createUserSchema = z.object({
     .string()
     .trim()
     .min(1, "El email es obligatorio")
-    .email("El email no tiene un formato válido"),
+    .email("El email no tiene un formato válido")
+    .max(150, "El email no puede superar los 150 caracteres"),
 
   password: z
     .string()
