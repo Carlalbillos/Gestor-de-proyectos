@@ -71,8 +71,7 @@ export async function handleListFetch<T, StoreState extends BaseListState<T>>(
     }
 
     let allItems = await fetchData();
-    
-    // Apply client-side filters
+
     allItems = filterData(allItems, get() as StoreState);
 
     set({ items: allItems, total: allItems.length, isLoading: false });

@@ -51,9 +51,9 @@ export const LoginPage = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">
-            480:DEV PROJECTS
+            <img src="/logo480-t.png" alt="Logo 480:DEV PROJECTS" />
           </CardTitle>
-          <CardDescription>Inicia sesión en tu cuenta</CardDescription>
+          <CardDescription className="text-lg font-bold mt-5">Gestor de proyectos 480:DEV</CardDescription>
         </CardHeader>
 
         <CardContent>

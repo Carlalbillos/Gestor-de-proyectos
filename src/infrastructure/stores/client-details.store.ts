@@ -44,7 +44,6 @@ export const useClientDetailsStore = create<ClientDetailsState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       await clientService.updateClient(id, dto);
-      // Refetch to get updated data
       const client = await clientService.getClientById(id);
       set({ client, isLoading: false });
     } catch (error: any) {

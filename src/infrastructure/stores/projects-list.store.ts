@@ -34,7 +34,6 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
     get().fetchProjects();
   },
 
-  // Override base methods to reset pagination
   setSearch: (search: string) => {
     set({ search, page: 1 });
     get().fetchProjects();
@@ -46,7 +45,6 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
   },
 
   fetchProjects: async () => {
-    // We pass requireAdmin: false because employees can see their assigned projects
     await handleListFetch<Project, ProjectsListState>(
       set,
       get,
@@ -77,13 +75,11 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
           return result.data;
         }
 
-        // Non-admin flow: fetch only assigned projects
         return await userService.getUserProjects(user.id);
       },
       (projects, state) => {
         let filteredProjects = projects;
 
-        // Apply client-side search only (admin already filtered in backend, but we need this for employee flow)
         if (state.search.trim()) {
           const term = state.search.trim().toLowerCase();
           filteredProjects = filteredProjects.filter((project) =>
@@ -91,7 +87,6 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
           );
         }
 
-        // Apply client-side status filter (admin already filtered in backend, but we need this for employee flow)
         if (state.filterStatus !== "all") {
           filteredProjects = filteredProjects.filter((project) => {
             const projectIsActive = Boolean(project.is_active);
@@ -101,7 +96,7 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
 
         return filteredProjects;
       },
-      false // requireAdmin
+      false
     );
   },
 }));

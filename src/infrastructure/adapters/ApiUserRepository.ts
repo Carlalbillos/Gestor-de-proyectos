@@ -1,6 +1,6 @@
 import { api } from "./AxiosHttpClient";
 import type { UserRepository } from "../../domain/ports/UserRepository";
-import type { User, CreateUserDTO, UpdateUserDTO, TimeEntriesResponse } from "../../domain/entities/user.entity";
+import type { User, CreateUserDTO, UpdateUserDTO, TimeEntriesResponse, ChangePasswordDTO, AdminChangePasswordDTO } from "../../domain/entities/user.entity";
 import type { Project } from "../../domain/entities/project.entity";
 
 export class ApiUserRepository implements UserRepository {
@@ -20,6 +20,14 @@ export class ApiUserRepository implements UserRepository {
 
   async updateUser(id: string, dto: UpdateUserDTO): Promise<void> {
     await api.put(`users/${id}`, dto);
+  }
+
+  async changePassword(id: string, dto: ChangePasswordDTO): Promise<void> {
+    await api.patch(`users/${id}/password-change`, dto);
+  }
+
+  async adminChangePassword(id: string, dto: AdminChangePasswordDTO): Promise<void> {
+    await api.patch(`users/${id}/admin-password`, dto);
   }
 
   async getUserProjects(id: string): Promise<Project[]> {

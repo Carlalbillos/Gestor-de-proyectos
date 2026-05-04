@@ -1,5 +1,5 @@
 import type { UserRepository } from "../../domain/ports/UserRepository";
-import type { User, CreateUserDTO, UpdateUserDTO, TimeEntriesResponse } from "../../domain/entities/user.entity";
+import type { User, CreateUserDTO, UpdateUserDTO, TimeEntriesResponse, ChangePasswordDTO, AdminChangePasswordDTO } from "../../domain/entities/user.entity";
 import type { Project } from "../../domain/entities/project.entity";
 
 export class UserService {
@@ -23,6 +23,14 @@ export class UserService {
 
   async updateUser(id: string, dto: UpdateUserDTO): Promise<void> {
     return await this.userRepository.updateUser(id, dto);
+  }
+
+  async changePassword(id: string, dto: ChangePasswordDTO): Promise<void> {
+    return await this.userRepository.changePassword(id, dto);
+  }
+
+  async adminChangePassword(id: string, dto: AdminChangePasswordDTO): Promise<void> {
+    return await this.userRepository.adminChangePassword(id, dto);
   }
 
   async getUserProjects(id: string): Promise<Project[]> {
