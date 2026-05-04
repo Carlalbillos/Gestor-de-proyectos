@@ -12,12 +12,12 @@ import { ClientService } from "@/application/services/client.service";
 import { ApiSectorRepository } from "@/infrastructure/adapters/ApiSectorRepository";
 import { SectorService } from "@/application/services/sector.service";
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
-import { isAdmin } from "@/infrastructure/ui/lib/roleChecker";
 import { createClientSchema } from "@/infrastructure/ui/validators/create-client.schema";
 import type { CreateClientFormData } from "@/infrastructure/ui/validators/create-client.schema";
 import type { Sector } from "@/domain/entities/sector.entity";
 
 import { uuidv7 } from "@/infrastructure/ui/lib/uuid";
+import { isAxiosError } from "axios";
 
 const clientRepository = new ApiClientRepository();
 const clientService = new ClientService(clientRepository);
@@ -26,7 +26,6 @@ const sectorService = new SectorService(sectorRepository);
 
 export const CreateClientPage = () => {
   const navigate = useNavigate();
-  const user = useAuthStore((state) => state.user);
   const [isLoading, setIsLoading] = useState(false);
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [isLoadingSectors, setIsLoadingSectors] = useState(true);
@@ -43,12 +42,6 @@ export const CreateClientPage = () => {
       sector_id: "",
     },
   });
-
-  useEffect(() => {
-    if (user && !isAdmin(user)) {
-      navigate("/");
-    }
-  }, [user, navigate]);
 
   useEffect(() => {
     const fetchSectors = async () => {
@@ -73,10 +66,9 @@ export const CreateClientPage = () => {
         ...data,
       });
       navigate("/clientes");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating client", error);
-
-      const status = error?.response?.status;
+      const status = isAxiosError(error) ? error.response?.status : undefined;
       let message = "Error al crear el cliente. Revisa los datos e inténtalo de nuevo.";
 
       if (status === 409) {
@@ -89,8 +81,10 @@ export const CreateClientPage = () => {
         type: "server",
         message,
       });
+    } finally {
       setIsLoading(false);
     }
+
   };
 
   return (

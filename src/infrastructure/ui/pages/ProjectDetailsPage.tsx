@@ -75,7 +75,7 @@ export const ProjectDetailsPage = () => {
 
         <div className="mt-6">
           <TabsContent value="informacion" className="space-y-6">
-            <ProjectInfoTab project={project} usersCount={users.length} />
+            <ProjectInfoTab project={project} />
           </TabsContent>
 
           <TabsContent value="equipo" className="space-y-6">
