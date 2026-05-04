@@ -28,7 +28,7 @@ export const DashboardLayout = () => {
       <aside className="w-64 bg-background border-r flex flex-col">
         <div className="p-4 border-b">
           <h2 className="text-xl font-bold text-primary tracking-tight">
-            480:PROJECTS
+            <img src="/logo480-t.png" alt="Logo 480:DEV PROJECTS" />
           </h2>
         </div>
 

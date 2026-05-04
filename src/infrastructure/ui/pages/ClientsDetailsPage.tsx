@@ -195,7 +195,6 @@ export const ClientsDetailsPage = () => {
                           is_active: !client.is_active,
                         });
                       } catch (e) {
-                        // error handled by store
                       } finally {
                         setIsToggling(false);
                       }
