@@ -1,13 +1,21 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useClientDetailsStore } from "@/infrastructure/stores/client-details.store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/infrastructure/ui/components/ui/card";
 import { Badge } from "@/infrastructure/ui/components/ui/badge";
 import { Button } from "@/infrastructure/ui/components/ui/button";
+import { Input } from "@/infrastructure/ui/components/ui/input";
+import { Label } from "@/infrastructure/ui/components/ui/label";
+import { ApiSectorRepository } from "@/infrastructure/adapters/ApiSectorRepository";
+import { SectorService } from "@/application/services/sector.service";
+import { updateClientSchema } from "@/infrastructure/ui/validators/update-client.schema";
+import type { UpdateClientFormData } from "@/infrastructure/ui/validators/update-client.schema";
+import type { Sector } from "@/domain/entities/sector.entity";
 import {
   ArrowLeft,
   Loader2,
-  CheckCircle2,
   XCircle,
   Building2,
   Briefcase,
@@ -18,13 +26,41 @@ import {
   Phone,
   Star,
   StickyNote,
+  Pencil,
+  Trash2,
+  Save,
+  X,
+  Power,
 } from "lucide-react";
+
+const sectorRepository = new ApiSectorRepository();
+const sectorService = new SectorService(sectorRepository);
 
 export const ClientsDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { client, projects, contacts, isLoading, error, fetchClientDetails, clearDetails } =
+  const { client, projects, contacts, isLoading, error, fetchClientDetails, updateClient, deleteClient, clearDetails } =
     useClientDetailsStore();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
+
+  const [sectors, setSectors] = useState<Sector[]>([]);
+  const [isLoadingSectors, setIsLoadingSectors] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    setError,
+    reset,
+    formState: { errors },
+  } = useForm<UpdateClientFormData>({
+    resolver: zodResolver(updateClientSchema),
+  });
 
   useEffect(() => {
     if (id) {
@@ -32,6 +68,64 @@ export const ClientsDetailsPage = () => {
     }
     return () => clearDetails();
   }, [id, fetchClientDetails, clearDetails]);
+
+  const startEditing = async () => {
+    if (!client) return;
+    reset({
+      name: client.name,
+      sector_id: client.sector?.id || "",
+      is_active: client.is_active,
+    });
+    setIsEditing(true);
+
+    if (sectors.length === 0) {
+      setIsLoadingSectors(true);
+      try {
+        const data = await sectorService.getSectors();
+        setSectors(data);
+      } catch (e) {
+        console.error("Error fetching sectors", e);
+      } finally {
+        setIsLoadingSectors(false);
+      }
+    }
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+  };
+
+  const onSubmit = async (data: UpdateClientFormData) => {
+    if (!id) return;
+    setIsSaving(true);
+    try {
+      await updateClient(id, {
+        name: data.name,
+        sector_id: data.sector_id,
+        is_active: data.is_active,
+      });
+      setIsEditing(false);
+    } catch (e: any) {
+      setError("name", {
+        type: "server",
+        message: e.message || "Error al guardar los cambios.",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    setIsDeleting(true);
+    try {
+      await deleteClient(id);
+      navigate("/clientes");
+    } catch (e: any) {
+      setShowDeleteConfirm(false);
+      setIsDeleting(false);
+    }
+  };
 
   if (isLoading && !client) {
     return (
@@ -42,7 +136,7 @@ export const ClientsDetailsPage = () => {
     );
   }
 
-  if (error) {
+  if (error && !client) {
     return (
       <Card className="border-destructive/20 bg-destructive/5 mt-8">
         <CardContent className="flex flex-col items-center py-12 text-center">
@@ -83,55 +177,186 @@ export const ClientsDetailsPage = () => {
                 <h1 className="text-4xl font-extrabold tracking-tight">{client.name}</h1>
               </div>
             </div>
-            <Badge
-              variant={client.is_active ? "default" : "secondary"}
-              className={
-                client.is_active
-                  ? "bg-green-500/10 text-green-700 border-green-200"
-                  : "bg-muted text-muted-foreground"
-              }
-            >
-              {client.is_active ? (
-                <div className="flex items-center gap-1">
-                  <CheckCircle2 className="h-3 w-3" />
-                  Activo
-                </div>
-              ) : (
-                "Inactivo"
+            <div className="flex items-center gap-2">
+              {!isEditing && (
+                <>
+                  <Button
+                    variant={client.is_active ? "destructive" : "outline"}
+                    size="sm"
+                    className="shadow-sm"
+                    disabled={isToggling}
+                    onClick={async () => {
+                      if (!id) return;
+                      setIsToggling(true);
+                      try {
+                        await updateClient(id, {
+                          name: client.name,
+                          sector_id: client.sector?.id,
+                          is_active: !client.is_active,
+                        });
+                      } catch (e) {
+                        // error handled by store
+                      } finally {
+                        setIsToggling(false);
+                      }
+                    }}
+                  >
+                    {isToggling ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Power className="mr-2 h-4 w-4" />
+                    )}
+                    {client.is_active ? "Inactivar" : "Activar"}
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="shadow-sm"
+                    onClick={() => setShowDeleteConfirm(true)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Eliminar
+                  </Button>
+                </>
               )}
-            </Badge>
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Delete Confirmation */}
+      {showDeleteConfirm && (
+        <Card className="border-destructive/30 bg-destructive/5">
+          <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
+            <div className="flex items-center gap-3">
+              <Trash2 className="h-5 w-5 text-destructive shrink-0" />
+              <div>
+                <p className="font-semibold text-destructive">¿Eliminar este cliente?</p>
+                <p className="text-sm text-muted-foreground">
+                  Esta acción no se puede deshacer. Se eliminará <strong>{client.name}</strong> permanentemente.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(false)} disabled={isDeleting}>
+                Cancelar
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Eliminando...
+                  </>
+                ) : (
+                  "Sí, eliminar"
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Info Cards */}
       <div className="grid gap-6 md:grid-cols-1">
         <Card className="border-muted/60 shadow-sm">
-          <CardHeader className="bg-muted/30 pb-4">
+          <CardHeader className="bg-muted/30 pb-4 flex flex-row items-center justify-between">
             <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
               Datos del Cliente
             </CardTitle>
+            {!isEditing && (
+              <Button variant="outline" size="sm" className="shadow-sm" onClick={startEditing}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Editar
+              </Button>
+            )}
           </CardHeader>
           <CardContent className="pt-6 space-y-5">
-            <div className="flex items-start gap-4">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <Building2 className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase">Nombre</p>
-                <p className="font-bold text-foreground">{client.name}</p>
-              </div>
-            </div>
+            {isEditing ? (
+              <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-name">Nombre</Label>
+                  <Input
+                    id="edit-name"
+                    placeholder="Nombre del cliente"
+                    aria-invalid={!!errors.name}
+                    {...register("name")}
+                  />
+                  {errors.name && (
+                    <p className="text-sm text-destructive">{errors.name.message}</p>
+                  )}
+                </div>
 
-            <div className="flex items-start gap-4">
-              <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
-                <Briefcase className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase">Sector</p>
-                <p className="font-bold text-foreground">{client.sector?.name || "—"}</p>
-              </div>
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-sector">Sector</Label>
+                  <select
+                    id="edit-sector"
+                    aria-invalid={!!errors.sector_id}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    {...register("sector_id")}
+                  >
+                    <option value="">Selecciona un sector</option>
+                    {sectors.map((sector) => (
+                      <option key={sector.id} value={sector.id}>
+                        {sector.name}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.sector_id && (
+                    <p className="text-sm text-destructive">{errors.sector_id.message}</p>
+                  )}
+                  {isLoadingSectors && (
+                    <p className="text-xs text-muted-foreground animate-pulse">Cargando sectores...</p>
+                  )}
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  <Button type="submit" disabled={isSaving} className="min-w-[120px]">
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Guardando...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" />
+                        Guardar
+                      </>
+                    )}
+                  </Button>
+                  <Button type="button" variant="ghost" onClick={cancelEditing} disabled={isSaving}>
+                    <X className="mr-2 h-4 w-4" />
+                    Cancelar
+                  </Button>
+                </div>
+              </form>
+            ) : (
+              <>
+                <div className="flex items-start gap-4">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Building2 className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase">Nombre</p>
+                    <p className="font-bold text-foreground">{client.name}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
+                    <Briefcase className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase">Sector</p>
+                    <p className="font-bold text-foreground">{client.sector?.name || "—"}</p>
+                  </div>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>

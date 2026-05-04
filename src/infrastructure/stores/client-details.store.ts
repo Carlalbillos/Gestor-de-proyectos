@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Client, ClientContact } from "@/domain/entities/client.entity";
+import type { Client, ClientContact, UpdateClientDTO } from "@/domain/entities/client.entity";
 import type { Project } from "@/domain/entities/project.entity";
 import { ApiClientRepository } from "@/infrastructure/adapters/ApiClientRepository";
 import { ClientService } from "@/application/services/client.service";
@@ -11,6 +11,8 @@ interface ClientDetailsState {
   isLoading: boolean;
   error: string | null;
   fetchClientDetails: (id: string) => Promise<void>;
+  updateClient: (id: string, dto: UpdateClientDTO) => Promise<void>;
+  deleteClient: (id: string) => Promise<void>;
   clearDetails: () => void;
 }
 
@@ -35,6 +37,30 @@ export const useClientDetailsStore = create<ClientDetailsState>((set) => ({
       set({ client, projects, contacts, isLoading: false });
     } catch (error: any) {
       set({ error: error.message || "Error al cargar los detalles del cliente", isLoading: false });
+    }
+  },
+
+  updateClient: async (id: string, dto: UpdateClientDTO) => {
+    set({ isLoading: true, error: null });
+    try {
+      await clientService.updateClient(id, dto);
+      // Refetch to get updated data
+      const client = await clientService.getClientById(id);
+      set({ client, isLoading: false });
+    } catch (error: any) {
+      set({ error: error.message || "Error al actualizar el cliente", isLoading: false });
+      throw error;
+    }
+  },
+
+  deleteClient: async (id: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await clientService.deleteClient(id);
+      set({ isLoading: false });
+    } catch (error: any) {
+      set({ error: error.message || "Error al eliminar el cliente", isLoading: false });
+      throw error;
     }
   },
 

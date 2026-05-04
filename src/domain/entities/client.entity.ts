@@ -25,3 +25,9 @@ export interface CreateClientDTO {
     name: string;
     sector_id: string;
 }
+
+export interface UpdateClientDTO {
+    name?: string;
+    sector_id?: string;
+    is_active?: boolean;
+}

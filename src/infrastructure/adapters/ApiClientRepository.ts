@@ -1,5 +1,5 @@
 import { api } from "./AxiosHttpClient";
-import type { ClientRepository, Client, ClientContact, CreateClientDTO, Project } from "../../domain/ports/ClientRepository";
+import type { ClientRepository, Client, ClientContact, CreateClientDTO, UpdateClientDTO, Project } from "../../domain/ports/ClientRepository";
 
 export class ApiClientRepository implements ClientRepository {
   async getClients(): Promise<Client[]> {
@@ -25,6 +25,14 @@ export class ApiClientRepository implements ClientRepository {
       name: dto.name,
       sector_id: dto.sector_id,
     });
+  }
+
+  async updateClient(id: string, dto: UpdateClientDTO): Promise<void> {
+    await api.put(`clients/${id}`, dto);
+  }
+
+  async deleteClient(id: string): Promise<void> {
+    await api.delete(`clients/${id}`);
   }
 
   async getClientProjects(clientId: string): Promise<Project[]> {
