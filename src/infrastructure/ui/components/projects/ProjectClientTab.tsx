@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/infrastructure/ui/components/ui/card";
-import { Briefcase } from "lucide-react";
 import type { ProjectClient } from "@/domain/entities/project.entity";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
@@ -34,15 +33,7 @@ export const ProjectClientTab = ({ client }: ProjectClientTabProps) => {
               <CardTitle>Contactos</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center justify-center py-2 px-2 text-center border rounded-md border-dashed bg-muted/10">
-                <Briefcase
-                  aria-hidden
-                  className="h-8 w-8 text-muted-foreground/50 mb-2"
-                />
-                <p className="text-sm text-muted-foreground">
-                  El listado de contactos se implementará más adelante.
-                </p>
-              </div>
+
             </CardContent>
           </Card>
         </div>

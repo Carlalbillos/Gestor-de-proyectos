@@ -20,6 +20,7 @@ import { ProjectInfoTab } from "@/infrastructure/ui/components/projects/ProjectI
 import { ProjectTeamTab } from "@/infrastructure/ui/components/projects/ProjectTeamTab";
 import { ProjectClientTab } from "@/infrastructure/ui/components/projects/ProjectClientTab";
 import { ProjectDevelopmentsTab } from "@/infrastructure/ui/components/projects/ProjectDevelopmentsTab";
+import { ProjectHoursTab } from "../components/projects/ProjectHoursTab";
 
 export const ProjectDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -91,21 +92,7 @@ export const ProjectDetailsPage = () => {
           </TabsContent>
 
           <TabsContent value="horas" className="space-y-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Clock className="h-5 w-5 text-primary" />
-              <h2 className="text-2xl font-bold tracking-tight">Imputación de Horas</h2>
-            </div>
-            <Card className="border-muted/60 border-dashed shadow-none bg-muted/10">
-              <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  <Clock className="h-8 w-8 text-primary/60" />
-                </div>
-                <h3 className="text-xl font-medium mb-2">Sección en construcción</h3>
-                <p className="text-muted-foreground max-w-md">
-                  Aquí se mostrará el registro de horas imputadas a este proyecto por los distintos miembros del equipo. Se implementará más adelante.
-                </p>
-              </CardContent>
-            </Card>
+            <ProjectHoursTab />
           </TabsContent>
         </div>
       </Tabs>
