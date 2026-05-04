@@ -6,8 +6,12 @@ import type { User } from "@/domain/entities/user.entity";
 import { setAccessToken } from "@/infrastructure/adapters/AxiosHttpClient";
 import { ApiAuthRepository } from "@/infrastructure/adapters/ApiAuthRepository";
 import { LoginUseCase } from "@/application/services/LoginUseCase";
+import { UserService } from "@/application/services/user.service";
+import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
+import type { ChangePasswordDTO } from "@/domain/entities/user.entity";
 
 const loginUseCase = new LoginUseCase(new ApiAuthRepository());
+const userService = new UserService(new ApiUserRepository());
 
 interface AuthState {
   user: User | null;
@@ -16,11 +20,12 @@ interface AuthState {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  changePassword: (dto: ChangePasswordDTO) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       token: null,
       isLoading: false,
@@ -46,6 +51,20 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         setAccessToken(null);
         set({ user: null, token: null, isAuthenticated: false });
+      },
+
+      changePassword: async (dto) => {
+        const { user } = get();
+        if (!user) throw new Error("No autenticado");
+        
+        set({ isLoading: true });
+        try {
+          await userService.changePassword(user.id, dto);
+          set({ isLoading: false });
+        } catch (error: any) {
+          set({ isLoading: false });
+          throw error;
+        }
       },
     }),
     {

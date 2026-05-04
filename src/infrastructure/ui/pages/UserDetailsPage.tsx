@@ -16,11 +16,17 @@ import {
   Calendar,
 } from "lucide-react";
 import { isAdmin } from "@/infrastructure/ui/lib/roleChecker";
+import { AdminChangePasswordModal } from "@/infrastructure/ui/components/users/AdminChangePasswordModal";
+import { useState } from "react";
+import { Lock } from "lucide-react";
+import { useAuthStore } from "@/infrastructure/stores/auth.store";
 
 export const UserDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, projects, timeEntries, totalHours, isLoading, error, fetchUserDetails, clearDetails } = useUserDetailsStore();
+  const { user: currentUser } = useAuthStore();
+  const { user, projects, timeEntries, totalHours, isLoading, error, fetchUserDetails, adminChangePassword, clearDetails } = useUserDetailsStore();
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -99,6 +105,17 @@ export const UserDetailsPage = () => {
             <Shield className="mr-1 h-3 w-3" />
             {isAdmin(user) ? "Administrador" : "Empleado"}
           </Badge>
+          {isAdmin(currentUser) && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="shadow-sm border-primary/20 hover:bg-primary/5"
+              onClick={() => setIsPasswordModalOpen(true)}
+            >
+              <Lock className="mr-2 h-4 w-4 text-primary" />
+              Cambiar contraseña
+            </Button>
+          )}
         </div>
       </div>
 
@@ -235,6 +252,13 @@ export const UserDetailsPage = () => {
           </section>
         </div>
       </div>
+
+      <AdminChangePasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+        userName={user.name}
+        onSubmit={(password) => adminChangePassword(user.id, password)}
+      />
     </div>
   );
 };

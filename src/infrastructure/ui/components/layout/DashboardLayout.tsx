@@ -3,7 +3,7 @@ import { Outlet, NavLink, useNavigate } from "react-router";
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
 import { Button } from "@/infrastructure/ui/components/ui/button";
 import { isAdmin } from "@/infrastructure/ui/lib/roleChecker";
-import { Home, Users, Building2, Briefcase } from "lucide-react";
+import { Home, Users, Building2, Briefcase, Settings } from "lucide-react";
 
 export const DashboardLayout = () => {
   const { logout, user } = useAuthStore();
@@ -79,7 +79,16 @@ export const DashboardLayout = () => {
           </NavLink>
         </nav>
 
-        <div className="p-4 border-t">
+        <div className="p-4 border-t space-y-2">
+          <NavLink
+            to="/configuracion"
+            className={({ isActive }) =>
+              `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`
+            }
+          >
+            <Settings className="h-4 w-4" />
+            Cambio de contraseña
+          </NavLink>
           <Button
             variant="ghost"
             className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"

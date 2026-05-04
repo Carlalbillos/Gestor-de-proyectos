@@ -18,6 +18,7 @@ import { UnauthGuard } from "@/infrastructure/ui/guards/UnauthGuard";
 import { UsersPage } from "../pages/UsersPage";
 import { CreateUserPage } from "@/infrastructure/ui/pages/CreateUserPage";
 import { UserDetailsPage } from "@/infrastructure/ui/pages/UserDetailsPage";
+import { SettingsPage } from "@/infrastructure/ui/pages/SettingsPage";
 
 
 const router = createBrowserRouter([
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
           {
             path: "proyectos",
             element: <ProjectsPage />,
+          },
+          {
+            path: "configuracion",
+            element: <SettingsPage />,
           },
           {
             path: "proyectos/:id",

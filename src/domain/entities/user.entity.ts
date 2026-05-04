@@ -40,3 +40,12 @@ export interface TimeEntriesResponse {
   total_hours: number;
   data: TimeEntry[];
 }
+
+export interface ChangePasswordDTO {
+  current_password: string;
+  new_password: string;
+}
+
+export interface AdminChangePasswordDTO {
+  new_password: string;
+}

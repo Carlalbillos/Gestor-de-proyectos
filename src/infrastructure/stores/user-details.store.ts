@@ -15,6 +15,7 @@ interface UserDetailsState {
   isLoading: boolean;
   error: string | null;
   fetchUserDetails: (id: string) => Promise<void>;
+  adminChangePassword: (id: string, password: string) => Promise<void>;
   clearDetails: () => void;
 }
 
@@ -43,6 +44,17 @@ export const useUserDetailsStore = create<UserDetailsState>((set) => ({
       });
     } catch (error: any) {
       set({ error: error.message || "Error al cargar los detalles del usuario", isLoading: false });
+    }
+  },
+
+  adminChangePassword: async (id: string, password: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await userService.adminChangePassword(id, { new_password: password });
+      set({ isLoading: false });
+    } catch (error: any) {
+      set({ error: error.message || "Error al cambiar la contraseña", isLoading: false });
+      throw error;
     }
   },
 

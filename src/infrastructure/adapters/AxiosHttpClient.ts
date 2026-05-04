@@ -25,6 +25,12 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // Extract server message if available
+    const message = error.response?.data?.message || error.message;
+    const customError = new Error(message);
+    (customError as any).status = error.response?.status;
+    (customError as any).data = error.response?.data;
+
     if (error.response?.status === 401) {
       const { useAuthStore } = await import("@/infrastructure/stores/auth.store");
       useAuthStore.getState().logout();
@@ -33,6 +39,6 @@ api.interceptors.response.use(
         window.location.href = '/login';
       }
     }
-    return Promise.reject(error);
+    return Promise.reject(customError);
   }
 );
