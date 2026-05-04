@@ -109,11 +109,11 @@ export const ClientsPage = () => {
           {clients.map((client) => (
             <Card
               key={client.id}
-              className="flex flex-col hover:border-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer group bg-card"
+              className="flex flex-col hover:border-primary/40 hover:shadow-md cursor-pointer group bg-card"
               onClick={() => navigate(`/clientes/${client.id}`)}
             >
-              <CardHeader className="pb-3">
-                <div className="flex justify-between items-start mb-1">
+              <CardHeader className="pb-1">
+                <div className="flex justify-between items-start">
                   <Badge
                     variant={client.is_active ? "default" : "secondary"}
                     className={client.is_active ? "bg-green-500/10 text-green-700 hover:bg-green-500/20 border-green-200" : ""}
@@ -128,11 +128,11 @@ export const ClientsPage = () => {
                   {client.sector?.name || "Sin sector asignado"}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex-1 pb-4">
-                <div className="space-y-3 mt-2">
-                  <div className="flex items-center text-sm text-muted-foreground bg-muted/40 p-2 rounded-md">
+              <CardContent className="flex-1">
+                <div className="space-y-1">
+                  <div className="flex items-center text-sm text-muted-foreground">
                     <Briefcase className="mr-2.5 h-4 w-4 text-primary/60" />
-                    <span className="font-medium text-foreground/80 line-clamp-1">
+                    <span className="font-medium text-foreground line-clamp-1">
                       {client.sector?.name || "—"}
                     </span>
                   </div>
