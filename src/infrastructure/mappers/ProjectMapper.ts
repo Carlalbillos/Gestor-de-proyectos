@@ -1,4 +1,4 @@
-import type { Project, ProjectUser, ProjectDevelopment, DevelopmentLink } from "../../domain/entities/project.entity";
+import type { Project, ProjectUser, ProjectDevelopment, DevelopmentLink, ProjectRole } from "../../domain/entities/project.entity";
 
 export class ProjectMapper {
   static toDomain(raw: any): Project {
@@ -44,6 +44,13 @@ export class ProjectMapper {
         environment: link.environment,
         url: link.url,
       })),
+    };
+  }
+
+  static toRoleDomain(raw: any): ProjectRole {
+    return {
+      id: raw.id,
+      name: raw.name,
     };
   }
 }

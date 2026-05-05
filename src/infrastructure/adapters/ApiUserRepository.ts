@@ -17,7 +17,10 @@ export class ApiUserRepository implements UserRepository {
   }
 
   async createUser(dto: CreateUserDTO): Promise<void> {
-    await api.post("users", dto);
+    await api.post("users", {
+      ...dto,
+      role: UserMapper.toApiRole(dto.role),
+    });
   }
 
   async updateUser(id: string, dto: UpdateUserDTO): Promise<void> {
@@ -25,7 +28,7 @@ export class ApiUserRepository implements UserRepository {
       name: dto.name,
       surname: dto.surname,
       email: dto.email,
-      role: dto.role,
+      role: dto.role ? UserMapper.toApiRole(dto.role) : undefined,
       is_active: dto.isActive,
     });
   }

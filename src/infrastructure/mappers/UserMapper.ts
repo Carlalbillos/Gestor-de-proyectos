@@ -14,13 +14,13 @@ export class UserMapper {
 
   static toApiRole(role: string): string {
     if (role === 'admin') return 'ROLE_ADMIN';
-    if (role === 'user') return 'ROLE_USER';
+    if (role === 'user') return 'ROLE_EMPLOYEE';
     return role;
   }
 
   static fromApiRole(role: string): string {
     if (role === 'ROLE_ADMIN') return 'admin';
-    if (role === 'ROLE_USER') return 'user';
+    if (role === 'ROLE_EMPLOYEE') return 'user';
     return role;
   }
 

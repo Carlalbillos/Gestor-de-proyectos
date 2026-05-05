@@ -1,5 +1,5 @@
 import type { ProjectRepository, ProjectQueryParams, PaginatedResult } from "../../domain/ports/ProjectRepository";
-import type { Project, ProjectUser, ProjectDevelopment, CreateProjectDTO } from "../../domain/entities/project.entity";
+import type { Project, ProjectUser, ProjectDevelopment, CreateProjectDTO, ProjectRole } from "../../domain/entities/project.entity";
 
 export class ProjectService {
   private readonly projectRepository: ProjectRepository;
@@ -26,5 +26,21 @@ export class ProjectService {
 
   async getProjectDevelopments(id: string): Promise<ProjectDevelopment[]> {
     return await this.projectRepository.getProjectDevelopments(id);
+  }
+
+  async getProjectRoles(): Promise<ProjectRole[]> {
+    return await this.projectRepository.getProjectRoles();
+  }
+
+  async assignUser(projectId: string, userId: string, roleId: string): Promise<void> {
+    return await this.projectRepository.assignUser(projectId, userId, roleId);
+  }
+
+  async updateProjectUsers(projectId: string, users: { appUserId: string, roleId: string }[]): Promise<void> {
+    return await this.projectRepository.updateProjectUsers(projectId, users);
+  }
+
+  async removeUser(projectId: string, userId: string): Promise<void> {
+    return await this.projectRepository.removeUser(projectId, userId);
   }
 }
