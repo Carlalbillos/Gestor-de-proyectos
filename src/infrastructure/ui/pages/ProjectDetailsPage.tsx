@@ -25,14 +25,16 @@ import { ProjectHoursTab } from "../components/projects/ProjectHoursTab";
 export const ProjectDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { project, users, developments, isLoading, error, fetchProjectDetails, clearDetails } = useProjectDetailsStore();
+  const { project, users, roles, allUsers, developments, isLoading, error, fetchProjectDetails, fetchRoles, fetchAllUsers, clearDetails } = useProjectDetailsStore();
 
   useEffect(() => {
     if (id) {
       fetchProjectDetails(id);
+      fetchRoles();
+      fetchAllUsers();
     }
     return () => clearDetails();
-  }, [id, fetchProjectDetails, clearDetails]);
+  }, [id, fetchProjectDetails, fetchRoles, fetchAllUsers, clearDetails]);
 
   if (isLoading && !project) {
     return (
@@ -80,7 +82,12 @@ export const ProjectDetailsPage = () => {
           </TabsContent>
 
           <TabsContent value="equipo" className="space-y-6">
-            <ProjectTeamTab users={users} />
+            <ProjectTeamTab 
+              users={users} 
+              roles={roles} 
+              allUsers={allUsers}
+              projectId={id || ""} 
+            />
           </TabsContent>
 
           <TabsContent value="cliente" className="space-y-6">
