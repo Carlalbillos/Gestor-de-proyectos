@@ -43,11 +43,11 @@ export class ApiClientRepository implements ClientRepository {
 
   async getClientProjects(clientId: string): Promise<Project[]> {
     const response = await api.get<any[]>(`clients/${clientId}/projects`);
-    return response.data.map(ProjectMapper.toDomain);
+    return (Array.isArray(response.data) ? response.data : []).map(ProjectMapper.toDomain);
   }
 
   async getClientContacts(clientId: string): Promise<ClientContact[]> {
     const response = await api.get<any[]>(`clients/${clientId}/contacts`);
-    return response.data.map(ClientMapper.toContactDomain);
+    return (Array.isArray(response.data) ? response.data : []).map(ClientMapper.toContactDomain);
   }
 }

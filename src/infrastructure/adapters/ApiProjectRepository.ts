@@ -51,11 +51,11 @@ export class ApiProjectRepository implements ProjectRepository {
 
   async getProjectUsers(id: string): Promise<ProjectUser[]> {
     const response = await api.get<any[]>(`projects/${id}/users`);
-    return response.data.map(ProjectMapper.toUserDomain);
+    return (Array.isArray(response.data) ? response.data : []).map(ProjectMapper.toUserDomain);
   }
 
   async getProjectDevelopments(id: string): Promise<ProjectDevelopment[]> {
     const response = await api.get<any[]>(`projects/${id}/developments`);
-    return response.data.map(ProjectMapper.toDevelopmentDomain);
+    return (Array.isArray(response.data) ? response.data : []).map(ProjectMapper.toDevelopmentDomain);
   }
 }

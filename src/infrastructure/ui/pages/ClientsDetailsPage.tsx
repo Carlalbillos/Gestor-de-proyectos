@@ -13,25 +13,7 @@ import { SectorService } from "@/application/services/sector.service";
 import { updateClientSchema } from "@/infrastructure/ui/validators/update-client.schema";
 import type { UpdateClientFormData } from "@/infrastructure/ui/validators/update-client.schema";
 import type { Sector } from "@/domain/entities/sector.entity";
-import {
-  ArrowLeft,
-  Loader2,
-  XCircle,
-  Building2,
-  Briefcase,
-  Users,
-  Users2,
-  Calendar,
-  Mail,
-  Phone,
-  Star,
-  StickyNote,
-  Pencil,
-  Trash2,
-  Save,
-  X,
-  Power,
-} from "lucide-react";
+import { ArrowLeft, Loader2, XCircle, Building2, Briefcase, Users, Users2, Calendar, Mail, Phone, Star, StickyNote, Pencil, Trash2, Save, X, Power } from "lucide-react";
 
 const sectorRepository = new ApiSectorRepository();
 const sectorService = new SectorService(sectorRepository);

@@ -6,7 +6,7 @@ import { SectorMapper } from "../mappers/SectorMapper";
 export class ApiSectorRepository implements SectorRepository {
   async getSectors(): Promise<Sector[]> {
     const response = await api.get<any[]>("sectors");
-    return response.data.map(SectorMapper.toDomain);
+    return (Array.isArray(response.data) ? response.data : []).map(SectorMapper.toDomain);
   }
 
   async createSector(dto: CreateSectorDTO): Promise<void> {

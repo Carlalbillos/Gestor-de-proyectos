@@ -6,7 +6,7 @@ import { TechnologyMapper } from "../mappers/TechnologyMapper";
 export class ApiTechnologyRepository implements TechnologyRepository {
   async getTechnologies(): Promise<Technology[]> {
     const response = await api.get<any[]>("technologies");
-    return response.data.map(TechnologyMapper.toDomain);
+    return (Array.isArray(response.data) ? response.data : []).map(TechnologyMapper.toDomain);
   }
 
   async createTechnology(dto: CreateTechnologyDTO): Promise<void> {

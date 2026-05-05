@@ -8,7 +8,7 @@ import { ProjectMapper } from "../mappers/ProjectMapper";
 export class ApiUserRepository implements UserRepository {
   async getUsers(): Promise<User[]> {
     const response = await api.get<any[]>("users");
-    return response.data.map(UserMapper.toDomain);
+    return (Array.isArray(response.data) ? response.data : []).map(UserMapper.toDomain);
   }
 
   async getById(id: string): Promise<User> {
@@ -45,7 +45,7 @@ export class ApiUserRepository implements UserRepository {
 
   async getUserProjects(id: string): Promise<Project[]> {
     const response = await api.get<any[]>(`users/${id}/projects`);
-    return response.data.map(ProjectMapper.toDomain);
+    return (Array.isArray(response.data) ? response.data : []).map(ProjectMapper.toDomain);
   }
 
   async getUserTimeEntries(id: string): Promise<TimeEntriesResponse> {
