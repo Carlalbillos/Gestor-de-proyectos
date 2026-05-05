@@ -39,7 +39,7 @@ export const useUserDetailsStore = create<UserDetailsState>((set) => ({
         user,
         projects,
         timeEntries: timeEntriesResponse.data,
-        totalHours: timeEntriesResponse.total_hours,
+        totalHours: timeEntriesResponse.totalHours,
         isLoading: false,
       });
     } catch (error: any) {
@@ -50,7 +50,7 @@ export const useUserDetailsStore = create<UserDetailsState>((set) => ({
   adminChangePassword: async (id: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
-      await userService.adminChangePassword(id, { new_password: password });
+      await userService.adminChangePassword(id, { newPassword: password });
       set({ isLoading: false });
     } catch (error: any) {
       set({ error: error.message || "Error al cambiar la contraseña", isLoading: false });

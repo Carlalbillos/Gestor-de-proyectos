@@ -12,7 +12,7 @@ export const ProjectTeamTab = ({ users }: { users: ProjectUser[] }) => {
 
       {usersCount > 0 ? (
         users.map(user => (
-          <Card key={user.app_user_id} className="border-muted/50 hover:border-primary/30 transition-colors shadow-none bg-card/50">
+          <Card key={user.appUserId} className="border-muted/50 hover:border-primary/30 transition-colors shadow-none bg-card/50">
             <CardContent className="p-2 flex items-center gap-4">
               <div
                 aria-hidden

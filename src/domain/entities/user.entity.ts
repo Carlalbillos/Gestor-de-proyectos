@@ -4,7 +4,7 @@ export interface User {
   surname: string;
   email: string;
   role: string;
-  is_active: boolean;
+  isActive: boolean;
 }
 
 export interface CreateUserDTO {
@@ -21,12 +21,12 @@ export interface UpdateUserDTO {
   surname?: string;
   email?: string;
   role?: string;
-  is_active?: boolean;
+  isActive?: boolean;
 }
 
 export interface TimeEntry {
   id: string;
-  project_user_id: string;
+  projectUserId: string;
   date: string;
   hour: number;
   comment: string;
@@ -37,15 +37,15 @@ export interface TimeEntry {
 }
 
 export interface TimeEntriesResponse {
-  total_hours: number;
+  totalHours: number;
   data: TimeEntry[];
 }
 
 export interface ChangePasswordDTO {
-  current_password: string;
-  new_password: string;
+  currentPassword: string;
+  newPassword: string;
 }
 
 export interface AdminChangePasswordDTO {
-  new_password: string;
+  newPassword: string;
 }

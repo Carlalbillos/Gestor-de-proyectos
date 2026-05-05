@@ -13,25 +13,7 @@ import { SectorService } from "@/application/services/sector.service";
 import { updateClientSchema } from "@/infrastructure/ui/validators/update-client.schema";
 import type { UpdateClientFormData } from "@/infrastructure/ui/validators/update-client.schema";
 import type { Sector } from "@/domain/entities/sector.entity";
-import {
-  ArrowLeft,
-  Loader2,
-  XCircle,
-  Building2,
-  Briefcase,
-  Users,
-  Users2,
-  Calendar,
-  Mail,
-  Phone,
-  Star,
-  StickyNote,
-  Pencil,
-  Trash2,
-  Save,
-  X,
-  Power,
-} from "lucide-react";
+import { ArrowLeft, Loader2, XCircle, Building2, Briefcase, Users, Users2, Calendar, Mail, Phone, Star, StickyNote, Pencil, Trash2, Save, X, Power } from "lucide-react";
 
 const sectorRepository = new ApiSectorRepository();
 const sectorService = new SectorService(sectorRepository);
@@ -73,8 +55,8 @@ export const ClientsDetailsPage = () => {
     if (!client) return;
     reset({
       name: client.name,
-      sector_id: client.sector?.id || "",
-      is_active: client.is_active,
+      sectorId: client.sector?.id || "",
+      isActive: client.isActive,
     });
     setIsEditing(true);
 
@@ -101,8 +83,8 @@ export const ClientsDetailsPage = () => {
     try {
       await updateClient(id, {
         name: data.name,
-        sector_id: data.sector_id,
-        is_active: data.is_active,
+        sectorId: data.sectorId,
+        isActive: data.isActive,
       });
       setIsEditing(false);
     } catch (e: any) {
@@ -181,7 +163,7 @@ export const ClientsDetailsPage = () => {
               {!isEditing && (
                 <>
                   <Button
-                    variant={client.is_active ? "destructive" : "outline"}
+                    variant={client.isActive ? "destructive" : "outline"}
                     size="sm"
                     className="shadow-sm"
                     disabled={isToggling}
@@ -191,8 +173,8 @@ export const ClientsDetailsPage = () => {
                       try {
                         await updateClient(id, {
                           name: client.name,
-                          sector_id: client.sector?.id,
-                          is_active: !client.is_active,
+                          sectorId: client.sector?.id,
+                          isActive: !client.isActive,
                         });
                       } catch (e) {
                       } finally {
@@ -205,7 +187,7 @@ export const ClientsDetailsPage = () => {
                     ) : (
                       <Power className="mr-2 h-4 w-4" />
                     )}
-                    {client.is_active ? "Inactivar" : "Activar"}
+                    {client.isActive ? "Inactivar" : "Activar"}
                   </Button>
                   <Button
                     variant="destructive"
@@ -294,9 +276,9 @@ export const ClientsDetailsPage = () => {
                   <Label htmlFor="edit-sector">Sector</Label>
                   <select
                     id="edit-sector"
-                    aria-invalid={!!errors.sector_id}
+                    aria-invalid={!!errors.sectorId}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    {...register("sector_id")}
+                    {...register("sectorId")}
                   >
                     <option value="">Selecciona un sector</option>
                     {sectors.map((sector) => (
@@ -305,8 +287,8 @@ export const ClientsDetailsPage = () => {
                       </option>
                     ))}
                   </select>
-                  {errors.sector_id && (
-                    <p className="text-sm text-destructive">{errors.sector_id.message}</p>
+                  {errors.sectorId && (
+                    <p className="text-sm text-destructive">{errors.sectorId.message}</p>
                   )}
                   {isLoadingSectors && (
                     <p className="text-xs text-muted-foreground animate-pulse">Cargando sectores...</p>
@@ -388,31 +370,31 @@ export const ClientsDetailsPage = () => {
                       </p>
                     </div>
                     <Badge
-                      variant={project.is_active ? "default" : "secondary"}
+                      variant={project.isActive ? "default" : "secondary"}
                       className={
-                        project.is_active
+                        project.isActive
                           ? "bg-green-500/10 text-green-700 border-green-200 shrink-0"
                           : "shrink-0"
                       }
                     >
-                      {project.is_active ? "Activo" : "Inactivo"}
+                      {project.isActive ? "Activo" : "Inactivo"}
                     </Badge>
                   </div>
                   <div className="flex flex-wrap gap-4 mt-3 text-sm text-muted-foreground">
-                    {project.start_date && (
+                    {project.startDate && (
                       <span className="flex items-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5" />
-                        {new Date(project.start_date).toLocaleDateString('es-ES', {
+                        {new Date(project.startDate).toLocaleDateString('es-ES', {
                           day: 'numeric',
                           month: 'short',
                           year: 'numeric',
                         })}
                       </span>
                     )}
-                    {project.team_members != null && (
+                    {project.teamMembers != null && (
                       <span className="flex items-center gap-1.5">
                         <Users2 className="h-3.5 w-3.5" />
-                        {project.team_members} miembros
+                        {project.teamMembers} miembros
                       </span>
                     )}
                   </div>
@@ -446,22 +428,22 @@ export const ClientsDetailsPage = () => {
                   <div className="flex flex-col sm:flex-row justify-between gap-3">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <p className="font-bold text-foreground">{contact.full_name}</p>
-                        {contact.is_main && (
+                        <p className="font-bold text-foreground">{contact.fullName}</p>
+                        {contact.isMain && (
                           <Badge className="bg-amber-500/10 text-amber-700 border-amber-200 hover:bg-amber-500/15">
                             <Star className="mr-1 h-3 w-3" />
                             Principal
                           </Badge>
                         )}
                         <Badge
-                          variant={contact.is_active ? "default" : "secondary"}
+                          variant={contact.isActive ? "default" : "secondary"}
                           className={
-                            contact.is_active
+                            contact.isActive
                               ? "bg-green-500/10 text-green-700 border-green-200"
                               : ""
                           }
                         >
-                          {contact.is_active ? "Activo" : "Inactivo"}
+                          {contact.isActive ? "Activo" : "Inactivo"}
                         </Badge>
                       </div>
                       <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
@@ -469,10 +451,10 @@ export const ClientsDetailsPage = () => {
                           <Mail className="h-3.5 w-3.5" />
                           {contact.email}
                         </span>
-                        {contact.phone_number && (
+                        {contact.phoneNumber && (
                           <span className="flex items-center gap-1.5">
                             <Phone className="h-3.5 w-3.5" />
-                            {contact.phone_number}
+                            {contact.phoneNumber}
                           </span>
                         )}
                       </div>

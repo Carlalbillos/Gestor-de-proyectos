@@ -7,11 +7,11 @@ export const updateClientSchema = z.object({
     .min(1, "El nombre es obligatorio")
     .max(120, "El nombre no puede superar los 120 caracteres"),
 
-  sector_id: z
+  sectorId: z
     .string()
     .min(1, "Debes seleccionar un sector"),
 
-  is_active: z.boolean(),
+  isActive: z.boolean(),
 });
 
 export type UpdateClientFormData = z.infer<typeof updateClientSchema>;

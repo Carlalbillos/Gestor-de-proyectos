@@ -12,11 +12,11 @@ export const createProjectSchema = z.object({
     .trim()
     .min(1, "La descripción es obligatoria"),
 
-  start_date: z
+  startDate: z
     .string()
     .min(1, "La fecha de inicio es obligatoria"),
 
-  client_id: z
+  clientId: z
     .string()
     .min(1, "Debes seleccionar un cliente"),
 });

@@ -3,9 +3,9 @@ import type { Project, ProjectUser, ProjectDevelopment, CreateProjectDTO } from 
 export interface ProjectQueryParams {
   page?: number;
   limit?: number;
-  client_id?: string;
-  app_user_id?: string;
-  is_active?: boolean;
+  clientId?: string;
+  appUserId?: string;
+  isActive?: boolean;
   search?: string;
 }
 

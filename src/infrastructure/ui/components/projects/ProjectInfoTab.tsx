@@ -26,7 +26,7 @@ export const ProjectInfoTab = ({ project }: ProjectInfoTabProps) => {
         <div className="space-y-2">
           <p className="text-xs font-semibold text-muted-foreground uppercase">Fecha de inicio</p>
           <p className="text-base text-foreground leading-relaxed">
-            {new Date(project.start_date).toLocaleDateString('es-ES', {
+            {new Date(project.startDate).toLocaleDateString('es-ES', {
               day: 'numeric',
               month: 'long',
               year: 'numeric'

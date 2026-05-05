@@ -32,7 +32,7 @@ export const useClientsListStore = create<ClientsListState>((set, get) => ({
 
         if (state.filterStatus !== "all") {
           filteredClients = filteredClients.filter((client) => {
-            const clientIsActive = Boolean(client.is_active);
+            const clientIsActive = Boolean(client.isActive);
             return clientIsActive === (state.filterStatus === "active");
           });
         }

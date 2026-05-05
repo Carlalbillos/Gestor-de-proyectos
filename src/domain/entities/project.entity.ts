@@ -9,7 +9,7 @@ export interface ProjectRole {
 }
 
 export interface ProjectUser {
-  app_user_id: string;
+  appUserId: string;
   name: string;
   surname: string;
   role: ProjectRole | null;
@@ -31,25 +31,25 @@ export interface ProjectDevelopment {
   name: string;
   description: string;
   technology: Technology | null;
-  url_repository: string;
+  urlRepository: string;
   links: DevelopmentLink[];
 }
 
 export interface Project {
-  user_project_id?: string;
+  userProjectId?: string;
   id: string;
   name: string;
   description: string;
-  is_active: boolean;
-  start_date: string;
+  isActive: boolean;
+  startDate: string;
   client?: ProjectClient | null;
-  team_members?: number;
+  teamMembers?: number;
 }
 
 export interface CreateProjectDTO {
   id: string;
   name: string;
   description: string;
-  start_date: string;
-  client_id: string;
+  startDate: string;
+  clientId: string;
 }

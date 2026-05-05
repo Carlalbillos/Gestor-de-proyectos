@@ -4,21 +4,10 @@ import { useUserDetailsStore } from "@/infrastructure/stores/user-details.store"
 import { Card, CardContent, CardHeader, CardTitle } from "@/infrastructure/ui/components/ui/card";
 import { Badge } from "@/infrastructure/ui/components/ui/badge";
 import { Button } from "@/infrastructure/ui/components/ui/button";
-import {
-  ArrowLeft,
-  Loader2,
-  CheckCircle2,
-  XCircle,
-  Mail,
-  Shield,
-  Briefcase,
-  Clock,
-  Calendar,
-} from "lucide-react";
+import { Lock, ArrowLeft, Loader2, CheckCircle2, XCircle, Mail, Shield, Briefcase, Clock, Calendar } from "lucide-react";
 import { isAdmin } from "@/infrastructure/ui/lib/roleChecker";
 import { AdminChangePasswordModal } from "@/infrastructure/ui/components/users/AdminChangePasswordModal";
 import { useState } from "react";
-import { Lock } from "lucide-react";
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
 
 export const UserDetailsPage = () => {
@@ -91,10 +80,10 @@ export const UserDetailsPage = () => {
         </div>
         <div className="flex gap-2">
           <Badge
-            variant={user.is_active ? "default" : "secondary"}
-            className={user.is_active ? "bg-green-500/10 text-green-700 border-green-200" : "bg-muted text-muted-foreground"}
+            variant={user.isActive ? "default" : "secondary"}
+            className={user.isActive ? "bg-green-500/10 text-green-700 border-green-200" : "bg-muted text-muted-foreground"}
           >
-            {user.is_active ? (
+            {user.isActive ? (
               <div className="flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3" />
                 Activo
@@ -187,10 +176,10 @@ export const UserDetailsPage = () => {
                           </p>
                         </div>
                         <Badge
-                          variant={project.is_active ? "default" : "secondary"}
-                          className={project.is_active ? "bg-green-500/10 text-green-700 border-green-200 shrink-0" : "shrink-0"}
+                          variant={project.isActive ? "default" : "secondary"}
+                          className={project.isActive ? "bg-green-500/10 text-green-700 border-green-200 shrink-0" : "shrink-0"}
                         >
-                          {project.is_active ? "Activo" : "Inactivo"}
+                          {project.isActive ? "Activo" : "Inactivo"}
                         </Badge>
                       </div>
                     </CardContent>

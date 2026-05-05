@@ -62,9 +62,9 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
           };
 
           if (state.filterStatus === "active") {
-            params.is_active = true;
+            params.isActive = true;
           } else if (state.filterStatus === "inactive") {
-            params.is_active = false;
+            params.isActive = false;
           }
 
           if (state.search.trim()) {
@@ -89,7 +89,7 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
 
         if (state.filterStatus !== "all") {
           filteredProjects = filteredProjects.filter((project) => {
-            const projectIsActive = Boolean(project.is_active);
+            const projectIsActive = Boolean(project.isActive);
             return projectIsActive === (state.filterStatus === "active");
           });
         }
