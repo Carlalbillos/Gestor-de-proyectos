@@ -28,8 +28,8 @@ export const SettingsPage = () => {
     setServerError(null);
     try {
       await changePassword({
-        current_password: data.currentPassword,
-        new_password: data.newPassword,
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
       });
       setSuccessMessage("Contraseña actualizada correctamente");
       reset();

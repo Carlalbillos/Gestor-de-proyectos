@@ -80,10 +80,10 @@ export const UserDetailsPage = () => {
         </div>
         <div className="flex gap-2">
           <Badge
-            variant={user.is_active ? "default" : "secondary"}
-            className={user.is_active ? "bg-green-500/10 text-green-700 border-green-200" : "bg-muted text-muted-foreground"}
+            variant={user.isActive ? "default" : "secondary"}
+            className={user.isActive ? "bg-green-500/10 text-green-700 border-green-200" : "bg-muted text-muted-foreground"}
           >
-            {user.is_active ? (
+            {user.isActive ? (
               <div className="flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3" />
                 Activo
@@ -176,10 +176,10 @@ export const UserDetailsPage = () => {
                           </p>
                         </div>
                         <Badge
-                          variant={project.is_active ? "default" : "secondary"}
-                          className={project.is_active ? "bg-green-500/10 text-green-700 border-green-200 shrink-0" : "shrink-0"}
+                          variant={project.isActive ? "default" : "secondary"}
+                          className={project.isActive ? "bg-green-500/10 text-green-700 border-green-200 shrink-0" : "shrink-0"}
                         >
-                          {project.is_active ? "Activo" : "Inactivo"}
+                          {project.isActive ? "Activo" : "Inactivo"}
                         </Badge>
                       </div>
                     </CardContent>

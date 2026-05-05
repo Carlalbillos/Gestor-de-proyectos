@@ -41,8 +41,8 @@ export const CreateProjectPage = () => {
     defaultValues: {
       name: "",
       description: "",
-      start_date: new Date().toISOString().split('T')[0],
-      client_id: "",
+      startDate: new Date().toISOString().split('T')[0],
+      clientId: "",
     },
   });
 
@@ -56,7 +56,7 @@ export const CreateProjectPage = () => {
     const fetchClients = async () => {
       try {
         const data = await clientService.getClients();
-        setClients(data.filter(c => c.is_active));
+        setClients(data.filter(c => c.isActive));
         setIsLoadingClients(false);
       } catch (error) {
         console.error("Error fetching clients", error);
@@ -133,25 +133,25 @@ export const CreateProjectPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="start_date">Fecha de Inicio</Label>
+                <Label htmlFor="startDate">Fecha de Inicio</Label>
                 <Input
-                  id="start_date"
+                  id="startDate"
                   type="date"
-                  aria-invalid={!!errors.start_date}
-                  {...register("start_date")}
+                  aria-invalid={!!errors.startDate}
+                  {...register("startDate")}
                 />
-                {errors.start_date && (
-                  <p className="text-sm text-destructive">{errors.start_date.message}</p>
+                {errors.startDate && (
+                  <p className="text-sm text-destructive">{errors.startDate.message}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="client_id">Cliente</Label>
+                <Label htmlFor="clientId">Cliente</Label>
                 <select
-                  id="client_id"
+                  id="clientId"
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  aria-invalid={!!errors.client_id}
-                  {...register("client_id")}
+                  aria-invalid={!!errors.clientId}
+                  {...register("clientId")}
                 >
                   <option value="">Selecciona un cliente</option>
                   {clients.map(client => (
@@ -160,8 +160,8 @@ export const CreateProjectPage = () => {
                     </option>
                   ))}
                 </select>
-                {errors.client_id && (
-                  <p className="text-sm text-destructive">{errors.client_id.message}</p>
+                {errors.clientId && (
+                  <p className="text-sm text-destructive">{errors.clientId.message}</p>
                 )}
                 {isLoadingClients && <p className="text-xs text-muted-foreground animate-pulse">Cargando clientes...</p>}
               </div>

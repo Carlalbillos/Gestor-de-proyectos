@@ -11,7 +11,7 @@ import { ApiClientRepository } from "@/infrastructure/adapters/ApiClientReposito
 import { ClientService } from "@/application/services/client.service";
 import { ApiSectorRepository } from "@/infrastructure/adapters/ApiSectorRepository";
 import { SectorService } from "@/application/services/sector.service";
-import { useAuthStore } from "@/infrastructure/stores/auth.store";
+
 import { createClientSchema } from "@/infrastructure/ui/validators/create-client.schema";
 import type { CreateClientFormData } from "@/infrastructure/ui/validators/create-client.schema";
 import type { Sector } from "@/domain/entities/sector.entity";
@@ -39,7 +39,7 @@ export const CreateClientPage = () => {
     resolver: zodResolver(createClientSchema),
     defaultValues: {
       name: "",
-      sector_id: "",
+      sectorId: "",
     },
   });
 
@@ -120,12 +120,12 @@ export const CreateClientPage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="sector_id">Sector</Label>
+              <Label htmlFor="sectorId">Sector</Label>
               <select
-                id="sector_id"
+                id="sectorId"
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                aria-invalid={!!errors.sector_id}
-                {...register("sector_id")}
+                aria-invalid={!!errors.sectorId}
+                {...register("sectorId")}
               >
                 <option value="">Selecciona un sector</option>
                 {sectors.map(sector => (
@@ -134,8 +134,8 @@ export const CreateClientPage = () => {
                   </option>
                 ))}
               </select>
-              {errors.sector_id && (
-                <p className="text-sm text-destructive">{errors.sector_id.message}</p>
+              {errors.sectorId && (
+                <p className="text-sm text-destructive">{errors.sectorId.message}</p>
               )}
               {isLoadingSectors && <p className="text-xs text-muted-foreground animate-pulse">Cargando sectores...</p>}
             </div>

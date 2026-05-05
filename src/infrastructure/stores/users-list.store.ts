@@ -42,7 +42,7 @@ export const useUsersListStore = create<UsersListState>((set, get) => ({
 
         if (state.filterStatus !== "all") {
           filteredUsers = filteredUsers.filter((u) => {
-            const userIsActive = Boolean(u.is_active);
+            const userIsActive = Boolean(u.isActive);
             return userIsActive === (state.filterStatus === "active");
           });
         }

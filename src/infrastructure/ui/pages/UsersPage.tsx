@@ -121,10 +121,10 @@ export const UsersPage = () => {
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start mb-1">
                   <Badge
-                    variant={u.is_active ? "default" : "secondary"}
-                    className={u.is_active ? "bg-green-500/10 text-green-700 hover:bg-green-500/20 border-green-200" : ""}
+                    variant={u.isActive ? "default" : "secondary"}
+                    className={u.isActive ? "bg-green-500/10 text-green-700 hover:bg-green-500/20 border-green-200" : ""}
                   >
-                    {u.is_active ? "Activo" : "Inactivo"}
+                    {u.isActive ? "Activo" : "Inactivo"}
                   </Badge>
                   <Badge variant="outline" className="text-[10px] h-5 bg-background">
                     <Shield className="mr-1 h-3 w-3" />

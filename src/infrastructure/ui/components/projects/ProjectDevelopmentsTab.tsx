@@ -30,9 +30,9 @@ export const ProjectDevelopmentsTab = ({ developments }: ProjectDevelopmentsTabP
               </CardHeader>
               <CardContent className="pt-4 flex-grow flex flex-col justify-end">
                 <div className="flex flex-wrap gap-2 mt-auto">
-                  {dev.url_repository && (
+                  {dev.urlRepository && (
                     <Button variant="outline" size="sm" asChild className="h-8">
-                      <a href={dev.url_repository} target="_blank" rel="noopener noreferrer">
+                      <a href={dev.urlRepository} target="_blank" rel="noopener noreferrer">
                         <Code2 className="mr-2 h-3.5 w-3.5" />
                         Repositorio
                       </a>

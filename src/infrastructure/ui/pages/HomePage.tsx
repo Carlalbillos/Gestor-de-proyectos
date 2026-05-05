@@ -113,7 +113,7 @@ export const HomePage = () => {
                     <div className="flex items-center text-sm text-muted-foreground justify-between w-full">
                       <div className="flex items-center">
                         <Users className="w-4 h-4 mr-2" />
-                        {project.team_members || 0} miembros
+                        {project.teamMembers != null ? project.teamMembers : 0} miembros
                       </div>
                       {project.client?.name && (
                         <span className="text-xs max-w-[100px]" title={project.client.name}>

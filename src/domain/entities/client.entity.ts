@@ -6,28 +6,28 @@ export interface ClientSector {
 export interface Client {
     id: string;
     name: string;
-    is_active: boolean;
+    isActive: boolean;
     sector: ClientSector;
 }
 
 export interface ClientContact {
     id: string;
-    full_name: string;
-    phone_number: string | null;
+    fullName: string;
+    phoneNumber: string | null;
     email: string;
-    is_active: boolean;
-    is_main: boolean;
+    isActive: boolean;
+    isMain: boolean;
     note: string | null;
 }
 
 export interface CreateClientDTO {
     id: string;
     name: string;
-    sector_id: string;
+    sectorId: string;
 }
 
 export interface UpdateClientDTO {
     name?: string;
-    sector_id?: string;
-    is_active?: boolean;
+    sectorId?: string;
+    isActive?: boolean;
 }

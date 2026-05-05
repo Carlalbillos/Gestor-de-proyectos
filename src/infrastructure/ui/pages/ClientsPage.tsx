@@ -115,10 +115,10 @@ export const ClientsPage = () => {
               <CardHeader className="pb-1">
                 <div className="flex justify-between items-start">
                   <Badge
-                    variant={client.is_active ? "default" : "secondary"}
-                    className={client.is_active ? "bg-green-500/10 text-green-700 hover:bg-green-500/20 border-green-200" : ""}
+                    variant={client.isActive ? "default" : "secondary"}
+                    className={client.isActive ? "bg-green-500/10 text-green-700 hover:bg-green-500/20 border-green-200" : ""}
                   >
-                    {client.is_active ? "Activo" : "Inactivo"}
+                    {client.isActive ? "Activo" : "Inactivo"}
                   </Badge>
                 </div>
                 <CardTitle className="group-hover:text-primary transition-colors line-clamp-1" title={client.name}>

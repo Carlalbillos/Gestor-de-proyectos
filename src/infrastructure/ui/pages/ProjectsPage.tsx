@@ -127,10 +127,10 @@ export const ProjectsPage = () => {
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start mb-1">
                     <Badge 
-                      variant={project.is_active ? "default" : "secondary"} 
-                      className={project.is_active ? "bg-green-500/10 text-green-700 hover:bg-green-500/20 border-green-200" : ""}
+                      variant={project.isActive ? "default" : "secondary"} 
+                      className={project.isActive ? "bg-green-500/10 text-green-700 hover:bg-green-500/20 border-green-200" : ""}
                     >
-                      {project.is_active ? "Activo" : "Inactivo"}
+                      {project.isActive ? "Activo" : "Inactivo"}
                     </Badge>
                   </div>
                   <CardTitle className="group-hover:text-primary transition-colors line-clamp-1" title={project.name}>
@@ -152,7 +152,7 @@ export const ProjectsPage = () => {
                     )}
                     <div className="flex items-center text-sm text-muted-foreground px-2">
                       <Users className="mr-2.5 h-4 w-4 text-muted-foreground/70" />
-                      <span>{project.team_members || 0} miembros</span>
+                      {project.teamMembers != null && <span>{project.teamMembers} miembros</span>}
                     </div>
                   </div>
                 </CardContent>

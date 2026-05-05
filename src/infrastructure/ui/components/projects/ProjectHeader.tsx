@@ -25,10 +25,10 @@ export const ProjectHeader = ({ project, onBack }: ProjectHeaderProps) => {
           <div className="flex items-center gap-3">
             <h1 className="text-4xl font-extrabold tracking-tight">{project.name}</h1>
             <Badge
-              variant={project.is_active ? "default" : "secondary"}
-              className={project.is_active ? "bg-green-500/10 text-green-700 border-green-200" : "bg-muted text-muted-foreground"}
+              variant={project.isActive ? "default" : "secondary"}
+              className={project.isActive ? "bg-green-500/10 text-green-700 border-green-200" : "bg-muted text-muted-foreground"}
             >
-              {project.is_active ? (
+              {project.isActive ? (
                 <div className="flex items-center gap-1">
                   <CheckCircle2 className="h-3 w-3" />
                   Activo
