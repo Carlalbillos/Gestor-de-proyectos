@@ -7,9 +7,21 @@ export class UserMapper {
       name: raw.name,
       surname: raw.surname,
       email: raw.email,
-      role: raw.role,
+      role: UserMapper.fromApiRole(raw.role),
       isActive: Boolean(raw.is_active),
     };
+  }
+
+  static toApiRole(role: string): string {
+    if (role === 'admin') return 'ROLE_ADMIN';
+    if (role === 'user') return 'ROLE_USER';
+    return role;
+  }
+
+  static fromApiRole(role: string): string {
+    if (role === 'ROLE_ADMIN') return 'admin';
+    if (role === 'ROLE_USER') return 'user';
+    return role;
   }
 
   static toTimeEntryDomain(raw: any): TimeEntry {
