@@ -23,9 +23,9 @@ export const DashboardLayout = () => {
   const loggedAsAdmin = isAdmin(user);
 
   return (
-    <div className="min-h-screen flex bg-muted/20">
+    <div className="h-screen sticky min-h-screen flex bg-muted/20">
       {/* Sidebar */}
-      <aside className="w-64 bg-background border-r flex flex-col">
+      <aside className=" w-64 bg-background border-r flex flex-col">
         <div className="p-4 border-b">
           <h2 className="text-xl font-bold text-primary tracking-tight">
             <img src="/logo480-t.png" alt="Logo 480:DEV PROJECTS" />

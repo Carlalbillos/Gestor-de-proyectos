@@ -4,21 +4,10 @@ import { useUserDetailsStore } from "@/infrastructure/stores/user-details.store"
 import { Card, CardContent, CardHeader, CardTitle } from "@/infrastructure/ui/components/ui/card";
 import { Badge } from "@/infrastructure/ui/components/ui/badge";
 import { Button } from "@/infrastructure/ui/components/ui/button";
-import {
-  ArrowLeft,
-  Loader2,
-  CheckCircle2,
-  XCircle,
-  Mail,
-  Shield,
-  Briefcase,
-  Clock,
-  Calendar,
-} from "lucide-react";
+import { Lock, ArrowLeft, Loader2, CheckCircle2, XCircle, Mail, Shield, Briefcase, Clock, Calendar } from "lucide-react";
 import { isAdmin } from "@/infrastructure/ui/lib/roleChecker";
 import { AdminChangePasswordModal } from "@/infrastructure/ui/components/users/AdminChangePasswordModal";
 import { useState } from "react";
-import { Lock } from "lucide-react";
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
 
 export const UserDetailsPage = () => {
