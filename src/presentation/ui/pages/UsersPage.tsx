@@ -137,7 +137,7 @@ export const UsersPage = () => {
                 <CardDescription className="line-clamp-1 mt-1">
                   <span className="flex items-center gap-1.5">
                     <Mail className="h-3.5 w-3.5" />
-                    {u.email}
+                    {u.email.getValue()}
                   </span>
                 </CardDescription>
               </CardHeader>

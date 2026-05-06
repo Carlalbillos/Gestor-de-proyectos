@@ -1,4 +1,5 @@
 import type { User, TimeEntry } from "../../domain/entities/user.entity";
+import { Email } from "../../domain/value-objects/Email";
 
 export class UserMapper {
   static toDomain(raw: any): User {
@@ -6,7 +7,7 @@ export class UserMapper {
       id: raw.id,
       name: raw.name,
       surname: raw.surname,
-      email: raw.email,
+      email: new Email(raw.email),
       role: UserMapper.fromApiRole(raw.role),
       isActive: Boolean(raw.is_active),
     };

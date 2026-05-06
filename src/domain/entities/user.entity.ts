@@ -1,8 +1,10 @@
+import { Email } from "../value-objects/Email";
+
 export interface User {
   id: string;
   name: string;
   surname: string;
-  email: string;
+  email: Email;
   role: string;
   isActive: boolean;
 }

@@ -63,7 +63,7 @@ export const HomePage = () => {
 
               <div className="space-y-1">
                 <h3 className="font-semibold text-lg">{profile.name} {profile.surname}</h3>
-                <p className="text-sm text-muted-foreground">{profile.email}</p>
+                <p className="text-sm text-muted-foreground">{profile.email.getValue()}</p>
               </div>
 
               <Badge variant="secondary" className="px-4 py-1 text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20">

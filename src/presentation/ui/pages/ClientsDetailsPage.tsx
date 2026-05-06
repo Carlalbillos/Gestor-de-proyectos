@@ -158,7 +158,7 @@ export const ClientsDetailsPage = () => {
   const handleStartEditContact = (contact: any) => {
     setEditingContactId(contact.id);
     setEditContactValue("fullName", contact.fullName);
-    setEditContactValue("email", contact.email);
+    setEditContactValue("email", contact.email.getValue());
     setEditContactValue("phoneNumber", contact.phoneNumber || "");
     setEditContactValue("isMain", contact.isMain);
     setEditContactValue("isActive", contact.isActive);
@@ -727,7 +727,7 @@ export const ClientsDetailsPage = () => {
                         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1.5">
                             <Mail className="h-3.5 w-3.5" />
-                            {contact.email}
+                            {contact.email.getValue()}
                           </span>
                           {contact.phoneNumber && (
                             <span className="flex items-center gap-1.5">

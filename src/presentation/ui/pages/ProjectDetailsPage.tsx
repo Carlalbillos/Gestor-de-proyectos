@@ -91,7 +91,8 @@ export const ProjectDetailsPage = () => {
           </TabsContent>
 
           <TabsContent value="cliente" className="space-y-6">
-            <ProjectClientTab client={project.client} />
+            <ProjectClientTab
+              client={project.client} />
           </TabsContent>
 
           <TabsContent value="desarrollos" className="space-y-6">

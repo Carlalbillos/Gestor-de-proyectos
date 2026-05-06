@@ -73,7 +73,7 @@ export const UserDetailsPage = () => {
               <h1 className="text-4xl font-extrabold tracking-tight">{user.name} {user.surname}</h1>
               <p className="text-muted-foreground flex items-center gap-1.5 mt-1">
                 <Mail className="h-4 w-4" />
-                {user.email}
+                {user.email.getValue()}
               </p>
             </div>
           </div>
