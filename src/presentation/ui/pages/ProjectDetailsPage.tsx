@@ -25,7 +25,7 @@ import { ProjectHoursTab } from "../components/projects/ProjectHoursTab";
 export const ProjectDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { project, users, roles, allUsers, developments, isLoading, error, fetchProjectDetails, fetchRoles, fetchAllUsers, clearDetails } = useProjectDetailsStore();
+  const { project, users, roles, allUsers, developments, clientContacts, isLoading, error, fetchProjectDetails, fetchRoles, fetchAllUsers, clearDetails } = useProjectDetailsStore();
 
   useEffect(() => {
     if (id) {
@@ -92,7 +92,9 @@ export const ProjectDetailsPage = () => {
 
           <TabsContent value="cliente" className="space-y-6">
             <ProjectClientTab
-              client={project.client} />
+              client={project.client}
+              contacts={clientContacts}
+            />
           </TabsContent>
 
           <TabsContent value="desarrollos" className="space-y-6">

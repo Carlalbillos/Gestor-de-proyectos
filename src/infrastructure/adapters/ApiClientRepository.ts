@@ -60,7 +60,6 @@ export class ApiClientRepository implements ClientRepository {
       full_name: contact.fullName,
       phone_number: contact.phoneNumber,
       email: contact.email,
-      is_active: contact.isActive,
       is_main: contact.isMain,
       note: contact.note,
     });
@@ -71,7 +70,6 @@ export class ApiClientRepository implements ClientRepository {
       full_name: contact.fullName,
       phone_number: contact.phoneNumber,
       email: contact.email,
-      is_active: contact.isActive,
       is_main: contact.isMain,
       note: contact.note,
     });

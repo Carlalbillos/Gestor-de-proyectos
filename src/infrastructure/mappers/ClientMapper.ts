@@ -15,12 +15,20 @@ export class ClientMapper {
   }
 
   static toContactDomain(raw: any): ClientContact {
+    let email: Email | null = null;
+    try {
+      if (raw.email) {
+        email = new Email(raw.email);
+      }
+    } catch (e) {
+      console.error("Invalid email for contact", raw.id, raw.email);
+    }
+
     return {
       id: raw.id,
       fullName: raw.full_name,
       phoneNumber: raw.phone_number ?? null,
-      email: new Email(raw.email),
-      isActive: Boolean(raw.is_active),
+      email: email,
       isMain: Boolean(raw.is_main),
       note: raw.note ?? null,
     };

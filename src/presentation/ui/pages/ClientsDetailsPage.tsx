@@ -17,7 +17,7 @@ import type { CreateContactFormData } from "@/presentation/ui/validators/create-
 import { updateContactSchema } from "@/presentation/ui/validators/update-contact.schema";
 import type { UpdateContactFormData } from "@/presentation/ui/validators/update-contact.schema";
 import type { Sector } from "@/domain/entities/sector.entity";
-import { ArrowLeft, Loader2, XCircle, Building2, Briefcase, Users, Users2, Calendar, Mail, Phone, Star, StickyNote, Pencil, Trash2, Save, X, Power, UserPlus, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Loader2, XCircle, Building2, Briefcase, Users, Users2, Calendar, Mail, Phone, Star, StickyNote, Pencil, Trash2, Save, X, Power, UserPlus } from "lucide-react";
 import { uuidv7 } from "@/presentation/ui/lib/uuid";
 
 const sectorRepository = new ApiSectorRepository();
@@ -61,7 +61,6 @@ export const ClientsDetailsPage = () => {
   } = useForm<CreateContactFormData>({
     resolver: zodResolver(createContactSchema),
     defaultValues: {
-      isActive: true,
       isMain: false,
     },
   });
@@ -161,7 +160,6 @@ export const ClientsDetailsPage = () => {
     setEditContactValue("email", contact.email.getValue());
     setEditContactValue("phoneNumber", contact.phoneNumber || "");
     setEditContactValue("isMain", contact.isMain);
-    setEditContactValue("isActive", contact.isActive);
     setEditContactValue("note", contact.note || "");
   };
 
@@ -568,18 +566,6 @@ export const ClientsDetailsPage = () => {
                       Contacto Principal
                     </span>
                   </label>
-
-                  <label className="flex items-center gap-2 cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                      {...registerContact("isActive")}
-                    />
-                    <span className="text-sm font-medium group-hover:text-primary transition-colors flex items-center gap-1.5">
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                      Activo
-                    </span>
-                  </label>
                 </div>
 
                 <div className="flex justify-end gap-2 pt-2">
@@ -665,18 +651,6 @@ export const ClientsDetailsPage = () => {
                             Principal
                           </span>
                         </label>
-
-                        <label className="flex items-center gap-2 cursor-pointer group">
-                          <input
-                            type="checkbox"
-                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                            {...registerEditContact("isActive")}
-                          />
-                          <span className="text-sm font-medium group-hover:text-primary transition-colors flex items-center gap-1.5">
-                            <CheckCircle2 className="h-3.5 w-3.5" />
-                            Activo
-                          </span>
-                        </label>
                       </div>
 
                       <div className="flex justify-end gap-2 pt-2">
@@ -713,16 +687,6 @@ export const ClientsDetailsPage = () => {
                               Principal
                             </Badge>
                           )}
-                          <Badge
-                            variant={contact.isActive ? "default" : "secondary"}
-                            className={
-                              contact.isActive
-                                ? "bg-green-500/10 text-green-700 border-green-200"
-                                : ""
-                            }
-                          >
-                            {contact.isActive ? "Activo" : "Inactivo"}
-                          </Badge>
                         </div>
                         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1.5">
@@ -743,26 +707,28 @@ export const ClientsDetailsPage = () => {
                           </div>
                         )}
                       </div>
-                      <div className="flex gap-1">
+                      <div className="flex gap-2">
                         <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-primary opacity-0 group-hover/contact:opacity-100 transition-opacity"
+                          variant="outline"
+                          size="sm"
+                          className="h-8 gap-2 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors"
                           onClick={() => handleStartEditContact(contact)}
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Pencil className="h-3.5 w-3.5" />
+                          <span>Editar</span>
                         </Button>
                         <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover/contact:opacity-100 transition-opacity"
+                          variant="outline"
+                          size="sm"
+                          className="h-8 gap-2 text-destructive hover:bg-destructive/5 hover:border-destructive/30 transition-colors"
                           onClick={async () => {
                             if (confirm(`¿Estás seguro de que quieres eliminar a ${contact.fullName}?`)) {
                               await deleteContact(id!, contact.id);
                             }
                           }}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-3.5 w-3.5" />
+                          <span>Eliminar</span>
                         </Button>
                       </div>
                     </div>

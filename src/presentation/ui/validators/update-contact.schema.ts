@@ -15,7 +15,6 @@ export const updateContactSchema = z.object({
     .optional()
     .or(z.literal("")),
   isMain: z.boolean(),
-  isActive: z.boolean(),
   note: z
     .string()
     .max(500, "La nota no puede superar los 500 caracteres")

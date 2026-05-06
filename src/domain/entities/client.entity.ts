@@ -17,7 +17,6 @@ export interface ClientContact {
     fullName: string;
     phoneNumber: string | null;
     email: Email;
-    isActive: boolean;
     isMain: boolean;
     note: string | null;
 }

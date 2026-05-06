@@ -1,10 +1,13 @@
 import { create } from "zustand";
 import type { Project, ProjectUser, ProjectDevelopment, ProjectRole } from "@/domain/entities/project.entity";
 import type { User } from "@/domain/entities/user.entity";
+import type { ClientContact } from "@/domain/entities/client.entity";
 import { ApiProjectRepository } from "@/infrastructure/adapters/ApiProjectRepository";
 import { ProjectService } from "@/application/services/ProjectService";
 import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
 import { UserService } from "@/application/services/UserService";
+import { ApiClientRepository } from "@/infrastructure/adapters/ApiClientRepository";
+import { ClientService } from "@/application/services/ClientService";
 
 interface ProjectDetailsState {
   project: Project | null;
@@ -12,6 +15,7 @@ interface ProjectDetailsState {
   roles: ProjectRole[];
   allUsers: User[];
   developments: ProjectDevelopment[];
+  clientContacts: ClientContact[];
   isLoading: boolean;
   error: string | null;
   fetchProjectDetails: (id: string) => Promise<void>;
@@ -27,6 +31,8 @@ const projectRepository = new ApiProjectRepository();
 const projectService = new ProjectService(projectRepository);
 const userRepository = new ApiUserRepository();
 const userService = new UserService(userRepository);
+const clientRepository = new ApiClientRepository();
+const clientService = new ClientService(clientRepository);
 
 export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
   project: null,
@@ -34,6 +40,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
   roles: [],
   allUsers: [],
   developments: [],
+  clientContacts: [],
   isLoading: false,
   error: null,
 
@@ -45,7 +52,13 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
         projectService.getProjectUsers(id),
         projectService.getProjectDevelopments(id),
       ]);
-      set({ project, users, developments, isLoading: false });
+
+      let clientContacts: ClientContact[] = [];
+      if (project?.client?.id) {
+        clientContacts = await clientService.getClientContacts(project.client.id);
+      }
+
+      set({ project, users, developments, clientContacts, isLoading: false });
     } catch (error: any) {
       set({ error: error.message || "Error al cargar los detalles del proyecto", isLoading: false });
     }
@@ -106,6 +119,6 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
   },
 
   clearDetails: () => {
-    set({ project: null, users: [], roles: [], allUsers: [], developments: [], error: null, isLoading: false });
+    set({ project: null, users: [], roles: [], allUsers: [], developments: [], clientContacts: [], error: null, isLoading: false });
   },
 }));

@@ -14,7 +14,6 @@ export const createContactSchema = z.object({
     .max(30, "El teléfono no puede superar los 30 caracteres")
     .optional()
     .or(z.literal("")),
-  isActive: z.boolean(),
   isMain: z.boolean(),
   note: z
     .string()
