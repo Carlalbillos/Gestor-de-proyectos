@@ -14,16 +14,20 @@ export const ClientsPage = () => {
   const { items: clients, isLoading, error, search, filterStatus, fetchClients, setSearch, setFilterStatus } = useClientsListStore();
   const [searchInput, setSearchInput] = useState(search);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSearch(searchInput);
-  };
+  // Búsqueda reactiva con debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearch(searchInput);
+    }, 300); // 300ms de espera
+
+    return () => clearTimeout(timer);
+  }, [searchInput, setSearch]);
 
   useEffect(() => {
     if (user) {
       fetchClients();
     }
-  }, [fetchClients, user]);
+  }, [fetchClients, user, search, filterStatus]);
 
   return (
     <div className="space-y-6">
@@ -48,8 +52,8 @@ export const ClientsPage = () => {
 
       <Card className="border-muted shadow-sm">
         <CardContent className="p-4">
-          <form onSubmit={handleSearch} className="flex flex-col gap-2 md:flex-row md:items-end">
-            <div className="relative flex-1 w-4">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end">
+            <div className="relative flex-1">
               <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
@@ -65,17 +69,14 @@ export const ClientsPage = () => {
                 id="client-filter-status"
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value as "all" | "active" | "inactive")}
-                className="h-10 rounded-lg border border-input bg-background px-3 text-sm text-foreground"
+                className="h-10 rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none"
               >
-                <option value="all">Todos</option>
+                <option value="all">Todos los estados</option>
                 <option value="active">Activos</option>
-                <option value="inactive">No activos</option>
+                <option value="inactive">Inactivos</option>
               </select>
-              <Button type="submit" variant="secondary" disabled={isLoading} className="px-6 h-10">
-                Buscar
-              </Button>
             </div>
-          </form>
+          </div>
         </CardContent>
       </Card>
 

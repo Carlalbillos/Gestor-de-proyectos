@@ -36,7 +36,7 @@ export const useUsersListStore = create<UsersListState>((set, get) => ({
           const term = state.search.trim().toLowerCase();
           filteredUsers = filteredUsers.filter((u) =>
             `${u.name} ${u.surname}`.toLowerCase().includes(term) ||
-            u.email.toLowerCase().includes(term)
+            u.email.getValue().toLowerCase().includes(term)
           );
         }
 

@@ -215,59 +215,67 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
       )}
 
       {usersCount > 0 ? (
-        users.map(user => (
-          <Card key={user.appUserId} className="border-muted/50 hover:border-primary/30 transition-colors shadow-none bg-card/50">
-            <CardContent className="p-2 flex items-center gap-4">
-              <div
-                aria-hidden
-                className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg"
-              >
-                {`${user.name?.[0] ?? ""}${user.surname?.[0] ?? ""}`}
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <p className="font-bold truncate">
-                  {user.name} {user.surname}
-                </p>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="outline" className="text-[10px] uppercase font-bold py-0 h-5">
-                    {user.role?.name || "Colaborador"}
-                  </Badge>
-                </div>
-              </div>
+        <Card className="border-muted/60 shadow-sm bg-card/30">
+          <CardContent className="p-4 grid gap-4">
+            {users.map(user => (
+              <Card key={user.appUserId} className="border-muted/50 hover:border-primary/30">
+                <CardContent className="p-3 flex items-center gap-4">
+                  <div
+                    aria-hidden
+                    className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+                  >
+                    {`${user.name?.[0] ?? ""}${user.surname?.[0] ?? ""}`}
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <p className="font-bold truncate text-base">
+                      {user.name} {user.surname}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <Badge variant="outline" className="text-[10px] uppercase font-bold py-0 h-5 bg-background/80">
+                        {user.role?.name || "Colaborador"}
+                      </Badge>
+                    </div>
+                  </div>
 
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-primary"
-                  onClick={() => {
-                    setEditingUser(user);
-                    setSelectedRoleId(user.role?.id || "");
-                  }}
-                >
-                  <Edit2 className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                  onClick={() => setShowDeleteConfirm(user.appUserId)}
-                  disabled={actionLoading === user.appUserId}
-                >
-                  {actionLoading === user.appUserId ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                      onClick={() => {
+                        setEditingUser(user);
+                        setSelectedRoleId(user.role?.id || "");
+                      }}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => setShowDeleteConfirm(user.appUserId)}
+                      disabled={actionLoading === user.appUserId}
+                    >
+                      {actionLoading === user.appUserId ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </CardContent>
+        </Card>
       ) : (
-        <p className="col-span-full text-muted-foreground italic bg-muted/20 p-4 rounded-lg border border-dashed border-muted">
-          No hay miembros asignados a este equipo todavía.
-        </p>
+        <Card className="border-dashed bg-muted/20">
+          <CardContent className="p-12 text-center">
+            <p className="text-muted-foreground italic">
+              No hay miembros asignados a este equipo todavía.
+            </p>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
