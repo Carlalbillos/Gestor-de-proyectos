@@ -27,11 +27,27 @@ export class ClientService {
     return await this.clientRepository.deleteClient(id);
   }
 
+  async changeStatus(id: string): Promise<void> {
+    return await this.clientRepository.changeStatus(id);
+  }
+
   async getClientProjects(clientId: string): Promise<Project[]> {
     return await this.clientRepository.getClientProjects(clientId);
   }
 
   async getClientContacts(clientId: string): Promise<ClientContact[]> {
     return await this.clientRepository.getClientContacts(clientId);
+  }
+
+  async createContact(clientId: string, contactId: string, contact: any): Promise<void> {
+    return await this.clientRepository.createContact(clientId, contactId, contact);
+  }
+
+  async updateContact(clientId: string, contactId: string, contact: any): Promise<void> {
+    return await this.clientRepository.updateContact(clientId, contactId, contact);
+  }
+
+  async deleteContact(clientId: string, contactId: string): Promise<void> {
+    return await this.clientRepository.deleteContact(clientId, contactId);
   }
 }

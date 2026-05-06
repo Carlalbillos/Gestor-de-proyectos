@@ -41,6 +41,10 @@ export class ApiClientRepository implements ClientRepository {
     await api.delete(`clients/${id}`);
   }
 
+  async changeStatus(id: string): Promise<void> {
+    await api.patch(`clients/${id}/change-status`);
+  }
+
   async getClientProjects(clientId: string): Promise<Project[]> {
     const response = await api.get<any[]>(`clients/${clientId}/projects`);
     return (Array.isArray(response.data) ? response.data : []).map(ProjectMapper.toDomain);
@@ -49,5 +53,31 @@ export class ApiClientRepository implements ClientRepository {
   async getClientContacts(clientId: string): Promise<ClientContact[]> {
     const response = await api.get<any[]>(`clients/${clientId}/contacts`);
     return (Array.isArray(response.data) ? response.data : []).map(ClientMapper.toContactDomain);
+  }
+
+  async createContact(clientId: string, contactId: string, contact: any): Promise<void> {
+    await api.post(`clients/${clientId}/contacts/${contactId}`, {
+      full_name: contact.fullName,
+      phone_number: contact.phoneNumber,
+      email: contact.email,
+      is_active: contact.isActive,
+      is_main: contact.isMain,
+      note: contact.note,
+    });
+  }
+
+  async updateContact(clientId: string, contactId: string, contact: any): Promise<void> {
+    await api.put(`clients/${clientId}/contacts/${contactId}`, {
+      full_name: contact.fullName,
+      phone_number: contact.phoneNumber,
+      email: contact.email,
+      is_active: contact.isActive,
+      is_main: contact.isMain,
+      note: contact.note,
+    });
+  }
+
+  async deleteContact(clientId: string, contactId: string): Promise<void> {
+    await api.delete(`clients/${clientId}/contacts/${contactId}`);
   }
 }

@@ -82,11 +82,11 @@ export const ProjectDetailsPage = () => {
           </TabsContent>
 
           <TabsContent value="equipo" className="space-y-6">
-            <ProjectTeamTab 
-              users={users} 
-              roles={roles} 
+            <ProjectTeamTab
+              users={users}
+              roles={roles}
               allUsers={allUsers}
-              projectId={id || ""} 
+              projectId={id || ""}
             />
           </TabsContent>
 

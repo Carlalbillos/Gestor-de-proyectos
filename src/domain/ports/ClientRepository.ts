@@ -10,6 +10,10 @@ export interface ClientRepository {
   createClient(dto: CreateClientDTO): Promise<void>;
   updateClient(id: string, dto: UpdateClientDTO): Promise<void>;
   deleteClient(id: string): Promise<void>;
+  changeStatus(id: string): Promise<void>;
   getClientProjects(clientId: string): Promise<Project[]>;
   getClientContacts(clientId: string): Promise<ClientContact[]>;
+  createContact(clientId: string, contactId: string, contact: any): Promise<void>;
+  updateContact(clientId: string, contactId: string, contact: any): Promise<void>;
+  deleteContact(clientId: string, contactId: string): Promise<void>;
 }
