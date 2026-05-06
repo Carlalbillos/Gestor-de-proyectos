@@ -1,13 +1,13 @@
 import { create } from "zustand";
 
-import { ProjectService } from "../../application/services/project.service";
-import { UserService } from "../../application/services/user.service";
+import { ProjectService } from "../../application/services/ProjectService";
+import { UserService } from "../../application/services/UserService";
 
 import { ApiProjectRepository } from "../adapters/ApiProjectRepository";
 import { ApiUserRepository } from "../adapters/ApiUserRepository";
 
 import { useAuthStore } from "./auth.store";
-import { isAdmin } from "../ui/lib/roleChecker";
+import { isAdmin } from "@/presentation/ui/lib/roleChecker";
 
 import type { Project } from "../../domain/entities/project.entity";
 import { createBaseListSlice, handleListFetch } from "./factories/list-factory";

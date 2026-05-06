@@ -1,6 +1,7 @@
 import { api } from "./AxiosHttpClient";
 import type { ProjectRepository, ProjectQueryParams, PaginatedResult } from "../../domain/ports/ProjectRepository";
-import type { Project, ProjectUser, ProjectDevelopment, CreateProjectDTO, ProjectRole } from "../../domain/entities/project.entity";
+import type { Project, ProjectUser, ProjectDevelopment, ProjectRole } from "../../domain/entities/project.entity";
+import type { CreateProjectDTO } from "../../application/dto/project.dto";
 import { ProjectMapper } from "../mappers/ProjectMapper";
 
 export class ApiProjectRepository implements ProjectRepository {

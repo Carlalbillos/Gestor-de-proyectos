@@ -1,5 +1,5 @@
 import { useAuthStore } from "../auth.store";
-import { isAdmin } from "../../ui/lib/roleChecker";
+import { isAdmin } from "@/presentation/ui/lib/roleChecker";
 
 export interface BaseListState<T> {
   items: T[];

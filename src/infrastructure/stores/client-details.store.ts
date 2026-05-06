@@ -1,8 +1,9 @@
 import { create } from "zustand";
-import type { Client, ClientContact, UpdateClientDTO } from "@/domain/entities/client.entity";
+import type { Client, ClientContact } from "@/domain/entities/client.entity";
+import type { UpdateClientDTO } from "@/application/dto/client.dto";
 import type { Project } from "@/domain/entities/project.entity";
 import { ApiClientRepository } from "@/infrastructure/adapters/ApiClientRepository";
-import { ClientService } from "@/application/services/client.service";
+import { ClientService } from "@/application/services/ClientService";
 
 interface ClientDetailsState {
   client: Client | null;

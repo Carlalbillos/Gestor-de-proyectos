@@ -2,9 +2,9 @@ import { create } from "zustand";
 import type { Project, ProjectUser, ProjectDevelopment, ProjectRole } from "@/domain/entities/project.entity";
 import type { User } from "@/domain/entities/user.entity";
 import { ApiProjectRepository } from "@/infrastructure/adapters/ApiProjectRepository";
-import { ProjectService } from "@/application/services/project.service";
+import { ProjectService } from "@/application/services/ProjectService";
 import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
-import { UserService } from "@/application/services/user.service";
+import { UserService } from "@/application/services/UserService";
 
 interface ProjectDetailsState {
   project: Project | null;
@@ -101,7 +101,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
       const users = await projectService.getProjectUsers(projectId);
       set({ users });
     } catch (error: any) {
-      throw new Error(error.message || "Error al eliminar usuario");
+      throw error;
     }
   },
 

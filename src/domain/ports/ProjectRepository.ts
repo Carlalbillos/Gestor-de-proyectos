@@ -1,4 +1,5 @@
-import type { Project, ProjectUser, ProjectDevelopment, CreateProjectDTO, ProjectRole } from "../entities/project.entity";
+import type { Project, ProjectUser, ProjectDevelopment, ProjectRole } from "../entities/project.entity";
+import type { CreateProjectDTO } from "../../application/dto/project.dto";
 
 export interface ProjectQueryParams {
   page?: number;

@@ -5,10 +5,10 @@ import { jwtDecode } from "jwt-decode";
 import type { User } from "@/domain/entities/user.entity";
 import { setAccessToken } from "@/infrastructure/adapters/AxiosHttpClient";
 import { ApiAuthRepository } from "@/infrastructure/adapters/ApiAuthRepository";
-import { LoginUseCase } from "@/application/services/LoginUseCase";
-import { UserService } from "@/application/services/user.service";
+import { LoginUseCase } from "@/application/use-cases/LoginUseCase";
+import { UserService } from "@/application/services/UserService";
 import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
-import type { ChangePasswordDTO } from "@/domain/entities/user.entity";
+import type { ChangePasswordDTO } from "@/application/dto/user.dto";
 
 const loginUseCase = new LoginUseCase(new ApiAuthRepository());
 const userService = new UserService(new ApiUserRepository());

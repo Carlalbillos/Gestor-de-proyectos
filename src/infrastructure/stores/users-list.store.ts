@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import { UserService } from "../../application/services/user.service";
+import { UserService } from "../../application/services/UserService";
 import { ApiUserRepository } from "../adapters/ApiUserRepository";
-import { isAdmin } from "../ui/lib/roleChecker";
+import { isAdmin } from "@/presentation/ui/lib/roleChecker";
 import type { User } from "../../domain/entities/user.entity";
 import { createBaseListSlice, handleListFetch } from "./factories/list-factory";
 import type { BaseListState } from "./factories/list-factory";

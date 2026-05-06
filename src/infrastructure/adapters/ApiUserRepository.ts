@@ -1,6 +1,7 @@
 import { api } from "./AxiosHttpClient";
 import type { UserRepository } from "../../domain/ports/UserRepository";
-import type { User, CreateUserDTO, UpdateUserDTO, TimeEntriesResponse, ChangePasswordDTO, AdminChangePasswordDTO } from "../../domain/entities/user.entity";
+import type { User, TimeEntriesResponse } from "../../domain/entities/user.entity";
+import type { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, AdminChangePasswordDTO } from "../../application/dto/user.dto";
 import type { Project } from "../../domain/entities/project.entity";
 import { UserMapper } from "../mappers/UserMapper";
 import { ProjectMapper } from "../mappers/ProjectMapper";
