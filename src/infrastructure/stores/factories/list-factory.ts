@@ -4,6 +4,8 @@ import { isAdmin } from "@/presentation/ui/lib/roleChecker";
 export interface BaseListState<T> {
   items: T[];
   total: number;
+  page: number;
+  limit: number;
   isLoading: boolean;
   error: string | null;
   search: string;
@@ -11,51 +13,53 @@ export interface BaseListState<T> {
 
   setSearch: (search: string) => void;
   setFilterStatus: (filterStatus: "all" | "active" | "inactive") => void;
+  setPage: (page: number) => void;
+  setLimit: (limit: number) => void;
 }
 
-/**
- * Creates the base state and actions for a list store.
- * Automatically hooks up setSearch and setFilterStatus to call the provided fetch action.
- */
 export function createBaseListSlice<T, StoreState extends BaseListState<T>>(
   set: any,
   get: any,
   fetchItemsActionName: keyof StoreState
 ): BaseListState<T> {
+  const fetchAction = () => (get()[fetchItemsActionName] as () => void)();
+
   return {
     items: [],
     total: 0,
+    page: 1,
+    limit: 20,
     isLoading: false,
     error: null,
     search: "",
     filterStatus: "all",
 
     setSearch: (search: string) => {
-      set({ search });
-      const fetchAction = get()[fetchItemsActionName] as () => void;
+      set({ search, page: 1 }); // Reset to page 1 on search
       fetchAction();
     },
 
     setFilterStatus: (filterStatus: "all" | "active" | "inactive") => {
-      set({ filterStatus });
-      const fetchAction = get()[fetchItemsActionName] as () => void;
+      set({ filterStatus, page: 1 }); // Reset to page 1 on filter change
+      fetchAction();
+    },
+
+    setPage: (page: number) => {
+      set({ page });
+      fetchAction();
+    },
+
+    setLimit: (limit: number) => {
+      set({ limit, page: 1 });
       fetchAction();
     },
   };
 }
 
-/**
- * Handles the standard fetch logic for a list store including:
- * - Loading state
- * - Error handling
- * - Authentication & Authorization checks
- * - Execution of the API call
- * - Client-side filtering
- */
 export async function handleListFetch<T, StoreState extends BaseListState<T>>(
   set: any,
   get: any,
-  fetchData: () => Promise<T[]>,
+  fetchData: () => Promise<T[] | { data: T[]; total: number }>,
   filterData: (items: T[], state: StoreState) => T[],
   requireAdmin: boolean = true
 ) {
@@ -70,12 +74,30 @@ export async function handleListFetch<T, StoreState extends BaseListState<T>>(
       return;
     }
 
-    let allItems = await fetchData();
+    const response = await fetchData();
+    let allItems: T[];
+
+    if (Array.isArray(response)) {
+      allItems = response;
+    } else {
+      allItems = response.data;
+    }
 
     allItems = filterData(allItems, get() as StoreState);
 
-    set({ items: allItems, total: allItems.length, isLoading: false });
+    // Client-side pagination
+    const total = allItems.length;
+    const { page, limit } = get() as StoreState;
+    const start = (page - 1) * limit;
+    const paginatedItems = allItems.slice(start, start + limit);
+
+    set({
+      items: paginatedItems,
+      total,
+      isLoading: false,
+    });
   } catch (error: any) {
     set({ isLoading: false, error: error.message || "Error al cargar la lista" });
   }
 }
+

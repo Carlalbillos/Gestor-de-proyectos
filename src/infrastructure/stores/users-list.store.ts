@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { UserService } from "../../application/services/UserService";
 import { ApiUserRepository } from "../adapters/ApiUserRepository";
-import { isAdmin } from "@/presentation/ui/lib/roleChecker";
 import type { User } from "../../domain/entities/user.entity";
 import { createBaseListSlice, handleListFetch } from "./factories/list-factory";
 import type { BaseListState } from "./factories/list-factory";
@@ -28,7 +27,7 @@ export const useUsersListStore = create<UsersListState>((set, get) => ({
     await handleListFetch<User, UsersListState>(
       set,
       get,
-      () => service.getUsers(),
+      () => service.getUsers({ limit: 9999 }),
       (users, state) => {
         let filteredUsers = users;
 
@@ -41,15 +40,14 @@ export const useUsersListStore = create<UsersListState>((set, get) => ({
         }
 
         if (state.filterStatus !== "all") {
-          filteredUsers = filteredUsers.filter((u) => {
-            const userIsActive = Boolean(u.isActive);
-            return userIsActive === (state.filterStatus === "active");
-          });
+          filteredUsers = filteredUsers.filter((u) =>
+            Boolean(u.isActive) === (state.filterStatus === "active")
+          );
         }
 
         if (state.filterRole !== "all") {
           filteredUsers = filteredUsers.filter((u) =>
-            state.filterRole === "admin" ? isAdmin(u) : !isAdmin(u)
+            state.filterRole === "admin" ? u.role === "admin" : u.role !== "admin"
           );
         }
 
