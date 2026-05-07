@@ -7,15 +7,55 @@ import { Button } from "@/presentation/ui/components/ui/button";
 import { Lock, ArrowLeft, Loader2, CheckCircle2, XCircle, Mail, Shield, Briefcase, Clock, Calendar } from "lucide-react";
 import { isAdmin } from "@/presentation/ui/lib/roleChecker";
 import { AdminChangePasswordModal } from "@/presentation/ui/components/users/AdminChangePasswordModal";
-import { useState } from "react";
+import { EditUserModal } from "@/presentation/ui/components/users/EditUserModal";
+import { useState, useCallback } from "react";
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
+import { Edit, Power, Trash2 } from "lucide-react";
 
 export const UserDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user: currentUser } = useAuthStore();
-  const { user, projects, timeEntries, totalHours, isLoading, error, fetchUserDetails, adminChangePassword, clearDetails } = useUserDetailsStore();
+  const {
+    user,
+    projects,
+    timeEntries,
+    totalHours,
+    isLoading,
+    error,
+    fetchUserDetails,
+    deactivateUser,
+    deleteUser,
+    adminChangePassword,
+    clearDetails
+  } = useUserDetailsStore();
+
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const handleToggleActive = useCallback(async () => {
+    if (!user) return;
+    const action = user.isActive ? "desactivar" : "activar";
+    if (confirm(`¿Estás seguro de que deseas ${action} a este usuario?`)) {
+      try {
+        await deactivateUser(user.id, !user.isActive);
+      } catch (err) {
+        // Error handled by store
+      }
+    }
+  }, [user, deactivateUser]);
+
+  const handleDelete = useCallback(async () => {
+    if (!user) return;
+    if (confirm(`¿Estás seguro de que deseas borrar a ${user.name}? Esta acción no se puede deshacer.`)) {
+      try {
+        await deleteUser(user.id);
+        navigate("/personal");
+      } catch (err) {
+        // Error handled by store
+      }
+    }
+  }, [user, deleteUser, navigate]);
 
   useEffect(() => {
     if (id) {
@@ -71,39 +111,64 @@ export const UserDetailsPage = () => {
             </div>
             <div>
               <h1 className="text-4xl font-extrabold tracking-tight">{user.name} {user.surname}</h1>
-              <p className="text-muted-foreground flex items-center gap-1.5 mt-1">
-                <Mail className="h-4 w-4" />
-                {user.email.getValue()}
-              </p>
+              <div className="flex flex-col gap-1.5 mt-1">
+                <p className="text-muted-foreground flex items-center gap-1.5">
+                  <Mail className="h-4 w-4" />
+                  {user.email.getValue()}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="bg-background w-fit">
+                    <Shield className="mr-1 h-3 w-3 flex items-center justify-center" />
+                    {isAdmin(user) ? "Administrador" : "Empleado"}
+                  </Badge>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Badge
-            variant={user.isActive ? "default" : "secondary"}
-            className={user.isActive ? "bg-green-500/10 text-green-700 border-green-200" : "bg-muted text-muted-foreground"}
-          >
-            {user.isActive ? (
-              <div className="flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" />
-                Activo
-              </div>
-            ) : "Inactivo"}
-          </Badge>
-          <Badge variant="outline" className="bg-background">
-            <Shield className="mr-1 h-3 w-3" />
-            {isAdmin(user) ? "Administrador" : "Empleado"}
-          </Badge>
+        <div className="flex items-center gap-2">
+
           {isAdmin(currentUser) && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="shadow-sm border-primary/20 hover:bg-primary/5"
-              onClick={() => setIsPasswordModalOpen(true)}
-            >
-              <Lock className="mr-2 h-4 w-4 text-primary" />
-              Cambiar contraseña
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                className="shadow-sm border-primary/20 hover:bg-primary/5"
+                onClick={() => setIsEditModalOpen(true)}
+              >
+                <Edit className="mr-2 h-4 w-4 text-primary" />
+                Editar
+              </Button>
+              <Button
+                variant={user.isActive ? "destructive" : "outline"}
+                size="sm"
+                className="shadow-sm"
+                onClick={handleToggleActive}
+                disabled={isLoading}
+              >
+                <Power className="mr-2 h-4 w-4" />
+                {user.isActive ? "Inactivar" : "Activar"}
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="shadow-sm"
+                onClick={handleDelete}
+                disabled={isLoading}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Borrar
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="shadow-sm border-primary/20 hover:bg-primary/5"
+                onClick={() => setIsPasswordModalOpen(true)}
+              >
+                <Lock className="mr-2 h-4 w-4 text-primary" />
+                Cambiar contraseña
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -247,6 +312,12 @@ export const UserDetailsPage = () => {
         onClose={() => setIsPasswordModalOpen(false)}
         userName={user.name}
         onSubmit={(password) => adminChangePassword(user.id, password)}
+      />
+
+      <EditUserModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        user={user}
       />
     </div>
   );

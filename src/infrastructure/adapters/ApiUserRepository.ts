@@ -73,4 +73,14 @@ export class ApiUserRepository implements UserRepository {
       data: (response.data.data || []).map(UserMapper.toTimeEntryDomain),
     };
   }
+
+  async deactivateUser(id: string, isActive: boolean): Promise<void> {
+    await api.patch(`users/${id}`, {
+      is_active: isActive,
+    });
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await api.delete(`users/${id}`);
+  }
 }
