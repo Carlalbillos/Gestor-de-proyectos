@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { UserService } from "../../application/services/UserService";
 import { ApiUserRepository } from "../adapters/ApiUserRepository";
-import { isAdmin } from "@/presentation/ui/lib/roleChecker";
 import type { User } from "../../domain/entities/user.entity";
+import type { UserQueryParams } from "../../domain/ports/UserRepository";
 import { createBaseListSlice, handleListFetch } from "./factories/list-factory";
 import type { BaseListState } from "./factories/list-factory";
 
@@ -20,40 +20,61 @@ export const useUsersListStore = create<UsersListState>((set, get) => ({
   filterRole: "all",
 
   setFilterRole: (filterRole) => {
-    set({ filterRole });
+    set({ filterRole, page: 1 });
     get().fetchUsers();
   },
 
   fetchUsers: async () => {
+    const { page, search, filterStatus, filterRole } = get();
+
+    const params: UserQueryParams = {
+      page,
+    };
+
+    if (search.trim()) {
+      params.search = search.trim();
+    }
+
+    if (filterStatus === "active") {
+      params.isActive = true;
+    } else if (filterStatus === "inactive") {
+      params.isActive = false;
+    }
+
+    if (filterRole === "admin") {
+      params.role = "ROLE_ADMIN";
+    } else if (filterRole === "user") {
+      params.role = "ROLE_EMPLOYEE";
+    }
+
     await handleListFetch<User, UsersListState>(
       set,
       get,
-      () => service.getUsers(),
+      () => service.getUsers(params),
       (users, state) => {
-        let filteredUsers = users;
+        let filtered = users;
 
         if (state.search.trim()) {
           const term = state.search.trim().toLowerCase();
-          filteredUsers = filteredUsers.filter((u) =>
-            `${u.name} ${u.surname}`.toLowerCase().includes(term) ||
+          filtered = filtered.filter(u => 
+            u.name.toLowerCase().includes(term) || 
+            u.surname.toLowerCase().includes(term) ||
             u.email.getValue().toLowerCase().includes(term)
           );
         }
 
         if (state.filterStatus !== "all") {
-          filteredUsers = filteredUsers.filter((u) => {
-            const userIsActive = Boolean(u.isActive);
-            return userIsActive === (state.filterStatus === "active");
-          });
-        }
-
-        if (state.filterRole !== "all") {
-          filteredUsers = filteredUsers.filter((u) =>
-            state.filterRole === "admin" ? isAdmin(u) : !isAdmin(u)
+          filtered = filtered.filter(u => 
+            u.isActive === (state.filterStatus === "active")
           );
         }
 
-        return filteredUsers;
+        if (state.filterRole !== "all") {
+          const roleToMatch = state.filterRole === "admin" ? "ROLE_ADMIN" : "ROLE_EMPLOYEE";
+          filtered = filtered.filter(u => u.role === roleToMatch);
+        }
+
+        return filtered;
       }
     );
   },

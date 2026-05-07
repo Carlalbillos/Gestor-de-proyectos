@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useClientsListStore } from "@/infrastructure/stores/clients-list.store";
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
@@ -6,19 +6,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/pre
 import { Badge } from "@/presentation/ui/components/ui/badge";
 import { Button } from "@/presentation/ui/components/ui/button";
 import { Input } from "@/presentation/ui/components/ui/input";
+import Pagination from "../components/ui/pagination";
 import { Building2, UserPlus, Loader2, Search, Tags } from "lucide-react";
 
 export const ClientsPage = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
-  const { items: clients, isLoading, error, search, filterStatus, fetchClients, setSearch, setFilterStatus } = useClientsListStore();
+  const {
+    items: clients,
+    total,
+    page,
+    limit,
+    isLoading,
+    error,
+    search,
+    filterStatus,
+    fetchClients,
+    setSearch,
+    setFilterStatus,
+    setPage,
+  } = useClientsListStore();
   const [searchInput, setSearchInput] = useState(search);
 
   // Búsqueda reactiva con debounce
   useEffect(() => {
     const timer = setTimeout(() => {
       setSearch(searchInput);
-    }, 300); // 300ms de espera
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [searchInput, setSearch]);
@@ -27,7 +41,7 @@ export const ClientsPage = () => {
     if (user) {
       fetchClients();
     }
-  }, [fetchClients, user, search, filterStatus]);
+  }, [fetchClients, user]);
 
   return (
     <div className="space-y-6">
@@ -106,33 +120,40 @@ export const ClientsPage = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {clients.map((client) => (
-            <Card
-              key={client.id}
-              className="flex flex-col hover:border-primary/40 hover:shadow-md cursor-pointer group bg-card"
-              onClick={() => navigate(`/clientes/${client.id}`)}
-            >
-              <CardHeader className="pb-1">
-                <div className="flex justify-between items-start">
-                  <Badge
-                    variant={client.isActive ? "default" : "secondary"}
-                    className={client.isActive ? "bg-green-500/10 text-green-700 hover:bg-green-500/20 border-green-200" : ""}
-                  >
-                    {client.isActive ? "Activo" : "Inactivo"}
-                  </Badge>
-                </div>
-                <CardTitle className="group-hover:text-primary transition-colors line-clamp-1" title={client.name}>
-                  {client.name}
-                </CardTitle>
-                <CardDescription className="line-clamp-2 h-10 mt-1">
-                  {client.sector?.name || "Sin sector asignado"}
-                </CardDescription>
-              </CardHeader>
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {clients.map((client) => (
+              <Card
+                key={client.id}
+                className="flex flex-col hover:border-primary/40 hover:shadow-md cursor-pointer group bg-card"
+                onClick={() => navigate(`/clientes/${client.id}`)}
+              >
+                <CardHeader className="pb-1">
+                  <div className="flex justify-between items-start">
+                    <Badge
+                      variant={client.isActive ? "default" : "secondary"}
+                      className={client.isActive ? "bg-green-500/10 text-green-700 hover:bg-green-500/20 border-green-200" : ""}
+                    >
+                      {client.isActive ? "Activo" : "Inactivo"}
+                    </Badge>
+                  </div>
+                  <CardTitle className="group-hover:text-primary transition-colors line-clamp-1" title={client.name}>
+                    {client.name}
+                  </CardTitle>
+                  <CardDescription className="line-clamp-2 h-10 mt-1">
+                    {client.sector?.name || "Sin sector asignado"}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
 
-            </Card>
-          ))}
-        </div>
+          <Pagination
+            totalPages={total >= limit ? page + 1 : page}
+            currentPage={page}
+            onPageChange={setPage}
+          />
+        </>
       )}
     </div>
   );

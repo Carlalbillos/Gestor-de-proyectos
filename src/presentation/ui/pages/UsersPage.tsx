@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useUsersListStore } from "@/infrastructure/stores/users-list.store";
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
@@ -8,14 +8,29 @@ import { Button } from "@/presentation/ui/components/ui/button";
 import { Input } from "@/presentation/ui/components/ui/input";
 import { Users, UserPlus, Loader2, Search, Mail, Shield } from "lucide-react";
 import { isAdmin } from "@/presentation/ui/lib/roleChecker";
+import { Pagination } from "../components/ui/pagination";
 
 export const UsersPage = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
-  const { items: users, isLoading, error, search, filterStatus, filterRole, fetchUsers, setSearch, setFilterStatus, setFilterRole } = useUsersListStore();
+  const {
+    items: users,
+    total,
+    page,
+    limit,
+    isLoading,
+    error,
+    search,
+    filterStatus,
+    filterRole,
+    fetchUsers,
+    setSearch,
+    setFilterStatus,
+    setFilterRole,
+    setPage,
+  } = useUsersListStore();
   const [searchInput, setSearchInput] = useState(search);
 
-  // Búsqueda reactiva con debounce
   useEffect(() => {
     const timer = setTimeout(() => {
       setSearch(searchInput);
@@ -28,7 +43,7 @@ export const UsersPage = () => {
     if (user) {
       fetchUsers();
     }
-  }, [fetchUsers, user, search, filterStatus, filterRole]);
+  }, [fetchUsers, user]);
 
   return (
     <div className="space-y-6">
@@ -59,7 +74,6 @@ export const UsersPage = () => {
               />
             </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-              <label className="sr-only" htmlFor="user-filter-status">Filtrar estado</label>
               <select
                 id="user-filter-status"
                 value={filterStatus}
@@ -70,7 +84,6 @@ export const UsersPage = () => {
                 <option value="active">Activos</option>
                 <option value="inactive">Inactivos</option>
               </select>
-              <label className="sr-only" htmlFor="user-filter-role">Filtrar rol</label>
               <select
                 id="user-filter-role"
                 value={filterRole}
@@ -112,39 +125,47 @@ export const UsersPage = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {users.map((u) => (
-            <Card
-              key={u.id}
-              className="flex flex-col hover:border-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer group bg-card"
-              onClick={() => navigate(`/personal/${u.id}`)}
-            >
-              <CardHeader className="pb-3">
-                <div className="flex justify-between items-start mb-1">
-                  <Badge
-                    variant={u.isActive ? "default" : "secondary"}
-                    className={u.isActive ? "bg-green-500/10 text-green-700 hover:bg-green-500/20 border-green-200" : ""}
-                  >
-                    {u.isActive ? "Activo" : "Inactivo"}
-                  </Badge>
-                  <Badge variant="outline" className="text-[10px] h-5 bg-background">
-                    <Shield className="mr-1 h-3 w-3" />
-                    {isAdmin(u) ? "Administrador" : "Empleado"}
-                  </Badge>
-                </div>
-                <CardTitle className="group-hover:text-primary transition-colors line-clamp-1" title={`${u.name} ${u.surname}`}>
-                  {u.name} {u.surname}
-                </CardTitle>
-                <CardDescription className="line-clamp-1 mt-1">
-                  <span className="flex items-center gap-1.5">
-                    <Mail className="h-3.5 w-3.5" />
-                    {u.email.getValue()}
-                  </span>
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          ))}
-        </div>
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {users.map((u) => (
+              <Card
+                key={u.id}
+                className="flex flex-col hover:border-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer group bg-card"
+                onClick={() => navigate(`/personal/${u.id}`)}
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between items-start mb-1">
+                    <Badge
+                      variant={u.isActive ? "default" : "secondary"}
+                      className={u.isActive ? "bg-green-500/10 text-green-700 hover:bg-green-500/20 border-green-200" : ""}
+                    >
+                      {u.isActive ? "Activo" : "Inactivo"}
+                    </Badge>
+                    <Badge variant="outline" className="text-[10px] h-5 bg-background">
+                      <Shield className="mr-1 h-3 w-3" />
+                      {isAdmin(u) ? "Administrador" : "Empleado"}
+                    </Badge>
+                  </div>
+                  <CardTitle className="group-hover:text-primary transition-colors line-clamp-1" title={`${u.name} ${u.surname}`}>
+                    {u.name} {u.surname}
+                  </CardTitle>
+                  <CardDescription className="line-clamp-1 mt-1">
+                    <span className="flex items-center gap-1.5">
+                      <Mail className="h-3.5 w-3.5" />
+                      {u.email.getValue()}
+                    </span>
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+
+          <Pagination
+            totalPages={total >= limit ? page + 1 : page}
+            currentPage={page}
+            onPageChange={setPage}
+          />
+        </>
       )}
     </div>
   );

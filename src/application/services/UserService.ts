@@ -1,4 +1,4 @@
-import type { UserRepository } from "../../domain/ports/UserRepository";
+import type { UserRepository, UserQueryParams, PaginatedResult } from "../../domain/ports/UserRepository";
 import type { User, TimeEntriesResponse } from "../../domain/entities/user.entity";
 import type { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, AdminChangePasswordDTO } from "../dto/user.dto";
 import type { Project } from "../../domain/entities/project.entity";
@@ -10,8 +10,8 @@ export class UserService {
     this.userRepository = userRepository;
   }
 
-  async getUsers(): Promise<User[]> {
-    return await this.userRepository.getUsers();
+  async getUsers(params?: UserQueryParams): Promise<PaginatedResult<User>> {
+    return await this.userRepository.getUsers(params);
   }
 
   async getUserProfile(id: string): Promise<User> {

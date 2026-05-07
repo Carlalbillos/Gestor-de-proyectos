@@ -55,8 +55,8 @@ export const CreateProjectPage = () => {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const data = await clientService.getClients();
-        setClients(data.filter(c => c.isActive));
+        const response = await clientService.getClients({ limit: 9999 });
+        setClients(response.data.filter(c => c.isActive));
         setIsLoadingClients(false);
       } catch (error) {
         console.error("Error fetching clients", error);
@@ -116,7 +116,7 @@ export const CreateProjectPage = () => {
                 <p className="text-sm text-destructive">{errors.name.message}</p>
               )}
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="description">Descripción</Label>
               <textarea

@@ -8,11 +8,12 @@ import { Badge } from "@/presentation/ui/components/ui/badge";
 import { Button } from "@/presentation/ui/components/ui/button";
 import { Input } from "@/presentation/ui/components/ui/input";
 import { Building2, Users, Search, FolderPlus, Loader2, Lock } from "lucide-react";
+import Pagination from "../components/ui/pagination";
 
 export const ProjectsPage = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
-  const { items: projects, isLoading, error, search, filterStatus, fetchProjects, setSearch, setFilterStatus } = useProjectsListStore();
+  const { items: projects, total, page, limit, isLoading, error, search, filterStatus, fetchProjects, setSearch, setFilterStatus, setPage } = useProjectsListStore();
   const [searchInput, setSearchInput] = useState(search);
 
   useEffect(() => {
@@ -43,9 +44,9 @@ export const ProjectsPage = () => {
             Nuevo Proyecto
           </Button>
         ) : (
-          <Button 
-            className="w-full sm:w-auto shadow-sm" 
-            disabled 
+          <Button
+            className="w-full sm:w-auto shadow-sm"
+            disabled
             title="Solo los administradores pueden crear proyectos"
           >
             <Lock className="mr-2 h-4 w-4" />
@@ -88,7 +89,7 @@ export const ProjectsPage = () => {
         </CardContent>
       </Card>
 
-      
+
 
       {isLoading && projects.length === 0 ? (
         <div className="flex flex-col justify-center items-center py-24 space-y-4">
@@ -103,8 +104,8 @@ export const ProjectsPage = () => {
             </div>
             <h3 className="text-lg font-semibold tracking-tight">No se encontraron proyectos</h3>
             <p className="text-muted-foreground max-w-sm mt-2 text-sm">
-              {search 
-                ? "No hay resultados para tu búsqueda. Intenta con otros términos para encontrar lo que buscas." 
+              {search
+                ? "No hay resultados para tu búsqueda. Intenta con otros términos para encontrar lo que buscas."
                 : "No hay proyectos registrados aún."}
             </p>
             {!search && canCreateProject && (
@@ -119,15 +120,15 @@ export const ProjectsPage = () => {
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {projects.map((project) => (
-              <Card 
-                key={project.id} 
+              <Card
+                key={project.id}
                 className="flex flex-col hover:border-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer group bg-card"
                 onClick={() => navigate(`/proyectos/${project.id}`)}
               >
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start mb-1">
-                    <Badge 
-                      variant={project.isActive ? "default" : "secondary"} 
+                    <Badge
+                      variant={project.isActive ? "default" : "secondary"}
                       className={project.isActive ? "bg-green-500/10 text-green-700 hover:bg-green-500/20 border-green-200" : ""}
                     >
                       {project.isActive ? "Activo" : "Inactivo"}
@@ -159,6 +160,12 @@ export const ProjectsPage = () => {
               </Card>
             ))}
           </div>
+
+          <Pagination
+            totalPages={total >= limit ? page + 1 : page}
+            currentPage={page}
+            onPageChange={setPage}
+          />
         </>
       )}
     </div>

@@ -58,7 +58,6 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
         if (isAdminUser) {
           const params: any = {
             page: state.page,
-            limit: 20,
           };
 
           if (state.filterStatus === "active") {
@@ -72,7 +71,7 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
           }
 
           const result = await service.getProjectsList(params);
-          return result.data;
+          return result;
         }
 
         return await userService.getUserProjects(user.id);
