@@ -58,7 +58,6 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
         if (isAdminUser) {
           const params: any = {
             page: state.page,
-            limit: 20,
           };
 
           if (state.filterStatus === "active") {

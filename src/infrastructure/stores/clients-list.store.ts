@@ -11,7 +11,6 @@ const service = new ClientService(repository);
 
 interface ClientsListState extends BaseListState<Client> {
   page: number;
-  limit: number;
   setPage: (page: number) => void;
   fetchClients: () => Promise<void>;
 }
@@ -19,7 +18,6 @@ interface ClientsListState extends BaseListState<Client> {
 export const useClientsListStore = create<ClientsListState>((set, get) => ({
   ...createBaseListSlice<Client, ClientsListState>(set, get, "fetchClients"),
   page: 1,
-  limit: 20,
 
   setPage: (page: number) => {
     set({ page });
@@ -37,9 +35,8 @@ export const useClientsListStore = create<ClientsListState>((set, get) => ({
   },
 
   fetchClients: async () => {
-    const { page, limit, search, filterStatus } = get();
-
-    const params: ClientQueryParams = { page, limit };
+    const { page, search, filterStatus } = get();
+    const params: ClientQueryParams = { page };
 
     if (filterStatus === "active") {
       params.isActive = true;

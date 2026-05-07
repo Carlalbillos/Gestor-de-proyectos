@@ -25,16 +25,11 @@ export const useUsersListStore = create<UsersListState>((set, get) => ({
   },
 
   fetchUsers: async () => {
-    const { page, limit, search, filterStatus, filterRole } = get();
+    const { page, search, filterStatus, filterRole } = get();
 
     const params: UserQueryParams = {
       page,
     };
-
-    // Only send limit if it's not the default (20)
-    if (limit !== 20) {
-      params.limit = limit;
-    }
 
     if (search.trim()) {
       params.search = search.trim();
