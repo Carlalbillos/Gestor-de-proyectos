@@ -1,11 +1,17 @@
 import { api } from "./AxiosHttpClient";
-import type { ClientRepository, Client, ClientContact, CreateClientDTO, UpdateClientDTO, Project } from "../../domain/ports/ClientRepository";
+import type { ClientRepository, Client, ClientContact, CreateClientDTO, UpdateClientDTO, Project, ClientQueryParams } from "../../domain/ports/ClientRepository";
 import { ClientMapper } from "../mappers/ClientMapper";
 import { ProjectMapper } from "../mappers/ProjectMapper";
 
 export class ApiClientRepository implements ClientRepository {
-  async getClients(): Promise<Client[]> {
-    const response = await api.get<any[]>("clients");
+  async getClients(params?: ClientQueryParams): Promise<Client[]> {
+    const queryParams: any = {};
+    if (params?.page) queryParams.page = params.page;
+    if (params?.limit) queryParams.limit = params.limit;
+    if (params?.search) queryParams.search = params.search;
+    if (typeof params?.isActive === "boolean") queryParams.is_active = params.isActive;
+
+    const response = await api.get<any[]>("clients", { params: queryParams });
     return response.data.map(ClientMapper.toDomain);
   }
 

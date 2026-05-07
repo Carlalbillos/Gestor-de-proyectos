@@ -4,8 +4,15 @@ import type { Project } from "../entities/project.entity";
 
 export type { Client, ClientContact, CreateClientDTO, UpdateClientDTO, Project };
 
+export interface ClientQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  isActive?: boolean;
+}
+
 export interface ClientRepository {
-  getClients(): Promise<Client[]>;
+  getClients(params?: ClientQueryParams): Promise<Client[]>;
   getClientById(id: string): Promise<Client | null>;
   createClient(dto: CreateClientDTO): Promise<void>;
   updateClient(id: string, dto: UpdateClientDTO): Promise<void>;
