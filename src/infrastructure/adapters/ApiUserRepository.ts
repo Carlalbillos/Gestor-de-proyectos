@@ -1,6 +1,7 @@
 import { api } from "./AxiosHttpClient";
 import type { UserRepository } from "../../domain/ports/UserRepository";
-import type { User, CreateUserDTO, UpdateUserDTO, TimeEntriesResponse, ChangePasswordDTO, AdminChangePasswordDTO } from "../../domain/entities/user.entity";
+import type { User, TimeEntriesResponse } from "../../domain/entities/user.entity";
+import type { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, AdminChangePasswordDTO } from "../../application/dto/user.dto";
 import type { Project } from "../../domain/entities/project.entity";
 import { UserMapper } from "../mappers/UserMapper";
 import { ProjectMapper } from "../mappers/ProjectMapper";
@@ -17,7 +18,10 @@ export class ApiUserRepository implements UserRepository {
   }
 
   async createUser(dto: CreateUserDTO): Promise<void> {
-    await api.post("users", dto);
+    await api.post("users", {
+      ...dto,
+      role: UserMapper.toApiRole(dto.role),
+    });
   }
 
   async updateUser(id: string, dto: UpdateUserDTO): Promise<void> {
@@ -25,7 +29,7 @@ export class ApiUserRepository implements UserRepository {
       name: dto.name,
       surname: dto.surname,
       email: dto.email,
-      role: dto.role,
+      role: dto.role ? UserMapper.toApiRole(dto.role) : undefined,
       is_active: dto.isActive,
     });
   }

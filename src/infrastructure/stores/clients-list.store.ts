@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { ClientService } from "../../application/services/client.service";
+import { ClientService } from "../../application/services/ClientService";
 import { ApiClientRepository } from "../adapters/ApiClientRepository";
 import type { Client } from "../../domain/entities/client.entity";
 import { createBaseListSlice, handleListFetch } from "./factories/list-factory";

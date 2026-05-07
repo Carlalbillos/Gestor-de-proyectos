@@ -1,4 +1,5 @@
 import type { User, TimeEntry } from "../../domain/entities/user.entity";
+import { Email } from "../../domain/value-objects/Email";
 
 export class UserMapper {
   static toDomain(raw: any): User {
@@ -6,7 +7,7 @@ export class UserMapper {
       id: raw.id,
       name: raw.name,
       surname: raw.surname,
-      email: raw.email,
+      email: new Email(raw.email),
       role: UserMapper.fromApiRole(raw.role),
       isActive: Boolean(raw.is_active),
     };
@@ -14,13 +15,13 @@ export class UserMapper {
 
   static toApiRole(role: string): string {
     if (role === 'admin') return 'ROLE_ADMIN';
-    if (role === 'user') return 'ROLE_USER';
+    if (role === 'user') return 'ROLE_EMPLOYEE';
     return role;
   }
 
   static fromApiRole(role: string): string {
     if (role === 'ROLE_ADMIN') return 'admin';
-    if (role === 'ROLE_USER') return 'user';
+    if (role === 'ROLE_EMPLOYEE') return 'user';
     return role;
   }
 

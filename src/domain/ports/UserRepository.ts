@@ -1,4 +1,5 @@
-import type { User, CreateUserDTO, UpdateUserDTO, TimeEntriesResponse, ChangePasswordDTO, AdminChangePasswordDTO } from "../entities/user.entity";
+import type { User, TimeEntriesResponse } from "../entities/user.entity";
+import type { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, AdminChangePasswordDTO } from "../../application/dto/user.dto";
 import type { Project } from "../entities/project.entity";
 
 export interface UserRepository {

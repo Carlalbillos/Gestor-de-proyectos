@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import { UserService } from "../../application/services/user.service";
+import { UserService } from "../../application/services/UserService";
 import { ApiUserRepository } from "../adapters/ApiUserRepository";
-import { isAdmin } from "../ui/lib/roleChecker";
+import { isAdmin } from "@/presentation/ui/lib/roleChecker";
 import type { User } from "../../domain/entities/user.entity";
 import { createBaseListSlice, handleListFetch } from "./factories/list-factory";
 import type { BaseListState } from "./factories/list-factory";
@@ -36,7 +36,7 @@ export const useUsersListStore = create<UsersListState>((set, get) => ({
           const term = state.search.trim().toLowerCase();
           filteredUsers = filteredUsers.filter((u) =>
             `${u.name} ${u.surname}`.toLowerCase().includes(term) ||
-            u.email.toLowerCase().includes(term)
+            u.email.getValue().toLowerCase().includes(term)
           );
         }
 

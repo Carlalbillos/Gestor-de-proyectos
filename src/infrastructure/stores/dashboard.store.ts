@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { UserService } from "../../application/services/user.service";
+import { UserService } from "../../application/services/UserService";
 import { ApiUserRepository } from "../adapters/ApiUserRepository";
 import type { User } from "../../domain/entities/user.entity";
 import type { Project } from "../../domain/entities/project.entity";

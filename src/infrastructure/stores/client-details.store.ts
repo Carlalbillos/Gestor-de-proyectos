@@ -1,8 +1,9 @@
 import { create } from "zustand";
-import type { Client, ClientContact, UpdateClientDTO } from "@/domain/entities/client.entity";
+import type { Client, ClientContact } from "@/domain/entities/client.entity";
+import type { UpdateClientDTO } from "@/application/dto/client.dto";
 import type { Project } from "@/domain/entities/project.entity";
 import { ApiClientRepository } from "@/infrastructure/adapters/ApiClientRepository";
-import { ClientService } from "@/application/services/client.service";
+import { ClientService } from "@/application/services/ClientService";
 
 interface ClientDetailsState {
   client: Client | null;
@@ -13,6 +14,10 @@ interface ClientDetailsState {
   fetchClientDetails: (id: string) => Promise<void>;
   updateClient: (id: string, dto: UpdateClientDTO) => Promise<void>;
   deleteClient: (id: string) => Promise<void>;
+  changeStatus: (id: string) => Promise<void>;
+  createContact: (clientId: string, contactId: string, contact: any) => Promise<void>;
+  updateContact: (clientId: string, contactId: string, contact: any) => Promise<void>;
+  deleteContact: (clientId: string, contactId: string) => Promise<void>;
   clearDetails: () => void;
 }
 
@@ -59,6 +64,54 @@ export const useClientDetailsStore = create<ClientDetailsState>((set) => ({
       set({ isLoading: false });
     } catch (error: any) {
       set({ error: error.message || "Error al eliminar el cliente", isLoading: false });
+      throw error;
+    }
+  },
+
+  changeStatus: async (id: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await clientService.changeStatus(id);
+      const client = await clientService.getClientById(id);
+      set({ client, isLoading: false });
+    } catch (error: any) {
+      set({ error: error.message || "Error al cambiar el estado del cliente", isLoading: false });
+      throw error;
+    }
+  },
+
+  createContact: async (clientId: string, contactId: string, contact: any) => {
+    set({ isLoading: true, error: null });
+    try {
+      await clientService.createContact(clientId, contactId, contact);
+      const contacts = await clientService.getClientContacts(clientId);
+      set({ contacts, isLoading: false });
+    } catch (error: any) {
+      set({ error: error.message || "Error al crear el contacto", isLoading: false });
+      throw error;
+    }
+  },
+
+  updateContact: async (clientId: string, contactId: string, contact: any) => {
+    set({ isLoading: true, error: null });
+    try {
+      await clientService.updateContact(clientId, contactId, contact);
+      const contacts = await clientService.getClientContacts(clientId);
+      set({ contacts, isLoading: false });
+    } catch (error: any) {
+      set({ error: error.message || "Error al actualizar el contacto", isLoading: false });
+      throw error;
+    }
+  },
+
+  deleteContact: async (clientId: string, contactId: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await clientService.deleteContact(clientId, contactId);
+      const contacts = await clientService.getClientContacts(clientId);
+      set({ contacts, isLoading: false });
+    } catch (error: any) {
+      set({ error: error.message || "Error al eliminar el contacto", isLoading: false });
       throw error;
     }
   },
