@@ -72,7 +72,7 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
           }
 
           const result = await service.getProjectsList(params);
-          return result.data;
+          return result;
         }
 
         return await userService.getUserProjects(user.id);

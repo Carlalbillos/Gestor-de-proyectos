@@ -76,26 +76,38 @@ export async function handleListFetch<T, StoreState extends BaseListState<T>>(
 
     const response = await fetchData();
     let allItems: T[];
+    let serverTotal: number | undefined;
 
     if (Array.isArray(response)) {
       allItems = response;
     } else {
       allItems = response.data;
+      serverTotal = response.total;
     }
 
     allItems = filterData(allItems, get() as StoreState);
 
-    // Client-side pagination
-    const total = allItems.length;
     const { page, limit } = get() as StoreState;
-    const start = (page - 1) * limit;
-    const paginatedItems = allItems.slice(start, start + limit);
 
-    set({
-      items: paginatedItems,
-      total,
-      isLoading: false,
-    });
+    // If serverTotal is provided, we assume the server already paginated
+    if (serverTotal !== undefined && allItems.length <= limit) {
+      set({
+        items: allItems,
+        total: serverTotal,
+        isLoading: false,
+      });
+    } else {
+      // Client-side pagination fallback (when we fetch a large list and filter/page locally)
+      const total = allItems.length;
+      const start = (page - 1) * limit;
+      const paginatedItems = allItems.slice(start, start + limit);
+
+      set({
+        items: paginatedItems,
+        total,
+        isLoading: false,
+      });
+    }
   } catch (error: any) {
     set({ isLoading: false, error: error.message || "Error al cargar la lista" });
   }

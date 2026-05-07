@@ -5,6 +5,7 @@ import type { Project } from "../entities/project.entity";
 export interface UserQueryParams {
   isActive?: boolean;
   role?: string;
+  search?: string;
   page?: number;
   limit?: number;
 }

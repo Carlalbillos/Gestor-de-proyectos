@@ -11,8 +11,13 @@ export interface ClientQueryParams {
   isActive?: boolean;
 }
 
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+}
+
 export interface ClientRepository {
-  getClients(params?: ClientQueryParams): Promise<Client[]>;
+  getClients(params?: ClientQueryParams): Promise<PaginatedResult<Client>>;
   getClientById(id: string): Promise<Client | null>;
   createClient(dto: CreateClientDTO): Promise<void>;
   updateClient(id: string, dto: UpdateClientDTO): Promise<void>;

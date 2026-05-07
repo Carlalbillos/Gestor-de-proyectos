@@ -55,7 +55,7 @@ export const useClientsListStore = create<ClientsListState>((set, get) => ({
       set,
       get,
       () => service.getClients(params),
-      (clients) => clients // Server handles filtering, no client-side filtering needed
+      (clients) => clients
     );
   },
 }));

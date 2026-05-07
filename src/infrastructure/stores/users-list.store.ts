@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { UserService } from "../../application/services/UserService";
 import { ApiUserRepository } from "../adapters/ApiUserRepository";
 import type { User } from "../../domain/entities/user.entity";
+import type { UserQueryParams } from "../../domain/ports/UserRepository";
 import { createBaseListSlice, handleListFetch } from "./factories/list-factory";
 import type { BaseListState } from "./factories/list-factory";
 
@@ -19,40 +20,36 @@ export const useUsersListStore = create<UsersListState>((set, get) => ({
   filterRole: "all",
 
   setFilterRole: (filterRole) => {
-    set({ filterRole });
+    set({ filterRole, page: 1 });
     get().fetchUsers();
   },
 
   fetchUsers: async () => {
+    const { search, filterStatus, filterRole } = get();
+
+    const params: UserQueryParams = {
+      limit: 9999, // Fetch all filtered results for client-side pagination
+    };
+
+    if (search.trim()) {
+      params.search = search.trim();
+    }
+
+    if (filterStatus === "active") {
+      params.isActive = true;
+    } else if (filterStatus === "inactive") {
+      params.isActive = false;
+    }
+
+    if (filterRole !== "all") {
+      params.role = filterRole;
+    }
+
     await handleListFetch<User, UsersListState>(
       set,
       get,
-      () => service.getUsers({ limit: 9999 }),
-      (users, state) => {
-        let filteredUsers = users;
-
-        if (state.search.trim()) {
-          const term = state.search.trim().toLowerCase();
-          filteredUsers = filteredUsers.filter((u) =>
-            `${u.name} ${u.surname}`.toLowerCase().includes(term) ||
-            u.email.getValue().toLowerCase().includes(term)
-          );
-        }
-
-        if (state.filterStatus !== "all") {
-          filteredUsers = filteredUsers.filter((u) =>
-            Boolean(u.isActive) === (state.filterStatus === "active")
-          );
-        }
-
-        if (state.filterRole !== "all") {
-          filteredUsers = filteredUsers.filter((u) =>
-            state.filterRole === "admin" ? u.role === "admin" : u.role !== "admin"
-          );
-        }
-
-        return filteredUsers;
-      }
+      () => service.getUsers(params),
+      (users) => users
     );
   },
 }));

@@ -6,26 +6,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/pre
 import { Badge } from "@/presentation/ui/components/ui/badge";
 import { Button } from "@/presentation/ui/components/ui/button";
 import { Input } from "@/presentation/ui/components/ui/input";
-import { Pagination } from "@/presentation/ui/components/ui/pagination";
 import { Users, UserPlus, Loader2, Search, Mail, Shield } from "lucide-react";
 import { isAdmin } from "@/presentation/ui/lib/roleChecker";
+import { Pagination } from "../components/ui/pagination.jsx";
 
 export const UsersPage = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
-  const { 
-    items: users, 
+  const {
+    items: users,
     total,
     page,
     limit,
-    isLoading, 
-    error, 
-    search, 
-    filterStatus, 
-    filterRole, 
-    fetchUsers, 
-    setSearch, 
-    setFilterStatus, 
+    isLoading,
+    error,
+    search,
+    filterStatus,
+    filterRole,
+    fetchUsers,
+    setSearch,
+    setFilterStatus,
     setFilterRole,
     setPage,
   } = useUsersListStore();
@@ -162,11 +162,9 @@ export const UsersPage = () => {
           </div>
 
           <Pagination
+            totalPages={Math.ceil(total / limit) || 1}
             currentPage={page}
-            totalItems={total}
-            itemsPerPage={limit}
             onPageChange={setPage}
-            isLoading={isLoading}
           />
         </>
       )}

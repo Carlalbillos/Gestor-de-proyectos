@@ -1,4 +1,4 @@
-import type { ClientRepository, Client, CreateClientDTO, UpdateClientDTO, Project, ClientContact, ClientQueryParams } from "../../domain/ports/ClientRepository";
+import type { ClientRepository, Client, CreateClientDTO, UpdateClientDTO, Project, ClientContact, ClientQueryParams, PaginatedResult } from "../../domain/ports/ClientRepository";
 
 export class ClientService {
   private readonly clientRepository: ClientRepository;
@@ -7,7 +7,7 @@ export class ClientService {
     this.clientRepository = clientRepository;
   }
 
-  async getClients(params?: ClientQueryParams): Promise<Client[]> {
+  async getClients(params?: ClientQueryParams): Promise<PaginatedResult<Client>> {
     return await this.clientRepository.getClients(params);
   }
 

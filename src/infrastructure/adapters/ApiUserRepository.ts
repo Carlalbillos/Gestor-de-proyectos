@@ -12,6 +12,7 @@ export class ApiUserRepository implements UserRepository {
     if (params) {
       if (typeof params.isActive === "boolean") queryParams.is_active = params.isActive ? "true" : "false";
       if (params.role) queryParams.role = params.role;
+      if (params.search) queryParams.search = params.search;
       if (params.page) queryParams.page = params.page;
       if (params.limit) queryParams.limit = params.limit;
     }

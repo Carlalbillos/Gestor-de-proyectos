@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/pre
 import { Badge } from "@/presentation/ui/components/ui/badge";
 import { Button } from "@/presentation/ui/components/ui/button";
 import { Input } from "@/presentation/ui/components/ui/input";
-import Pagination from "@/presentation/ui/lib/Pagination.jsx";
+import { Pagination } from "../components/ui/pagination.jsx";
 import { Building2, UserPlus, Loader2, Search, Tags } from "lucide-react";
 
 export const ClientsPage = () => {
