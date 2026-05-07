@@ -31,7 +31,6 @@ export const UsersPage = () => {
   } = useUsersListStore();
   const [searchInput, setSearchInput] = useState(search);
 
-  // Búsqueda reactiva con debounce
   useEffect(() => {
     const timer = setTimeout(() => {
       setSearch(searchInput);
@@ -162,7 +161,7 @@ export const UsersPage = () => {
           </div>
 
           <Pagination
-            totalPages={Math.ceil(total / limit) || 1}
+            totalPages={total >= limit ? page + 1 : page}
             currentPage={page}
             onPageChange={setPage}
           />

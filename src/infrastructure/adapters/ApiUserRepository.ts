@@ -1,5 +1,5 @@
 import { api } from "./AxiosHttpClient";
-import type { UserRepository, UserQueryParams } from "../../domain/ports/UserRepository";
+import type { UserRepository, UserQueryParams, PaginatedResult } from "../../domain/ports/UserRepository";
 import type { User, TimeEntriesResponse } from "../../domain/entities/user.entity";
 import type { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, AdminChangePasswordDTO } from "../../application/dto/user.dto";
 import type { Project } from "../../domain/entities/project.entity";
@@ -7,7 +7,7 @@ import { UserMapper } from "../mappers/UserMapper";
 import { ProjectMapper } from "../mappers/ProjectMapper";
 
 export class ApiUserRepository implements UserRepository {
-  async getUsers(params?: UserQueryParams): Promise<User[]> {
+  async getUsers(params?: UserQueryParams): Promise<PaginatedResult<User>> {
     const queryParams: any = {};
     if (params) {
       if (typeof params.isActive === "boolean") queryParams.is_active = params.isActive ? "true" : "false";
@@ -17,8 +17,13 @@ export class ApiUserRepository implements UserRepository {
       if (params.limit) queryParams.limit = params.limit;
     }
 
-    const response = await api.get<any[]>("users", { params: queryParams });
-    return (Array.isArray(response.data) ? response.data : []).map(UserMapper.toDomain);
+    const response = await api.get<any>("users", { params: queryParams });
+
+    const rawItems = Array.isArray(response.data) ? response.data : (response.data.items || response.data.data || []);
+    const total = response.data.total || rawItems.length;
+
+    const data = rawItems.map(UserMapper.toDomain);
+    return { data, total };
   }
 
   async getById(id: string): Promise<User> {

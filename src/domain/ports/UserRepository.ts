@@ -10,8 +10,13 @@ export interface UserQueryParams {
   limit?: number;
 }
 
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+}
+
 export interface UserRepository {
-  getUsers(params?: UserQueryParams): Promise<User[]>;
+  getUsers(params?: UserQueryParams): Promise<PaginatedResult<User>>;
   getById(id: string): Promise<User>;
   createUser(dto: CreateUserDTO): Promise<void>;
   updateUser(id: string, dto: UpdateUserDTO): Promise<void>;

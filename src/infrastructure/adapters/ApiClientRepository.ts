@@ -9,7 +9,7 @@ export class ApiClientRepository implements ClientRepository {
     if (params?.page) queryParams.page = params.page;
     if (params?.limit) queryParams.limit = params.limit;
     if (params?.search) queryParams.search = params.search;
-    if (typeof params?.isActive === "boolean") queryParams.is_active = params.isActive;
+    if (typeof params?.isActive === "boolean") queryParams.is_active = params.isActive ? "true" : "false";
 
     const response = await api.get<any>("clients", { params: queryParams });
 

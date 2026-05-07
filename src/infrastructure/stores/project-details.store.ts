@@ -75,8 +75,8 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
 
   fetchAllUsers: async () => {
     try {
-      const allUsers = await userService.getUsers();
-      set({ allUsers });
+      const response = await userService.getUsers({ limit: 9999 });
+      set({ allUsers: response.data });
     } catch (error: any) {
       console.error("Error fetching all users", error);
     }

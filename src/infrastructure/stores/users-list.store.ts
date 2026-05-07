@@ -25,11 +25,16 @@ export const useUsersListStore = create<UsersListState>((set, get) => ({
   },
 
   fetchUsers: async () => {
-    const { search, filterStatus, filterRole } = get();
+    const { page, limit, search, filterStatus, filterRole } = get();
 
     const params: UserQueryParams = {
-      limit: 9999, // Fetch all filtered results for client-side pagination
+      page,
     };
+
+    // Only send limit if it's not the default (20)
+    if (limit !== 20) {
+      params.limit = limit;
+    }
 
     if (search.trim()) {
       params.search = search.trim();
@@ -41,15 +46,17 @@ export const useUsersListStore = create<UsersListState>((set, get) => ({
       params.isActive = false;
     }
 
-    if (filterRole !== "all") {
-      params.role = filterRole;
+    if (filterRole === "admin") {
+      params.role = "ROLE_ADMIN";
+    } else if (filterRole === "user") {
+      params.role = "ROLE_EMPLOYEE";
     }
 
     await handleListFetch<User, UsersListState>(
       set,
       get,
       () => service.getUsers(params),
-      (users) => users
+      (users) => users // Server handles everything
     );
   },
 }));
