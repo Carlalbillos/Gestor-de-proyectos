@@ -51,7 +51,31 @@ export const useUsersListStore = create<UsersListState>((set, get) => ({
       set,
       get,
       () => service.getUsers(params),
-      (users) => users // Server handles everything
+      (users, state) => {
+        let filtered = users;
+
+        if (state.search.trim()) {
+          const term = state.search.trim().toLowerCase();
+          filtered = filtered.filter(u => 
+            u.name.toLowerCase().includes(term) || 
+            u.surname.toLowerCase().includes(term) ||
+            u.email.getValue().toLowerCase().includes(term)
+          );
+        }
+
+        if (state.filterStatus !== "all") {
+          filtered = filtered.filter(u => 
+            u.isActive === (state.filterStatus === "active")
+          );
+        }
+
+        if (state.filterRole !== "all") {
+          const roleToMatch = state.filterRole === "admin" ? "ROLE_ADMIN" : "ROLE_EMPLOYEE";
+          filtered = filtered.filter(u => u.role === roleToMatch);
+        }
+
+        return filtered;
+      }
     );
   },
 }));

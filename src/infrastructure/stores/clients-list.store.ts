@@ -52,7 +52,24 @@ export const useClientsListStore = create<ClientsListState>((set, get) => ({
       set,
       get,
       () => service.getClients(params),
-      (clients) => clients
+      (clients, state) => {
+        let filtered = clients;
+
+        if (state.search.trim()) {
+          const term = state.search.trim().toLowerCase();
+          filtered = filtered.filter(c => 
+            c.name.toLowerCase().includes(term)
+          );
+        }
+
+        if (state.filterStatus !== "all") {
+          filtered = filtered.filter(c => 
+            c.isActive === (state.filterStatus === "active")
+          );
+        }
+
+        return filtered;
+      }
     );
   },
 }));

@@ -8,7 +8,7 @@ import { Badge } from "@/presentation/ui/components/ui/badge";
 import { Button } from "@/presentation/ui/components/ui/button";
 import { Input } from "@/presentation/ui/components/ui/input";
 import { Building2, Users, Search, FolderPlus, Loader2, Lock } from "lucide-react";
-import { Pagination } from "../components/ui/pagination.jsx";
+import Pagination from "../components/ui/pagination";
 
 export const ProjectsPage = () => {
   const navigate = useNavigate();

@@ -8,7 +8,7 @@ import { Button } from "@/presentation/ui/components/ui/button";
 import { Input } from "@/presentation/ui/components/ui/input";
 import { Users, UserPlus, Loader2, Search, Mail, Shield } from "lucide-react";
 import { isAdmin } from "@/presentation/ui/lib/roleChecker";
-import { Pagination } from "../components/ui/pagination.jsx";
+import { Pagination } from "../components/ui/pagination";
 
 export const UsersPage = () => {
   const navigate = useNavigate();
