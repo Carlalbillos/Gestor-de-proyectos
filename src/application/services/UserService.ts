@@ -42,8 +42,8 @@ export class UserService {
     return await this.userRepository.getUserTimeEntries(id);
   }
 
-  async deactivateUser(id: string): Promise<void> {
-    return await this.userRepository.deactivateUser(id);
+  async changeActivityUser(id: string): Promise<void> {
+    return await this.userRepository.changeActivityUser(id);
   }
 
   async deleteUser(id: string): Promise<void> {

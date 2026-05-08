@@ -24,7 +24,7 @@ export const UserDetailsPage = () => {
     isLoading,
     error,
     fetchUserDetails,
-    deactivateUser,
+    changeActivityUser,
     deleteUser,
     adminChangePassword,
     clearDetails
@@ -38,11 +38,11 @@ export const UserDetailsPage = () => {
     const action = user.isActive ? "desactivar" : "activar";
     if (confirm(`¿Estás seguro de que deseas ${action} a este usuario?`)) {
       try {
-        await deactivateUser(user.id);
+        await changeActivityUser(user.id);
       } catch (err) {
       }
     }
-  }, [user, deactivateUser]);
+  }, [user, changeActivityUser]);
 
   const handleDelete = useCallback(async () => {
     if (!user) return;
