@@ -20,9 +20,15 @@ export default defineConfig({
     host: true,
     port: 5173,
     strictPort: true,
+    watch: {
+      usePolling: true,
+    },
+    hmr: {
+      clientPort: 5173,
+    },
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'http://host.docker.internal:8000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '/480project'),
       },
