@@ -2,6 +2,45 @@
 
 Aplicación web de gestión de proyectos, clientes y personal construida con React y TypeScript, siguiendo una arquitectura hexagonal (Ports & Adapters).
 
+## 🚀 Puesta en marcha
+
+### Prerrequisitos
+
+- **Node.js** >= 20
+- **npm** >= 10
+
+### Instalación
+
+1. **Clonar el repositorio:**
+
+```bash
+git clone https://github.com/CarlosAlbillos/480-project-react-frontend.git
+cd 480-project-react-frontend
+```
+
+2. **Instalar dependencias:**
+
+```bash
+npm install
+```
+
+3. **Iniciar el servidor de desarrollo:**
+
+```bash
+npm run dev
+```
+
+La aplicación estará disponible en `http://localhost:5173` (por defecto).
+
+### Scripts disponibles
+
+| Script | Descripción |
+|---|---|
+| `npm run dev` | Inicia el servidor de desarrollo con HMR |
+| `npm run build` | Compila TypeScript y genera el build de producción |
+| `npm run preview` | Sirve el build de producción localmente |
+| `npm run lint` | Ejecuta ESLint sobre el código |
+
 ## 🛠️ Tecnologías
 
 | Categoría | Tecnología | Versión |
@@ -44,44 +83,7 @@ src/
         └── validators/       # Esquemas de validación (Zod)
 ```
 
-## 🚀 Puesta en marcha
 
-### Prerrequisitos
-
-- **Node.js** >= 20
-- **npm** >= 10
-
-### Instalación
-
-1. **Clonar el repositorio:**
-
-```bash
-git clone https://github.com/CarlosAlbillos/480-project-react-frontend.git
-cd 480-project-react-frontend
-```
-
-2. **Instalar dependencias:**
-
-```bash
-npm install
-```
-
-3. **Iniciar el servidor de desarrollo:**
-
-```bash
-npm run dev
-```
-
-La aplicación estará disponible en `http://localhost:5173` (por defecto).
-
-### Scripts disponibles
-
-| Script | Descripción |
-|---|---|
-| `npm run dev` | Inicia el servidor de desarrollo con HMR |
-| `npm run build` | Compila TypeScript y genera el build de producción |
-| `npm run preview` | Sirve el build de producción localmente |
-| `npm run lint` | Ejecuta ESLint sobre el código |
 
 ### Configuración de la API
 
