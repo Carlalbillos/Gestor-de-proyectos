@@ -10,7 +10,7 @@ import { ProjectDetailsPage } from "@/presentation/ui/pages/ProjectDetailsPage";
 import { ClientsPage } from "@/presentation/ui/pages/ClientsPage";
 import { CreateClientPage } from "@/presentation/ui/pages/CreateClientPage";
 import { ClientsDetailsPage } from "@/presentation/ui/pages/ClientsDetailsPage";
-import { CreateSectorPage } from "@/presentation/ui/pages/CreateSectorPage";
+import { SectorPage } from "@/presentation/ui/pages/SectorPage";
 
 import { AuthGuard } from "@/presentation/ui/guards/AuthGuard";
 import { AdminGuard } from "@/presentation/ui/guards/AdminGuard";
@@ -81,8 +81,8 @@ const router = createBrowserRouter([
                 element: <ClientsDetailsPage />,
               },
               {
-                path: "sectores/nuevo",
-                element: <CreateSectorPage />,
+                path: "clientes/sectores",
+                element: <SectorPage />,
               },
               {
                 path: "proyectos/nuevo",

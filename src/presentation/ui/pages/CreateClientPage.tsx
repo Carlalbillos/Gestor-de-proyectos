@@ -1,34 +1,27 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/presentation/ui/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/presentation/ui/components/ui/card";
 import { Input } from "@/presentation/ui/components/ui/input";
-import { Label } from "@/presentation/ui/components/ui/label";
 import { ChevronLeft, Loader2, Save } from "lucide-react";
 import { ApiClientRepository } from "@/infrastructure/adapters/ApiClientRepository";
 import { ClientService } from "@/application/services/ClientService";
-import { ApiSectorRepository } from "@/infrastructure/adapters/ApiSectorRepository";
-import { SectorService } from "@/application/services/SectorService";
+import { SectorSelect } from "@/presentation/ui/components/sectors/SectorSelect";
 
 import { createClientSchema } from "@/presentation/ui/validators/create-client.schema";
 import type { CreateClientFormData } from "@/presentation/ui/validators/create-client.schema";
-import type { Sector } from "@/domain/entities/sector.entity";
 
 import { uuidv7 } from "@/presentation/ui/lib/uuid";
 import { isAxiosError } from "axios";
 
 const clientRepository = new ApiClientRepository();
 const clientService = new ClientService(clientRepository);
-const sectorRepository = new ApiSectorRepository();
-const sectorService = new SectorService(sectorRepository);
 
 export const CreateClientPage = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [sectors, setSectors] = useState<Sector[]>([]);
-  const [isLoadingSectors, setIsLoadingSectors] = useState(true);
 
   const {
     register,
@@ -42,20 +35,6 @@ export const CreateClientPage = () => {
       sectorId: "",
     },
   });
-
-  useEffect(() => {
-    const fetchSectors = async () => {
-      try {
-        const data = await sectorService.getSectors();
-        setSectors(data);
-        setIsLoadingSectors(false);
-      } catch (error) {
-        console.error("Error fetching sectors", error);
-        setIsLoadingSectors(false);
-      }
-    };
-    fetchSectors();
-  }, []);
 
   const onSubmit = async (data: CreateClientFormData): Promise<void> => {
     setIsLoading(true);
@@ -107,7 +86,9 @@ export const CreateClientPage = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nombre del Cliente</Label>
+              <label htmlFor="name" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Nombre del Cliente
+              </label>
               <Input
                 id="name"
                 placeholder="Ej: Acme Corp"
@@ -119,32 +100,17 @@ export const CreateClientPage = () => {
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="sectorId">Sector</Label>
-              <select
-                id="sectorId"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                aria-invalid={!!errors.sectorId}
-                {...register("sectorId")}
-              >
-                <option value="">Selecciona un sector</option>
-                {sectors.map(sector => (
-                  <option key={sector.id} value={sector.id}>
-                    {sector.name}
-                  </option>
-                ))}
-              </select>
-              {errors.sectorId && (
-                <p className="text-sm text-destructive">{errors.sectorId.message}</p>
-              )}
-              {isLoadingSectors && <p className="text-xs text-muted-foreground animate-pulse">Cargando sectores...</p>}
-            </div>
+            <SectorSelect 
+              id="sectorId"
+              error={errors.sectorId?.message}
+              {...register("sectorId")}
+            />
           </CardContent>
           <CardFooter className="flex justify-end gap-3 border-t p-6 bg-muted/20">
             <Button type="button" variant="ghost" onClick={() => navigate("/clientes")} disabled={isLoading}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={isLoading || isLoadingSectors} className="min-w-[140px]">
+            <Button type="submit" disabled={isLoading} className="min-w-[140px]">
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

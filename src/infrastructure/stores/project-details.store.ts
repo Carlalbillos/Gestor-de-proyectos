@@ -9,6 +9,10 @@ import { UserService } from "@/application/services/UserService";
 import { ApiClientRepository } from "@/infrastructure/adapters/ApiClientRepository";
 import { ClientService } from "@/application/services/ClientService";
 
+const projectService = new ProjectService(new ApiProjectRepository());
+const userService = new UserService(new ApiUserRepository());
+const clientService = new ClientService(new ApiClientRepository());
+
 interface ProjectDetailsState {
   project: Project | null;
   users: ProjectUser[];
@@ -17,7 +21,9 @@ interface ProjectDetailsState {
   developments: ProjectDevelopment[];
   clientContacts: ClientContact[];
   isLoading: boolean;
+  isSaving: boolean;
   error: string | null;
+
   fetchProjectDetails: (id: string) => Promise<void>;
   fetchRoles: () => Promise<void>;
   fetchAllUsers: () => Promise<void>;
@@ -27,14 +33,7 @@ interface ProjectDetailsState {
   clearDetails: () => void;
 }
 
-const projectRepository = new ApiProjectRepository();
-const projectService = new ProjectService(projectRepository);
-const userRepository = new ApiUserRepository();
-const userService = new UserService(userRepository);
-const clientRepository = new ApiClientRepository();
-const clientService = new ClientService(clientRepository);
-
-export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
+export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => ({
   project: null,
   users: [],
   roles: [],
@@ -42,6 +41,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
   developments: [],
   clientContacts: [],
   isLoading: false,
+  isSaving: false,
   error: null,
 
   fetchProjectDetails: async (id: string) => {
@@ -60,11 +60,15 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
 
       set({ project, users, developments, clientContacts, isLoading: false });
     } catch (error: any) {
-      set({ error: error.message || "Error al cargar los detalles del proyecto", isLoading: false });
+      set({ 
+        error: error.message || "Error al cargar los detalles del proyecto", 
+        isLoading: false 
+      });
     }
   },
 
   fetchRoles: async () => {
+    if (get().roles.length > 0) return;
     try {
       const roles = await projectService.getProjectRoles();
       set({ roles });
@@ -74,6 +78,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
   },
 
   fetchAllUsers: async () => {
+    if (get().allUsers.length > 0) return;
     try {
       const response = await userService.getUsers({ limit: 9999 });
       set({ allUsers: response.data });
@@ -83,17 +88,20 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
   },
 
   assignUser: async (projectId: string, userId: string, roleId: string) => {
+    set({ isSaving: true });
     try {
       await projectService.assignUser(projectId, userId, roleId);
       const users = await projectService.getProjectUsers(projectId);
-      set({ users });
+      set({ users, isSaving: false });
     } catch (error: any) {
-      throw new Error(error.message || "Error al asignar usuario");
+      set({ isSaving: false });
+      throw error;
     }
   },
 
   updateUserRole: async (projectId: string, userId: string, roleId: string) => {
-    const { users } = useProjectDetailsStore.getState();
+    set({ isSaving: true });
+    const { users } = get();
     const updatedUsers = users.map(u => ({
       appUserId: u.appUserId,
       roleId: u.appUserId === userId ? roleId : (u.role?.id || "")
@@ -102,23 +110,36 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set) => ({
     try {
       await projectService.updateProjectUsers(projectId, updatedUsers);
       const usersResponse = await projectService.getProjectUsers(projectId);
-      set({ users: usersResponse });
+      set({ users: usersResponse, isSaving: false });
     } catch (error: any) {
-      throw new Error(error.message || "Error al actualizar rol");
+      set({ isSaving: false });
+      throw error;
     }
   },
 
   removeUser: async (projectId: string, userId: string) => {
+    set({ isSaving: true });
     try {
       await projectService.removeUser(projectId, userId);
-      const users = await projectService.getProjectUsers(projectId);
-      set({ users });
+      const usersResponse = await projectService.getProjectUsers(projectId);
+      set({ users: usersResponse, isSaving: false });
     } catch (error: any) {
+      set({ isSaving: false });
       throw error;
     }
   },
 
   clearDetails: () => {
-    set({ project: null, users: [], roles: [], allUsers: [], developments: [], clientContacts: [], error: null, isLoading: false });
+    set({ 
+      project: null, 
+      users: [], 
+      roles: [], 
+      allUsers: [], 
+      developments: [], 
+      clientContacts: [], 
+      error: null, 
+      isLoading: false,
+      isSaving: false
+    });
   },
 }));

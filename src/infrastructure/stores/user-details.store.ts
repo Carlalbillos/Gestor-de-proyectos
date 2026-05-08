@@ -16,7 +16,7 @@ interface UserDetailsState {
   error: string | null;
   fetchUserDetails: (id: string) => Promise<void>;
   updateUser: (id: string, data: any) => Promise<void>;
-  deactivateUser: (id: string, isActive: boolean) => Promise<void>;
+  deactivateUser: (id: string) => Promise<void>;
   deleteUser: (id: string) => Promise<void>;
   adminChangePassword: (id: string, password: string) => Promise<void>;
   clearDetails: () => void;
@@ -62,10 +62,10 @@ export const useUserDetailsStore = create<UserDetailsState>((set) => ({
     }
   },
 
-  deactivateUser: async (id: string, isActive: boolean) => {
+  deactivateUser: async (id: string) => {
     set({ isLoading: true, error: null });
     try {
-      await userService.deactivateUser(id, isActive);
+      await userService.deactivateUser(id);
       const updatedUser = await userService.getUserProfile(id);
       set({ user: updatedUser, isLoading: false });
     } catch (error: any) {
