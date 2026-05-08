@@ -19,7 +19,8 @@ export class UserMapper {
     return role;
   }
 
-  static fromApiRole(role: string): string {
+  static fromApiRole(role: any): string {
+
     if (role === 'ROLE_ADMIN') return 'admin';
     if (role === 'ROLE_EMPLOYEE') return 'user';
     return role;

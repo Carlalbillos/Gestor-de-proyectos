@@ -7,6 +7,7 @@ import { UserPlus, Edit2, Trash2, Loader2, X, Check, XCircle } from "lucide-reac
 import { useProjectDetailsStore } from "@/infrastructure/stores/project-details.store";
 import { Badge } from "../ui/badge";
 import { Label } from "../ui/label";
+import { ConfirmDialog } from "../ui/confirm-dialog";
 
 interface ProjectTeamTabProps {
   users: ProjectUser[];
@@ -113,38 +114,18 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
         </Card>
       )}
 
-      {showDeleteConfirm && (
-        <Card className="border-destructive/30 bg-destructive/5 animate-in fade-in slide-in-from-top-4 duration-300">
-          <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
-            <div className="flex items-center gap-3">
-              <Trash2 className="h-5 w-5 text-destructive shrink-0" />
-              <div>
-                <p className="font-semibold text-destructive">¿Eliminar miembro del proyecto?</p>
-                <p className="text-sm text-muted-foreground">
-                  Esta acción desvinculará al usuario del proyecto.
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-2 shrink-0">
-              <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(null)} disabled={!!actionLoading}>
-                Cancelar
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => handleDelete(showDeleteConfirm)}
-                disabled={!!actionLoading}
-              >
-                {actionLoading === showDeleteConfirm ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Sí, eliminar"
-                )}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <ConfirmDialog
+        isOpen={!!showDeleteConfirm}
+        onClose={() => {
+          setShowDeleteConfirm(null);
+          setTabError(null);
+        }}
+        onConfirm={() => handleDelete(showDeleteConfirm!)}
+        title="Eliminar miembro del proyecto"
+        description={tabError || "¿Estás seguro de que deseas desvincular a este usuario del proyecto?"}
+        confirmText="Eliminar"
+        isLoading={!!actionLoading}
+      />
 
       {(isManaging || editingUser) && (
         <Card className="border-primary/50 bg-primary/5 shadow-lg animate-in fade-in slide-in-from-top-4 duration-300">

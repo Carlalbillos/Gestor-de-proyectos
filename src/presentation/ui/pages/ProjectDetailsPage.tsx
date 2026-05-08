@@ -12,10 +12,11 @@ import {
   XCircle,
   Code2,
   Info,
-  Clock
+  Clock,
+  Briefcase
 } from "lucide-react";
 
-import { ProjectHeader } from "@/presentation/ui/components/projects/ProjectHeader";
+import { DetailsHeader } from "@/presentation/ui/components/ui/details-header";
 import { ProjectInfoTab } from "@/presentation/ui/components/projects/ProjectInfoTab";
 import { ProjectTeamTab } from "@/presentation/ui/components/projects/ProjectTeamTab";
 import { ProjectClientTab } from "@/presentation/ui/components/projects/ProjectClientTab";
@@ -65,7 +66,15 @@ export const ProjectDetailsPage = () => {
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
-      <ProjectHeader project={project} onBack={() => navigate("/proyectos")} />
+      <DetailsHeader
+        title={project.name}
+        onBack={() => navigate("/proyectos")}
+        isActive={project.isActive}
+        onToggleStatus={() => {}} // Not implemented for projects yet
+        onDelete={() => {}} // Not implemented for projects yet
+        showActions={false}
+        icon={<Briefcase className="h-7 w-7 text-primary" />}
+      />
 
       <Tabs defaultValue="informacion" className="w-full">
         <TabsList className="grid w-full grid-cols-5 h-12">

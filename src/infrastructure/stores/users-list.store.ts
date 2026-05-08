@@ -70,8 +70,7 @@ export const useUsersListStore = create<UsersListState>((set, get) => ({
         }
 
         if (state.filterRole !== "all") {
-          const roleToMatch = state.filterRole === "admin" ? "ROLE_ADMIN" : "ROLE_EMPLOYEE";
-          filtered = filtered.filter(u => u.role === roleToMatch);
+          filtered = filtered.filter(u => u.role === state.filterRole);
         }
 
         return filtered;

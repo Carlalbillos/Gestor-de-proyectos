@@ -6,7 +6,7 @@ import { Button } from "@/presentation/ui/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/presentation/ui/components/ui/card";
 import { Input } from "@/presentation/ui/components/ui/input";
 import { Label } from "@/presentation/ui/components/ui/label";
-import { ChevronLeft, Loader2, Save, Pencil, Trash2 } from "lucide-react";
+import { Loader2, Save, Pencil, Trash2 } from "lucide-react";
 import { useSectorsStore } from "@/infrastructure/stores/sectors.store";
 import { createSectorSchema } from "@/presentation/ui/validators/create-sector.schema";
 import type { CreateSectorFormData } from "@/presentation/ui/validators/create-sector.schema";
@@ -22,16 +22,8 @@ import {
   DialogTitle,
 } from "@/presentation/ui/components/ui/dialog";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/presentation/ui/components/ui/alert-dialog";
+import { DetailsHeader } from "@/presentation/ui/components/ui/details-header";
+import { ConfirmDialog } from "@/presentation/ui/components/ui/confirm-dialog";
 
 export const SectorPage = () => {
   const navigate = useNavigate();
@@ -133,25 +125,24 @@ export const SectorPage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/clientes")}>
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gestionar Sectores</h1>
-        </div>
-      </div>
+    <div className="max-w-4xl mx-auto space-y-8">
+      <DetailsHeader
+        title="Gestionar Sectores"
+        onBack={() => navigate("/clientes")}
+        showActions={false}
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* CREATE SECTOR FORM */}
-        <div className="md:col-span-1 sticky top-2 h-fit">
+        <div className="md:col-span-1">
           <form onSubmit={handleSubmitCreate(onCreateSubmit)} noValidate>
-            <Card className="shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-lg">Nuevo Sector</CardTitle>
+            <Card className="shadow-sm border-muted/60">
+              <CardHeader className="bg-muted/30 pb-4">
+                <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                  Nuevo Sector
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="pt-6 space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Nombre del Sector</Label>
                   <Input
@@ -166,7 +157,7 @@ export const SectorPage = () => {
                   )}
                 </div>
               </CardContent>
-              <CardFooter className="flex justify-end p-4 bg-muted/20 border-t">
+              <CardFooter className="flex justify-end p-4 border-t bg-muted/10">
                 <Button type="submit" disabled={isLoading} className="w-full">
                   {isLoading ? (
                     <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Guardando...</>
@@ -182,28 +173,28 @@ export const SectorPage = () => {
         {/* LIST OF SECTORS */}
         <div className="md:col-span-2 space-y-4">
           {isStoreLoading ? (
-            <div className="flex justify-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <div className="flex justify-center p-12">
+              <Loader2 className="h-10 w-10 animate-spin text-primary/40" />
             </div>
           ) : sectors.length === 0 ? (
-            <Card className="shadow-sm">
-              <CardContent className="p-8 text-center text-muted-foreground">
+            <Card className="border-dashed border-2 bg-muted/20">
+              <CardContent className="p-12 text-center text-muted-foreground italic">
                 No hay sectores registrados todavía.
               </CardContent>
             </Card>
           ) : (
             <div className="grid gap-3">
               {sectors.map((sector) => (
-                <Card key={sector.id} className="shadow-sm hover:border-primary/50 transition-colors">
-                  <CardContent className="px-4  flex items-center justify-between">
-                    <span className="font-medium">{sector.name}</span>
-                    <div className="flex items-center gap-1">
-                      <Button variant="outline" size="sm" onClick={() => handleOpenEdit(sector)}>
-                        <Pencil className="h-4 w-4 text-blue-600" />
+                <Card key={sector.id} className="shadow-sm hover:border-primary/30 transition-colors group">
+                  <CardContent className="p-4 flex items-center justify-between">
+                    <span className="font-semibold text-foreground">{sector.name}</span>
+                    <div className="flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                      <Button variant="outline" size="sm" className="h-8" onClick={() => handleOpenEdit(sector)}>
+                        <Pencil className="h-3.5 w-3.5 mr-1.5 text-blue-600" />
                         Editar
                       </Button>
-                      <Button variant="destructive" size="sm" onClick={() => setSectorToDelete(sector)}>
-                        <Trash2 className="h-4 w-4 text-red-600" />
+                      <Button variant="outline" size="sm" className="h-8 text-destructive hover:bg-destructive/5 hover:border-destructive/30" onClick={() => setSectorToDelete(sector)}>
+                        <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                         Eliminar
                       </Button>
                     </div>
@@ -242,7 +233,11 @@ export const SectorPage = () => {
                 Cancelar
               </Button>
               <Button type="submit" disabled={isUpdating}>
-                {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isUpdating ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="mr-2 h-4 w-4" />
+                )}
                 Guardar cambios
               </Button>
             </DialogFooter>
@@ -250,44 +245,19 @@ export const SectorPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* DELETE MODAL */}
-      <AlertDialog open={!!sectorToDelete} onOpenChange={(open) => {
-        if (!open) {
+      <ConfirmDialog
+        isOpen={!!sectorToDelete}
+        onClose={() => {
           setSectorToDelete(null);
           setDeleteError(null);
-        }
-      }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar el sector?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acción eliminará el sector "{sectorToDelete?.name}".
-              Asegúrate de que ningún cliente dependa de este sector.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          {deleteError && (
-            <div className="bg-destructive/15 text-destructive text-sm font-medium p-3 rounded-md my-2">
-              {deleteError}
-            </div>
-          )}
-
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                onConfirmDelete();
-              }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              disabled={isDeleting}
-            >
-              {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sí, eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        }}
+        onConfirm={onConfirmDelete}
+        title="¿Eliminar sector?"
+        description={deleteError || `Esta acción eliminará el sector "${sectorToDelete?.name}". Asegúrate de que ningún cliente dependa de él.`}
+        confirmText="Sí, eliminar"
+        isLoading={isDeleting}
+        variant="destructive"
+      />
     </div>
   );
 };

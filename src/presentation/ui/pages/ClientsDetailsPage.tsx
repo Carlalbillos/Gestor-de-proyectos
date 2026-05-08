@@ -16,8 +16,10 @@ import { createContactSchema } from "@/presentation/ui/validators/create-contact
 import type { CreateContactFormData } from "@/presentation/ui/validators/create-contact.schema";
 import { updateContactSchema } from "@/presentation/ui/validators/update-contact.schema";
 import type { UpdateContactFormData } from "@/presentation/ui/validators/update-contact.schema";
-import { ArrowLeft, Loader2, XCircle, Building2, Briefcase, Users, Users2, Calendar, Mail, Phone, Star, StickyNote, Pencil, Trash2, Save, X, Power, UserPlus } from "lucide-react";
+import { ArrowLeft, Loader2, XCircle, Building2, Briefcase, Users, Users2, Calendar, Mail, Phone, Star, StickyNote, Pencil, Trash2, Save, X, UserPlus } from "lucide-react";
 import { uuidv7 } from "@/presentation/ui/lib/uuid";
+import { DetailsHeader } from "@/presentation/ui/components/ui/details-header";
+import { ConfirmDialog } from "@/presentation/ui/components/ui/confirm-dialog";
 
 export const ClientsDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -206,105 +208,34 @@ export const ClientsDetailsPage = () => {
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="space-y-2 w-full">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="pl-0 text-muted-foreground hover:text-primary transition-colors"
-            onClick={() => navigate("/clientes")}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver al listado
-          </Button>
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-3">
-              <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
-                <Building2 className="h-7 w-7 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-extrabold tracking-tight">{client.name}</h1>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              {!isEditing && (
-                <>
-                  <Button
-                    variant={client.isActive ? "destructive" : "outline"}
-                    size="sm"
-                    className="shadow-sm"
-                    disabled={isToggling}
-                    onClick={async () => {
-                      if (!id) return;
-                      setIsToggling(true);
-                      try {
-                        await changeStatus(id);
-                      } catch (e) {
-                      } finally {
-                        setIsToggling(false);
-                      }
-                    }}
-                  >
-                    {isToggling ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Power className="mr-2 h-4 w-4" />
-                    )}
-                    {client.isActive ? "Inactivar" : "Activar"}
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="shadow-sm"
-                    onClick={() => setShowDeleteConfirm(true)}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Eliminar
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      <DetailsHeader
+        title={client.name}
+        onBack={() => navigate("/clientes")}
+        isActive={client.isActive}
+        onToggleStatus={async () => {
+          if (!id) return;
+          setIsToggling(true);
+          try {
+            await changeStatus(id);
+          } finally {
+            setIsToggling(false);
+          }
+        }}
+        onDelete={() => setShowDeleteConfirm(true)}
+        isToggling={isToggling}
+        showActions={!isEditing}
+        icon={<Building2 className="h-7 w-7 text-primary" />}
+      />
 
-      {/* Delete Confirmation */}
-      {showDeleteConfirm && (
-        <Card className="border-destructive/30 bg-destructive/5">
-          <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
-            <div className="flex items-center gap-3">
-              <Trash2 className="h-5 w-5 text-destructive shrink-0" />
-              <div>
-                <p className="font-semibold text-destructive">¿Eliminar este cliente?</p>
-                <p className="text-sm text-muted-foreground">
-                  Esta acción no se puede deshacer. Se eliminará <strong>{client.name}</strong> permanentemente.
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-2 shrink-0">
-              <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(false)} disabled={isDeleting}>
-                Cancelar
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Eliminando...
-                  </>
-                ) : (
-                  "Sí, eliminar"
-                )}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        title="Eliminar Cliente"
+        description={`¿Estás seguro de que deseas eliminar a ${client.name}? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        isLoading={isDeleting}
+      />
 
       {/* Info Cards */}
       <div className="grid gap-6 md:grid-cols-1">
