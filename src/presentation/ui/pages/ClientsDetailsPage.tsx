@@ -347,7 +347,7 @@ export const ClientsDetailsPage = () => {
                     <option value="">Selecciona un sector</option>
                     {sectors.map((sector) => (
                       <option key={sector.id} value={sector.id}>
-                        {sector.name}
+                        {sector.name.charAt(0) + sector.name.slice(1).toLowerCase()}
                       </option>
                     ))}
                   </select>

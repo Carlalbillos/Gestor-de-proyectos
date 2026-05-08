@@ -53,9 +53,9 @@ export const ClientsPage = () => {
           </p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
-          <Button variant="outline" className="flex-1 sm:flex-none shadow-sm" onClick={() => navigate("/sectores/nuevo")}>
+          <Button variant="outline" className="flex-1 sm:flex-none shadow-sm" onClick={() => navigate("/clientes/sectores")}>
             <Tags className="mr-2 h-4 w-4" />
-            Nuevo Sector
+            Administrar sectores
           </Button>
           <Button className="flex-1 sm:flex-none shadow-sm" onClick={() => navigate("/clientes/nuevo")}>
             <UserPlus className="mr-2 h-4 w-4" />
@@ -141,7 +141,7 @@ export const ClientsPage = () => {
                     {client.name}
                   </CardTitle>
                   <CardDescription className="line-clamp-2 h-10 mt-1">
-                    {client.sector?.name || "Sin sector asignado"}
+                    {client.sector?.name.charAt(0) + client.sector?.name.slice(1).toLowerCase() || "Sin sector asignado"}
                   </CardDescription>
                 </CardHeader>
               </Card>
