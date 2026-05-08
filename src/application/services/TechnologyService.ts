@@ -1,5 +1,6 @@
-import type { TechnologyRepository, CreateTechnologyDTO } from "../../domain/ports/TechnologyRepository";
+import type { TechnologyRepository } from "../../domain/ports/TechnologyRepository";
 import type { Technology } from "../../domain/entities/technology.entity";
+import type { CreateTechnologyDTO, UpdateTechnologyDTO } from "../dto/technology.dto";
 
 export class TechnologyService {
   private readonly technologyRepository: TechnologyRepository;
@@ -14,5 +15,13 @@ export class TechnologyService {
 
   async createTechnology(dto: CreateTechnologyDTO): Promise<void> {
     return await this.technologyRepository.createTechnology(dto);
+  }
+
+  async updateTechnology(id: string, dto: UpdateTechnologyDTO): Promise<void> {
+    return await this.technologyRepository.updateTechnology(id, dto);
+  }
+
+  async deleteTechnology(id: string): Promise<void> {
+    return await this.technologyRepository.deleteTechnology(id);
   }
 }
