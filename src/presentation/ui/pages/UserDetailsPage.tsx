@@ -4,7 +4,7 @@ import { useUserDetailsStore } from "@/infrastructure/stores/user-details.store"
 import { Card, CardContent, CardHeader, CardTitle } from "@/presentation/ui/components/ui/card";
 import { Badge } from "@/presentation/ui/components/ui/badge";
 import { Button } from "@/presentation/ui/components/ui/button";
-import { Lock, ArrowLeft, Loader2, CheckCircle2, XCircle, Mail, Shield, Briefcase, Clock, Calendar } from "lucide-react";
+import { Lock, ArrowLeft, Loader2, XCircle, Mail, Shield, Briefcase, Clock, Calendar } from "lucide-react";
 import { isAdmin } from "@/presentation/ui/lib/roleChecker";
 import { AdminChangePasswordModal } from "@/presentation/ui/components/users/AdminChangePasswordModal";
 import { EditUserModal } from "@/presentation/ui/components/users/EditUserModal";
@@ -38,9 +38,8 @@ export const UserDetailsPage = () => {
     const action = user.isActive ? "desactivar" : "activar";
     if (confirm(`¿Estás seguro de que deseas ${action} a este usuario?`)) {
       try {
-        await deactivateUser(user.id, !user.isActive);
+        await deactivateUser(user.id);
       } catch (err) {
-        // Error handled by store
       }
     }
   }, [user, deactivateUser]);
@@ -52,7 +51,6 @@ export const UserDetailsPage = () => {
         await deleteUser(user.id);
         navigate("/personal");
       } catch (err) {
-        // Error handled by store
       }
     }
   }, [user, deleteUser, navigate]);

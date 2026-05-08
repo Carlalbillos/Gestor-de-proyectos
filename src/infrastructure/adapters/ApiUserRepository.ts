@@ -74,10 +74,8 @@ export class ApiUserRepository implements UserRepository {
     };
   }
 
-  async deactivateUser(id: string, isActive: boolean): Promise<void> {
-    await api.patch(`users/${id}`, {
-      is_active: isActive,
-    });
+  async deactivateUser(id: string): Promise<void> {
+    await api.patch(`users/${id}/change-status`);
   }
 
   async deleteUser(id: string): Promise<void> {

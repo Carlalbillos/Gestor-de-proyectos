@@ -3,12 +3,11 @@ import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/presentation/ui/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/presentation/ui/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/presentation/ui/components/ui/card";
 import { Input } from "@/presentation/ui/components/ui/input";
 import { Label } from "@/presentation/ui/components/ui/label";
 import { ChevronLeft, Loader2, Save, Pencil, Trash2 } from "lucide-react";
-import { ApiSectorRepository } from "@/infrastructure/adapters/ApiSectorRepository";
-import { SectorService } from "@/application/services/SectorService";
+import { useSectorsStore } from "@/infrastructure/stores/sectors.store";
 import { createSectorSchema } from "@/presentation/ui/validators/create-sector.schema";
 import type { CreateSectorFormData } from "@/presentation/ui/validators/create-sector.schema";
 import type { Sector } from "@/domain/entities/sector.entity";
@@ -34,15 +33,18 @@ import {
   AlertDialogTitle,
 } from "@/presentation/ui/components/ui/alert-dialog";
 
-const sectorRepository = new ApiSectorRepository();
-const sectorService = new SectorService(sectorRepository);
-
 export const SectorPage = () => {
   const navigate = useNavigate();
-  const [sectors, setSectors] = useState<Sector[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(true);
+  const { 
+    sectors, 
+    isLoading: isStoreLoading, 
+    fetchSectors, 
+    createSector, 
+    updateSector, 
+    deleteSector 
+  } = useSectorsStore();
 
+  const [isLoading, setIsLoading] = useState(false);
   const [sectorToEdit, setSectorToEdit] = useState<Sector | null>(null);
   const [sectorToDelete, setSectorToDelete] = useState<Sector | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -71,28 +73,14 @@ export const SectorPage = () => {
   });
 
   useEffect(() => {
-    loadSectors();
-  }, []);
-
-  const loadSectors = async () => {
-    setIsFetching(true);
-    try {
-      const data = await sectorService.getSectors();
-      setSectors(data);
-    } catch (error) {
-      console.error("Error loading sectors", error);
-    } finally {
-      setIsFetching(false);
-    }
-  };
+    fetchSectors();
+  }, [fetchSectors]);
 
   const onCreateSubmit = async (data: CreateSectorFormData): Promise<void> => {
     setIsLoading(true);
     try {
-      const newSector = { id: uuidv7(), ...data };
-      await sectorService.createSector(newSector);
+      await createSector({ id: uuidv7(), ...data });
       resetCreate();
-      await loadSectors();
     } catch (error: any) {
       console.error("Error creating sector", error);
       const status = error?.response?.status;
@@ -113,9 +101,8 @@ export const SectorPage = () => {
     if (!sectorToEdit) return;
     setIsUpdating(true);
     try {
-      await sectorService.updateSector(sectorToEdit.id, { name: data.name });
+      await updateSector(sectorToEdit.id, { name: data.name });
       setSectorToEdit(null);
-      await loadSectors();
     } catch (error: any) {
       console.error("Error updating sector", error);
       const status = error?.response?.status;
@@ -132,9 +119,8 @@ export const SectorPage = () => {
     setIsDeleting(true);
     setDeleteError(null);
     try {
-      await sectorService.deleteSector(sectorToDelete.id);
+      await deleteSector(sectorToDelete.id);
       setSectorToDelete(null);
-      await loadSectors();
     } catch (error: any) {
       if (error?.response?.status === 409) {
         setDeleteError("No puedes eliminar el sector si tiene clientes relacionados.");
@@ -195,7 +181,7 @@ export const SectorPage = () => {
 
         {/* LIST OF SECTORS */}
         <div className="md:col-span-2 space-y-4">
-          {isFetching ? (
+          {isStoreLoading ? (
             <div className="flex justify-center p-8">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
@@ -210,7 +196,7 @@ export const SectorPage = () => {
               {sectors.map((sector) => (
                 <Card key={sector.id} className="shadow-sm hover:border-primary/50 transition-colors">
                   <CardContent className="px-4  flex items-center justify-between">
-                    <span className="font-medium">{sector.name.charAt(0) + sector.name.slice(1).toLowerCase()}</span>
+                    <span className="font-medium">{sector.name}</span>
                     <div className="flex items-center gap-1">
                       <Button variant="outline" size="sm" onClick={() => handleOpenEdit(sector)}>
                         <Pencil className="h-4 w-4 text-blue-600" />

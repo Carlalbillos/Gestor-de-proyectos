@@ -8,26 +8,37 @@ import { Badge } from "@/presentation/ui/components/ui/badge";
 import { Button } from "@/presentation/ui/components/ui/button";
 import { Input } from "@/presentation/ui/components/ui/input";
 import { Label } from "@/presentation/ui/components/ui/label";
-import { ApiSectorRepository } from "@/infrastructure/adapters/ApiSectorRepository";
-import { SectorService } from "@/application/services/SectorService";
+import { useSectorsStore } from "@/infrastructure/stores/sectors.store";
+import { SectorSelect } from "@/presentation/ui/components/sectors/SectorSelect";
 import { updateClientSchema } from "@/presentation/ui/validators/update-client.schema";
 import type { UpdateClientFormData } from "@/presentation/ui/validators/update-client.schema";
 import { createContactSchema } from "@/presentation/ui/validators/create-contact.schema";
 import type { CreateContactFormData } from "@/presentation/ui/validators/create-contact.schema";
 import { updateContactSchema } from "@/presentation/ui/validators/update-contact.schema";
 import type { UpdateContactFormData } from "@/presentation/ui/validators/update-contact.schema";
-import type { Sector } from "@/domain/entities/sector.entity";
 import { ArrowLeft, Loader2, XCircle, Building2, Briefcase, Users, Users2, Calendar, Mail, Phone, Star, StickyNote, Pencil, Trash2, Save, X, Power, UserPlus } from "lucide-react";
 import { uuidv7 } from "@/presentation/ui/lib/uuid";
-
-const sectorRepository = new ApiSectorRepository();
-const sectorService = new SectorService(sectorRepository);
 
 export const ClientsDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { client, projects, contacts, isLoading, error, fetchClientDetails, updateClient, deleteClient, changeStatus, createContact, updateContact, deleteContact, clearDetails } =
-    useClientDetailsStore();
+  const { 
+    client, 
+    projects, 
+    contacts, 
+    isLoading, 
+    error, 
+    fetchClientDetails, 
+    updateClient, 
+    deleteClient, 
+    changeStatus, 
+    createContact, 
+    updateContact, 
+    deleteContact, 
+    clearDetails 
+  } = useClientDetailsStore();
+
+  const { sectors, fetchSectors } = useSectorsStore();
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -39,9 +50,6 @@ export const ClientsDetailsPage = () => {
   const [isSavingContact, setIsSavingContact] = useState(false);
   const [editingContactId, setEditingContactId] = useState<string | null>(null);
   const [isUpdatingContact, setIsUpdatingContact] = useState(false);
-
-  const [sectors, setSectors] = useState<Sector[]>([]);
-  const [isLoadingSectors, setIsLoadingSectors] = useState(false);
 
   const {
     register,
@@ -92,15 +100,7 @@ export const ClientsDetailsPage = () => {
     setIsEditing(true);
 
     if (sectors.length === 0) {
-      setIsLoadingSectors(true);
-      try {
-        const data = await sectorService.getSectors();
-        setSectors(data);
-      } catch (e) {
-        console.error("Error fetching sectors", e);
-      } finally {
-        setIsLoadingSectors(false);
-      }
+      fetchSectors();
     }
   };
 
@@ -336,28 +336,11 @@ export const ClientsDetailsPage = () => {
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="edit-sector">Sector</Label>
-                  <select
-                    id="edit-sector"
-                    aria-invalid={!!errors.sectorId}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    {...register("sectorId")}
-                  >
-                    <option value="">Selecciona un sector</option>
-                    {sectors.map((sector) => (
-                      <option key={sector.id} value={sector.id}>
-                        {sector.name.charAt(0) + sector.name.slice(1).toLowerCase()}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.sectorId && (
-                    <p className="text-sm text-destructive">{errors.sectorId.message}</p>
-                  )}
-                  {isLoadingSectors && (
-                    <p className="text-xs text-muted-foreground animate-pulse">Cargando sectores...</p>
-                  )}
-                </div>
+                <SectorSelect
+                  id="edit-sector"
+                  error={errors.sectorId?.message}
+                  {...register("sectorId")}
+                />
 
                 <div className="flex gap-2 pt-2">
                   <Button type="submit" disabled={isSaving} className="min-w-[120px]">
