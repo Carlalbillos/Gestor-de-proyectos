@@ -20,6 +20,9 @@ import { ArrowLeft, Loader2, XCircle, Building2, Briefcase, Users, Users2, Calen
 import { uuidv7 } from "@/presentation/ui/lib/uuid";
 import { DetailsHeader } from "@/presentation/ui/components/ui/details-header";
 import { ConfirmDialog } from "@/presentation/ui/components/ui/confirm-dialog";
+import { DetailItem } from "@/presentation/ui/components/ui/detail-item";
+import { EditButton } from "@/presentation/ui/components/ui/edit-button";
+import { FormActions } from "@/presentation/ui/components/ui/form-actions";
 
 export const ClientsDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -244,12 +247,7 @@ export const ClientsDetailsPage = () => {
             <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
               Datos del Cliente
             </CardTitle>
-            {!isEditing && (
-              <Button variant="outline" size="sm" className="shadow-sm" onClick={startEditing}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Editar
-              </Button>
-            )}
+            {!isEditing && <EditButton onClick={startEditing} />}
           </CardHeader>
           <CardContent className="pt-6 space-y-5">
             {isEditing ? (
@@ -273,47 +271,22 @@ export const ClientsDetailsPage = () => {
                   {...register("sectorId")}
                 />
 
-                <div className="flex gap-2 pt-2">
-                  <Button type="submit" disabled={isSaving} className="min-w-[120px]">
-                    {isSaving ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Guardando...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="mr-2 h-4 w-4" />
-                        Guardar
-                      </>
-                    )}
-                  </Button>
-                  <Button type="button" variant="ghost" onClick={cancelEditing} disabled={isSaving}>
-                    <X className="mr-2 h-4 w-4" />
-                    Cancelar
-                  </Button>
-                </div>
+                <FormActions isSaving={isSaving} onCancel={cancelEditing} />
               </form>
             ) : (
               <>
-                <div className="flex items-start gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Building2 className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase">Nombre</p>
-                    <p className="font-bold text-foreground">{client.name}</p>
-                  </div>
-                </div>
+                <DetailItem
+                  label="Nombre"
+                  value={client.name}
+                  icon={<Building2 />}
+                />
 
-                <div className="flex items-start gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
-                    <Briefcase className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase">Sector</p>
-                    <p className="font-bold text-foreground">{client.sector?.name || "—"}</p>
-                  </div>
-                </div>
+                <DetailItem
+                  label="Sector"
+                  value={client.sector?.name}
+                  icon={<Briefcase />}
+                  iconColor="bg-blue-500/10 text-blue-600"
+                />
               </>
             )}
           </CardContent>

@@ -4,13 +4,18 @@ import { useUserDetailsStore } from "@/infrastructure/stores/user-details.store"
 import { Card, CardContent, CardHeader, CardTitle } from "@/presentation/ui/components/ui/card";
 import { Badge } from "@/presentation/ui/components/ui/badge";
 import { Button } from "@/presentation/ui/components/ui/button";
-import { Lock, Loader2, XCircle, Mail, Shield, Briefcase, Clock, Calendar, Edit } from "lucide-react";
+import { Lock, Loader2, XCircle, Mail, Shield, Briefcase, Clock, Calendar } from "lucide-react";
 import { isAdmin } from "@/presentation/ui/lib/roleChecker";
 import { AdminChangePasswordModal } from "@/presentation/ui/components/users/AdminChangePasswordModal";
-import { EditUserModal } from "@/presentation/ui/components/users/EditUserModal";
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
 import { DetailsHeader } from "@/presentation/ui/components/ui/details-header";
 import { ConfirmDialog } from "@/presentation/ui/components/ui/confirm-dialog";
+import { useForm } from "react-hook-form";
+import { DetailItem } from "@/presentation/ui/components/ui/detail-item";
+import { EditButton } from "@/presentation/ui/components/ui/edit-button";
+import { FormActions } from "@/presentation/ui/components/ui/form-actions";
+import { Input } from "@/presentation/ui/components/ui/input";
+import { Label } from "@/presentation/ui/components/ui/label";
 
 export const UserDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +29,7 @@ export const UserDetailsPage = () => {
     isLoading,
     error,
     fetchUserDetails,
+    updateUser,
     changeActivityUser,
     deleteUser,
     adminChangePassword,
@@ -31,28 +37,23 @@ export const UserDetailsPage = () => {
   } = useUserDetailsStore();
 
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [showToggleConfirm, setShowToggleConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const handleToggleActive = async () => {
-    setShowToggleConfirm(false);
-    try {
-      await changeActivityUser(user!.id);
-    } catch (err) {
-      // Error handled by store
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { },
+  } = useForm({
+    defaultValues: {
+      name: "",
+      surname: "",
+      email: "",
+      role: "user",
     }
-  };
-
-  const handleDelete = async () => {
-    setShowDeleteConfirm(false);
-    try {
-      await deleteUser(user!.id);
-      navigate("/personal");
-    } catch (err) {
-      // Error handled by store
-    }
-  };
+  });
 
   useEffect(() => {
     if (id) {
@@ -61,31 +62,68 @@ export const UserDetailsPage = () => {
     return () => clearDetails();
   }, [id, fetchUserDetails, clearDetails]);
 
+  const handleToggleActive = async () => {
+    setShowToggleConfirm(false);
+    try {
+      await changeActivityUser(user!.id);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDelete = async () => {
+    setShowDeleteConfirm(false);
+    try {
+      await deleteUser(user!.id);
+      navigate("/usuarios");
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const startEditing = () => {
+    if (!user) return;
+    reset({
+      name: user.name,
+      surname: user.surname,
+      email: user.email.getValue(),
+      role: user.role,
+    });
+    setIsEditing(true);
+  };
+
+  const onEditSubmit = async (data: any) => {
+    if (!user) return;
+    try {
+      await updateUser(user.id, {
+        ...data,
+        isActive: user.isActive
+      });
+      setIsEditing(false);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   if (isLoading && !user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <Loader2 className="h-12 w-12 animate-spin text-primary/40" />
         <p className="text-muted-foreground animate-pulse">Cargando detalles del usuario...</p>
       </div>
     );
   }
 
-  if (error) {
+  if (error || !user) {
     return (
-      <Card className="border-destructive/20 bg-destructive/5 mt-8">
-        <CardContent className="flex flex-col items-center py-12 text-center">
-          <XCircle className="h-12 w-12 text-destructive mb-4" />
-          <h2 className="text-xl font-semibold text-destructive">Error al cargar el usuario</h2>
-          <p className="text-muted-foreground mt-2 max-w-md">{error}</p>
-          <Button variant="outline" className="mt-6" onClick={() => navigate("/personal")}>
-            Volver a Personal
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <XCircle className="h-12 w-12 text-destructive/50" />
+        <h2 className="text-2xl font-bold">Usuario no encontrado</h2>
+        <p className="text-muted-foreground">{error || "El usuario que buscas no existe o ha sido eliminado."}</p>
+        <Button onClick={() => navigate("/usuarios")}>Volver al listado</Button>
+      </div>
     );
   }
-
-  if (!user) return null;
 
   const isSelf = currentUser?.id === user.id;
 
@@ -95,8 +133,8 @@ export const UserDetailsPage = () => {
         title={`${user.name} ${user.surname}`}
         onBack={() => navigate("/personal")}
         isActive={user.isActive}
-        onToggleStatus={!isSelf ? () => setShowToggleConfirm(true) : () => {}}
-        onDelete={!isSelf ? () => setShowDeleteConfirm(true) : () => {}}
+        onToggleStatus={!isSelf ? () => setShowToggleConfirm(true) : undefined}
+        onDelete={!isSelf ? () => setShowDeleteConfirm(true) : undefined}
         isToggling={isLoading}
         showActions={!isSelf}
         icon={<div className="font-bold text-xl text-primary">{user.name.charAt(0)}{user.surname.charAt(0)}</div>}
@@ -115,8 +153,72 @@ export const UserDetailsPage = () => {
       />
 
       <div className="grid gap-8 md:grid-cols-3">
-        {/* Sidebar Info */}
-        <div className="space-y-6">
+        <div className="md:col-span-1 space-y-6">
+          <Card className="border-muted/60 shadow-sm overflow-hidden">
+            <CardHeader className="bg-muted/30 pb-4 flex flex-row items-center justify-between">
+              <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                Información Personal
+              </CardTitle>
+              {isAdmin(currentUser) && !isEditing && (
+                <EditButton onClick={startEditing} />
+              )}
+            </CardHeader>
+            <CardContent className="pt-6">
+              {isEditing ? (
+                <form onSubmit={handleSubmit(onEditSubmit)} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Nombre</Label>
+                    <Input id="name" {...register("name", { required: true })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="surname">Apellidos</Label>
+                    <Input id="surname" {...register("surname", { required: true })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" type="email" {...register("email", { required: true })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="role">Rol de Sistema</Label>
+                    <select
+                      id="role"
+                      {...register("role")}
+                      disabled={isSelf}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-70 disabled:bg-muted"
+                    >
+                      <option value="user">Empleado</option>
+                      <option value="admin">Administrador</option>
+                    </select>
+                    {isSelf && (
+                      <p className="text-[10px] text-muted-foreground italic">
+                        No puedes cambiar tu propio rol de sistema.
+                      </p>
+                    )}
+                  </div>
+                  <FormActions isSaving={isLoading} onCancel={() => setIsEditing(false)} />
+                </form>
+              ) : (
+                <div className="space-y-6">
+                  <DetailItem
+                    label="Nombre Completo"
+                    value={`${user.name} ${user.surname}`}
+                    icon={<Shield />}
+                  />
+                  <DetailItem
+                    label="Correo Electrónico"
+                    value={user.email.getValue()}
+                    icon={<Mail />}
+                  />
+                  <DetailItem
+                    label="Rol de Sistema"
+                    value={user.role === "admin" ? "Administrador" : "Empleado"}
+                    icon={<Lock />}
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           <Card className="overflow-hidden border-muted/60 shadow-sm">
             <CardHeader className="bg-muted/30 pb-4">
               <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
@@ -156,9 +258,6 @@ export const UserDetailsPage = () => {
 
               {isAdmin(currentUser) && (
                 <div className="pt-4 border-t space-y-2">
-                  <Button variant="outline" className="w-full justify-start" onClick={() => setIsEditModalOpen(true)}>
-                    <Edit className="mr-2 h-4 w-4" /> Editar Datos
-                  </Button>
                   <Button variant="outline" className="w-full justify-start" onClick={() => setIsPasswordModalOpen(true)}>
                     <Lock className="mr-2 h-4 w-4" /> Cambiar Contraseña
                   </Button>
@@ -168,9 +267,7 @@ export const UserDetailsPage = () => {
           </Card>
         </div>
 
-        {/* Main Content */}
         <div className="md:col-span-2 space-y-8">
-          {/* Projects Section */}
           <section className="space-y-4">
             <div className="flex items-center gap-2">
               <Briefcase className="h-5 w-5 text-primary" />
@@ -209,7 +306,6 @@ export const UserDetailsPage = () => {
             </div>
           </section>
 
-          {/* Time Entries Section */}
           <section className="space-y-4">
             <div className="flex items-center gap-2">
               <Clock className="h-5 w-5 text-primary" />
@@ -263,12 +359,6 @@ export const UserDetailsPage = () => {
         onClose={() => setIsPasswordModalOpen(false)}
         userName={user.name}
         onSubmit={(password) => adminChangePassword(user.id, password)}
-      />
-
-      <EditUserModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        user={user}
       />
 
       <ConfirmDialog
