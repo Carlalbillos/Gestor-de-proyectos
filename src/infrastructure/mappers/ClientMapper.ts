@@ -1,5 +1,6 @@
 import type { Client, ClientContact } from "../../domain/entities/client.entity";
 import { Email } from "../../domain/value-objects/Email";
+import { SectorMapper } from "./SectorMapper";
 
 export class ClientMapper {
   static toDomain(raw: any): Client {
@@ -9,7 +10,7 @@ export class ClientMapper {
       isActive: Boolean(raw.is_active),
       sector: {
         id: raw.sector?.id ?? "",
-        name: raw.sector?.name ?? "",
+        name: SectorMapper.capitalize(raw.sector?.name ?? ""),
       },
     };
   }

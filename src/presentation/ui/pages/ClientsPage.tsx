@@ -141,7 +141,7 @@ export const ClientsPage = () => {
                     {client.name}
                   </CardTitle>
                   <CardDescription className="line-clamp-2 h-10 mt-1">
-                    {client.sector?.name.charAt(0) + client.sector?.name.slice(1).toLowerCase() || "Sin sector asignado"}
+                    {client.sector?.name || "Sin sector asignado"}
                   </CardDescription>
                 </CardHeader>
               </Card>
