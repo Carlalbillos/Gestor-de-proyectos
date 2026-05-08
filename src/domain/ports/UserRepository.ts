@@ -24,4 +24,6 @@ export interface UserRepository {
   adminChangePassword(id: string, dto: AdminChangePasswordDTO): Promise<void>;
   getUserProjects(id: string): Promise<Project[]>;
   getUserTimeEntries(id: string): Promise<TimeEntriesResponse>;
+  deactivateUser(id: string, isActive: boolean): Promise<void>;
+  deleteUser(id: string): Promise<void>;
 }
