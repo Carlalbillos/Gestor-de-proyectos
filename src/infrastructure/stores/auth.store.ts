@@ -56,7 +56,7 @@ export const useAuthStore = create<AuthState>()(
       changePassword: async (dto) => {
         const { user } = get();
         if (!user) throw new Error("No autenticado");
-        
+
         set({ isLoading: true });
         try {
           await userService.changePassword(user.id, dto);

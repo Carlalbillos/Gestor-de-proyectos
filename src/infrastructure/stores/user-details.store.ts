@@ -3,6 +3,7 @@ import { UserService } from "../../application/services/UserService";
 import { ApiUserRepository } from "../adapters/ApiUserRepository";
 import type { User, TimeEntry } from "../../domain/entities/user.entity";
 import type { Project } from "../../domain/entities/project.entity";
+import type { CreateTimeEntryDTO } from "../../application/dto/user.dto";
 
 const userRepository = new ApiUserRepository();
 const userService = new UserService(userRepository);
@@ -19,6 +20,7 @@ interface UserDetailsState {
   changeActivityUser: (id: string) => Promise<void>;
   deleteUser: (id: string) => Promise<void>;
   adminChangePassword: (id: string, password: string) => Promise<void>;
+  addTimeEntry: (id: string, data: CreateTimeEntryDTO) => Promise<void>;
   clearDetails: () => void;
 }
 
@@ -92,6 +94,22 @@ export const useUserDetailsStore = create<UserDetailsState>((set) => ({
       set({ isLoading: false });
     } catch (error: any) {
       set({ error: error.message || "Error al cambiar la contraseña", isLoading: false });
+      throw error;
+    }
+  },
+
+  addTimeEntry: async (id: string, data: CreateTimeEntryDTO) => {
+    set({ isLoading: true, error: null });
+    try {
+      await userService.createTimeEntry(id, data);
+      const timeEntriesResponse = await userService.getUserTimeEntries(id);
+      set({ 
+        timeEntries: timeEntriesResponse.data,
+        totalHours: timeEntriesResponse.totalHours,
+        isLoading: false 
+      });
+    } catch (error: any) {
+      set({ error: error.message || "Error al registrar la imputación de horas", isLoading: false });
       throw error;
     }
   },

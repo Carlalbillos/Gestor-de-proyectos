@@ -1,5 +1,5 @@
 import type { User, TimeEntriesResponse } from "../entities/user.entity";
-import type { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, AdminChangePasswordDTO } from "../../application/dto/user.dto";
+import type { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, AdminChangePasswordDTO, CreateTimeEntryDTO } from "../../application/dto/user.dto";
 import type { Project } from "../entities/project.entity";
 
 export interface UserQueryParams {
@@ -24,6 +24,7 @@ export interface UserRepository {
   adminChangePassword(id: string, dto: AdminChangePasswordDTO): Promise<void>;
   getUserProjects(id: string): Promise<Project[]>;
   getUserTimeEntries(id: string): Promise<TimeEntriesResponse>;
+  createTimeEntry(id: string, dto: CreateTimeEntryDTO): Promise<void>;
   changeActivityUser(id: string): Promise<void>;
   deleteUser(id: string): Promise<void>;
 }
