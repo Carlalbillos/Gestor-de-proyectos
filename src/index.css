@@ -21,7 +21,7 @@ body {
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
 
-  --primary: oklch(0.72 0.24 130);
+  --primary: oklch(83.852% 0.19025 148.813);
   --primary-foreground: oklch(0.12 0.02 130);
 
   --secondary: oklch(0.96 0.05 130);
@@ -138,9 +138,11 @@ body {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }
