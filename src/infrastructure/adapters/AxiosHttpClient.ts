@@ -56,35 +56,34 @@ api.interceptors.response.use(
         if (!refreshToken) {
           throw new Error("No refresh token available");
         }
-
         // Llamada directa con axios para evitar interceptores y bucles
-        const response = await axios.post("/api/refresh", { refresh_token: refreshToken });
-        
+        const response = await axios.post("/api/token/refresh", { refresh_token: refreshToken });
+
         const newToken = response.data.token;
         const newRefreshToken = response.data.refresh_token;
 
-        if (!newToken) throw new Error("No new token received");
+        if (!newToken) {
+          throw new Error("No new token received");
+        }
 
         useAuthStore.getState().updateTokens(newToken, newRefreshToken || refreshToken);
-        setAccessToken(newToken);
-        
         onTokenRefreshed(newToken);
         isRefreshing = false;
 
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
 
-      } catch (refreshError) {
+      } catch (refreshError: any) {
         isRefreshing = false;
         refreshSubscribers = [];
-        
+
         const { useAuthStore } = await import("@/infrastructure/stores/auth.store");
         useAuthStore.getState().logout();
-        
+
         if (window.location.pathname !== '/login') {
           window.location.href = '/login';
         }
-        
+
         return Promise.reject(refreshError);
       }
     }

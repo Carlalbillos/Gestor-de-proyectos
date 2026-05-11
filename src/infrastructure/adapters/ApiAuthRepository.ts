@@ -26,8 +26,6 @@ export class ApiAuthRepository implements AuthRepository {
         password: credentials.password,
       });
 
-      console.log("Respuesta del backend (login):", response.data);
-
       const token = response.data.token;
       const refreshToken = response.data.refresh_token;
 
