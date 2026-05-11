@@ -1,5 +1,5 @@
-import type { ProjectRepository, ProjectQueryParams, PaginatedResult } from "../../domain/ports/ProjectRepository";
-import type { Project, ProjectUser, ProjectDevelopment, ProjectRole } from "../../domain/entities/project.entity";
+import type { ProjectRepository, ProjectQueryParams, PaginatedResult, ProjectTimeEntryQueryParams } from "../../domain/ports/ProjectRepository";
+import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry } from "../../domain/entities/project.entity";
 import type { CreateProjectDTO } from "../dto/project.dto";
 
 export class ProjectService {
@@ -43,5 +43,9 @@ export class ProjectService {
 
   async removeUser(projectId: string, userId: string): Promise<void> {
     return await this.projectRepository.removeUser(projectId, userId);
+  }
+
+  async getProjectTimeEntries(id: string, params?: ProjectTimeEntryQueryParams): Promise<ProjectTimeEntry[]> {
+    return await this.projectRepository.getProjectTimeEntries(id, params);
   }
 }

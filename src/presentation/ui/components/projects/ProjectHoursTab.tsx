@@ -3,12 +3,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
 import { useUserDetailsStore } from "@/infrastructure/stores/user-details.store";
+import { useProjectDetailsStore } from "@/infrastructure/stores/project-details.store";
 import { uuidv7 } from "@/presentation/ui/lib/uuid";
 import * as z from "zod";
 import { createTimeEntrySchema, type CreateTimeEntryFormValues } from "@/presentation/ui/validators/create-time-entry.schema";
 import { Button } from "@/presentation/ui/components/ui/button";
 import { Input } from "@/presentation/ui/components/ui/input";
 import { Card, CardContent } from "@/presentation/ui/components/ui/card";
+import { TimeEntriesTable } from "@/presentation/ui/components/shared/TimeEntriesTable";
 import { Loader2, CheckCircle2, Clock, X } from "lucide-react";
 
 interface ProjectHoursTabProps {
@@ -18,6 +20,7 @@ interface ProjectHoursTabProps {
 export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
     const { user } = useAuthStore();
     const { addTimeEntry, isLoading } = useUserDetailsStore();
+    const { timeEntries, fetchProjectTimeEntries } = useProjectDetailsStore();
 
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -57,9 +60,11 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
             setSuccess(true);
             reset({
                 date: new Date().toISOString().split('T')[0],
-                hour: "" as any,
+                hour: "",
                 comment: ""
             });
+
+            await fetchProjectTimeEntries(projectId);
 
             setTimeout(() => {
                 setSuccess(false);
@@ -70,9 +75,15 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
         }
     };
 
+    const totalHours = timeEntries.reduce((acc, curr) => acc + curr.hour, 0);
+
     return (
         <div className="grid gap-4">
-            <div className="flex items-center justify-end">
+            <div className="flex items-center justify-between">
+                <div className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    <span>Total imputado: <span className="text-foreground font-bold">{totalHours}h en {timeEntries.length} imputaciones</span></span>
+                </div>
                 <Button size="sm" className="gap-2" onClick={() => setIsAdding(true)} disabled={isAdding}>
                     <Clock className="h-4 w-4" />
                     Registrar Horas
@@ -81,7 +92,15 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
 
             {isAdding && (
                 <Card className="border-primary/50 bg-primary/5 shadow-lg animate-in fade-in slide-in-from-top-4 duration-300">
-                    <CardContent>
+                    <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-bold text-lg flex items-center gap-2">
+                                <Clock className="h-4 w-4 text-primary" /> Nueva Imputación
+                            </h3>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsAdding(false)}>
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
                         {success && (
                             <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-md flex items-center gap-2 border border-green-200">
                                 <CheckCircle2 className="h-5 w-5" />
@@ -156,6 +175,8 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
                     </CardContent>
                 </Card>
             )}
+
+            <TimeEntriesTable entries={timeEntries} mode="project" />
         </div>
     );
 };

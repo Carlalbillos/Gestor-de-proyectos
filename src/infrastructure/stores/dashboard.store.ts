@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { UserService } from "../../application/services/UserService";
 import { ApiUserRepository } from "../adapters/ApiUserRepository";
-import type { User } from "../../domain/entities/user.entity";
+import type { User, TimeEntry } from "../../domain/entities/user.entity";
 import type { Project } from "../../domain/entities/project.entity";
 
 const userRepository = new ApiUserRepository();
@@ -10,6 +10,8 @@ const userService = new UserService(userRepository);
 interface DashboardState {
   profile: User | null;
   projects: Project[];
+  timeEntries: TimeEntry[];
+  totalHours: number;
   isLoading: boolean;
   error: string | null;
   fetchDashboardData: (userId: string) => Promise<void>;
@@ -18,17 +20,26 @@ interface DashboardState {
 export const useDashboardStore = create<DashboardState>((set) => ({
   profile: null,
   projects: [],
+  timeEntries: [],
+  totalHours: 0,
   isLoading: false,
   error: null,
 
   fetchDashboardData: async (userId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const [profile, projects] = await Promise.all([
+      const [profile, projects, timeEntriesResponse] = await Promise.all([
         userService.getUserProfile(userId),
         userService.getUserProjects(userId),
+        userService.getUserTimeEntries(userId),
       ]);
-      set({ profile, projects, isLoading: false });
+      set({ 
+        profile, 
+        projects, 
+        timeEntries: timeEntriesResponse.data, 
+        totalHours: timeEntriesResponse.totalHours,
+        isLoading: false 
+      });
     } catch (error: any) {
       set({ isLoading: false, error: error.message || "Error al cargar el dashboard" });
     }

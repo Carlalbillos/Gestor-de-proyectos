@@ -46,3 +46,12 @@ export interface Project {
   teamMembers?: number;
 }
 
+export interface ProjectTimeEntry {
+  id: string;
+  name: string;
+  surname: string;
+  date: string;
+  hour: number;
+  comment: string | null;
+}
+

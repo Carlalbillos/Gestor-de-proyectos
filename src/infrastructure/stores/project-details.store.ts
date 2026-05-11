@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Project, ProjectUser, ProjectDevelopment, ProjectRole } from "@/domain/entities/project.entity";
+import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry } from "@/domain/entities/project.entity";
 import type { User } from "@/domain/entities/user.entity";
 import type { ClientContact } from "@/domain/entities/client.entity";
 import { ApiProjectRepository } from "@/infrastructure/adapters/ApiProjectRepository";
@@ -20,11 +20,13 @@ interface ProjectDetailsState {
   allUsers: User[];
   developments: ProjectDevelopment[];
   clientContacts: ClientContact[];
+  timeEntries: ProjectTimeEntry[];
   isLoading: boolean;
   isSaving: boolean;
   error: string | null;
 
   fetchProjectDetails: (id: string) => Promise<void>;
+  fetchProjectTimeEntries: (id: string) => Promise<void>;
   fetchRoles: () => Promise<void>;
   fetchAllUsers: () => Promise<void>;
   assignUser: (projectId: string, userId: string, roleId: string) => Promise<void>;
@@ -40,6 +42,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   allUsers: [],
   developments: [],
   clientContacts: [],
+  timeEntries: [],
   isLoading: false,
   isSaving: false,
   error: null,
@@ -47,10 +50,11 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   fetchProjectDetails: async (id: string) => {
     set({ isLoading: true, error: null });
     try {
-      const [project, users, developments] = await Promise.all([
+      const [project, users, developments, timeEntries] = await Promise.all([
         projectService.getProjectById(id),
         projectService.getProjectUsers(id),
         projectService.getProjectDevelopments(id),
+        projectService.getProjectTimeEntries(id)
       ]);
 
       let clientContacts: ClientContact[] = [];
@@ -58,12 +62,20 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
         clientContacts = await clientService.getClientContacts(project.client.id);
       }
 
-      set({ project, users, developments, clientContacts, isLoading: false });
+      set({ project, users, developments, clientContacts, timeEntries, isLoading: false });
     } catch (error: any) {
-      set({ 
-        error: error.message || "Error al cargar los detalles del proyecto", 
-        isLoading: false 
+      set({
+        error: error.message || "Error al cargar los detalles del proyecto",
+        isLoading: false
       });
+    }
+  },
+
+  fetchProjectTimeEntries: async (id: string) => {
+    try {
+      const timeEntries = await projectService.getProjectTimeEntries(id);
+      set({ timeEntries });
+    } catch (error: any) {
     }
   },
 
@@ -130,14 +142,15 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   },
 
   clearDetails: () => {
-    set({ 
-      project: null, 
-      users: [], 
-      roles: [], 
-      allUsers: [], 
-      developments: [], 
-      clientContacts: [], 
-      error: null, 
+    set({
+      project: null,
+      users: [],
+      roles: [],
+      allUsers: [],
+      developments: [],
+      clientContacts: [],
+      timeEntries: [],
+      error: null,
       isLoading: false,
       isSaving: false
     });

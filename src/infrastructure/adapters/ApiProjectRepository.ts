@@ -1,6 +1,6 @@
 import { api } from "./AxiosHttpClient";
-import type { ProjectRepository, ProjectQueryParams, PaginatedResult } from "../../domain/ports/ProjectRepository";
-import type { Project, ProjectUser, ProjectDevelopment, ProjectRole } from "../../domain/entities/project.entity";
+import type { ProjectRepository, ProjectQueryParams, PaginatedResult, ProjectTimeEntryQueryParams } from "../../domain/ports/ProjectRepository";
+import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry } from "../../domain/entities/project.entity";
 import type { CreateProjectDTO } from "../../application/dto/project.dto";
 import { ProjectMapper } from "../mappers/ProjectMapper";
 
@@ -63,6 +63,24 @@ export class ApiProjectRepository implements ProjectRepository {
   async getProjectRoles(): Promise<ProjectRole[]> {
     const response = await api.get<any[]>("project-roles");
     return (Array.isArray(response.data) ? response.data : []).map(ProjectMapper.toRoleDomain);
+  }
+
+  async getProjectTimeEntries(id: string, params?: ProjectTimeEntryQueryParams): Promise<ProjectTimeEntry[]> {
+    const queryParams: any = {};
+    if (params) {
+      if (params.from) queryParams.from = params.from;
+      if (params.to) queryParams.to = params.to;
+      if (params.app_user_id) queryParams.app_user_id = params.app_user_id;
+      if (params.min_hour !== undefined) queryParams.min_hour = params.min_hour;
+      if (params.max_hour !== undefined) queryParams.max_hour = params.max_hour;
+      if (params.has_comment !== undefined) queryParams.has_comment = params.has_comment;
+      if (params.sort_by) queryParams.sort_by = params.sort_by;
+      if (params.sort_order) queryParams.sort_order = params.sort_order;
+      if (params.page) queryParams.page = params.page;
+      if (params.limit) queryParams.limit = params.limit;
+    }
+    const response = await api.get<any[]>(`projects/${id}/time-entries`, { params: queryParams });
+    return (Array.isArray(response.data) ? response.data : []).map(ProjectMapper.toTimeEntryDomain);
   }
 
   async assignUser(projectId: string, userId: string, roleId: string): Promise<void> {
