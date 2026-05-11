@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Badge } from "@/presentation/ui/components/ui/badge";
 import { TimeEntriesTable } from "@/presentation/ui/components/shared/TimeEntriesTable";
 import { Users, ChevronRight, Briefcase, Clock } from "lucide-react";
+import { isAdmin } from "@/presentation/ui/lib/roleChecker";
 
 export const HomePage = () => {
   const { user } = useAuthStore();
@@ -37,7 +38,7 @@ export const HomePage = () => {
   }
 
   const initials = `${profile.name?.[0] || ""}${profile.surname?.[0] || ""}`.toUpperCase();
-  const roleName = profile.role === "ROLE_ADMIN" ? "Administrador" : "Usuario";
+  const roleName = isAdmin(profile) ? "Administrador" : "Usuario";
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
