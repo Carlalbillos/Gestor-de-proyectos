@@ -12,6 +12,7 @@ import { InvalidCredentialsError } from "@/domain/exceptions/InvalidCredentialsE
 
 interface LoginApiResponse {
   token?: string;
+  refresh_token?: string;
   token_type?: string;
   expires_in?: number;
   expires_at?: string;
@@ -25,13 +26,16 @@ export class ApiAuthRepository implements AuthRepository {
         password: credentials.password,
       });
 
-      const token = response.data.token;
+      console.log("Respuesta del backend (login):", response.data);
 
-      if (typeof token !== "string" || !token.trim()) {
-        throw new Error("La respuesta de autenticación no contiene un token válido");
+      const token = response.data.token;
+      const refreshToken = response.data.refresh_token;
+
+      if (typeof token !== "string" || !token.trim() || !refreshToken) {
+        throw new Error("La respuesta de autenticación no contiene tokens válidos");
       }
 
-      return AuthMapper.toAuthResponse(token, credentials.email);
+      return AuthMapper.toAuthResponse(token, credentials.email, refreshToken);
     } catch (error) {
       if (error instanceof AxiosError && error.response?.status === 401) {
         throw new InvalidCredentialsError();

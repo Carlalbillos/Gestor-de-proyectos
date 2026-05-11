@@ -12,7 +12,7 @@ interface JwtPayload {
 }
 
 export class AuthMapper {
-  static toAuthResponse(token: string, emailFallback: string): AuthResponse {
+  static toAuthResponse(token: string, emailFallback: string, refreshToken: string): AuthResponse {
     let decoded: JwtPayload;
     try {
       decoded = jwtDecode<JwtPayload>(token);
@@ -41,6 +41,7 @@ export class AuthMapper {
         isActive: decoded.is_active ?? false,
       },
       accessToken: token,
+      refreshToken,
     };
   }
 }
