@@ -33,7 +33,6 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
         register,
         handleSubmit,
         reset,
-        setValue,
         formState: { errors }
     } = useForm<z.input<typeof createTimeEntrySchema>>({
         resolver: zodResolver(createTimeEntrySchema),
@@ -98,9 +97,9 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
                     <Clock className="h-4 w-4" />
                     <span>Total imputado: <span className="text-foreground font-bold">{totalHours}h en {timeEntries.length} imputaciones</span></span>
                 </div>
-                <Button 
-                    size="sm" 
-                    className="gap-2" 
+                <Button
+                    size="sm"
+                    className="gap-2"
                     onClick={() => {
                         reset({
                             date: new Date().toISOString().split('T')[0],
@@ -108,7 +107,7 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
                             comment: ""
                         });
                         setIsAdding(true);
-                    }} 
+                    }}
                     disabled={isAdding}
                 >
                     <Clock className="h-4 w-4" />
@@ -206,9 +205,9 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
                 </Card>
             )}
 
-            <TimeEntriesTable 
-                entries={timeEntries} 
-                mode="project" 
+            <TimeEntriesTable
+                entries={timeEntries}
+                mode="project"
                 onSave={(entryId, data) => updateTimeEntry(projectId, entryId, data)}
                 onDelete={setEntryToDelete}
                 isSaving={isLoading}

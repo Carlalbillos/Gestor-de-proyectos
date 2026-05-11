@@ -16,12 +16,13 @@ import { createContactSchema } from "@/presentation/ui/validators/create-contact
 import type { CreateContactFormData } from "@/presentation/ui/validators/create-contact.schema";
 import { updateContactSchema } from "@/presentation/ui/validators/update-contact.schema";
 import type { UpdateContactFormData } from "@/presentation/ui/validators/update-contact.schema";
-import { ArrowLeft, Loader2, XCircle, Building2, Briefcase, Users, Users2, Calendar, Mail, Phone, Star, StickyNote, Pencil, Trash2, Save, X, UserPlus } from "lucide-react";
+import { ArrowLeft, Loader2, XCircle, Building2, Briefcase, Users, Users2, Calendar, Mail, Phone, Star, StickyNote, Save, X, UserPlus } from "lucide-react";
 import { uuidv7 } from "@/presentation/ui/lib/uuid";
 import { DetailsHeader } from "@/presentation/ui/components/ui/details-header";
 import { ConfirmDialog } from "@/presentation/ui/components/ui/confirm-dialog";
 import { DetailItem } from "@/presentation/ui/components/ui/detail-item";
 import { EditButton } from "@/presentation/ui/components/ui/edit-button";
+import { DeleteButton } from "@/presentation/ui/components/ui/delete-button";
 import { FormActions } from "@/presentation/ui/components/ui/form-actions";
 
 export const ClientsDetailsPage = () => {
@@ -595,28 +596,15 @@ export const ClientsDetailsPage = () => {
                         )}
                       </div>
                       <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8 gap-2 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors"
-                          onClick={() => handleStartEditContact(contact)}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                          <span>Editar</span>
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8 gap-2 text-destructive hover:bg-destructive/5 hover:border-destructive/30 transition-colors"
+                        <EditButton onClick={() => handleStartEditContact(contact)} />
+                        <DeleteButton
+                          label=""
                           onClick={async () => {
                             if (confirm(`¿Estás seguro de que quieres eliminar a ${contact.fullName}?`)) {
                               await deleteContact(id!, contact.id);
                             }
                           }}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                          <span>Eliminar</span>
-                        </Button>
+                        />
                       </div>
                     </div>
                   </CardContent>

@@ -6,12 +6,14 @@ import { Button } from "@/presentation/ui/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/presentation/ui/components/ui/card";
 import { Input } from "@/presentation/ui/components/ui/input";
 import { Label } from "@/presentation/ui/components/ui/label";
-import { Loader2, Save, Pencil, Trash2 } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import { useSectorsStore } from "@/infrastructure/stores/sectors.store";
 import { createSectorSchema } from "@/presentation/ui/validators/create-sector.schema";
 import type { CreateSectorFormData } from "@/presentation/ui/validators/create-sector.schema";
 import type { Sector } from "@/domain/entities/sector.entity";
 import { uuidv7 } from "@/presentation/ui/lib/uuid";
+import { EditButton } from "@/presentation/ui/components/ui/edit-button";
+import { DeleteButton } from "@/presentation/ui/components/ui/delete-button";
 
 import {
   Dialog,
@@ -27,13 +29,13 @@ import { ConfirmDialog } from "@/presentation/ui/components/ui/confirm-dialog";
 
 export const SectorPage = () => {
   const navigate = useNavigate();
-  const { 
-    sectors, 
-    isLoading: isStoreLoading, 
-    fetchSectors, 
-    createSector, 
-    updateSector, 
-    deleteSector 
+  const {
+    sectors,
+    isLoading: isStoreLoading,
+    fetchSectors,
+    createSector,
+    updateSector,
+    deleteSector
   } = useSectorsStore();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -189,14 +191,8 @@ export const SectorPage = () => {
                   <CardContent className="p-4 flex items-center justify-between">
                     <span className="font-semibold text-foreground">{sector.name}</span>
                     <div className="flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
-                      <Button variant="outline" size="sm" className="h-8" onClick={() => handleOpenEdit(sector)}>
-                        <Pencil className="h-3.5 w-3.5 mr-1.5 text-blue-600" />
-                        Editar
-                      </Button>
-                      <Button variant="outline" size="sm" className="h-8 text-destructive hover:bg-destructive/5 hover:border-destructive/30" onClick={() => setSectorToDelete(sector)}>
-                        <Trash2 className="h-3.5 w-3.5 mr-1.5" />
-                        Eliminar
-                      </Button>
+                      <EditButton label="" onClick={() => handleOpenEdit(sector)} />
+                      <DeleteButton label="" onClick={() => setSectorToDelete(sector)} />
                     </div>
                   </CardContent>
                 </Card>

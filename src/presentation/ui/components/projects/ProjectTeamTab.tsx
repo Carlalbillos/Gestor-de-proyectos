@@ -3,11 +3,13 @@ import type { ProjectUser, ProjectRole } from "@/domain/entities/project.entity"
 import type { User } from "@/domain/entities/user.entity";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
-import { UserPlus, Edit2, Trash2, Loader2, X, Check, XCircle } from "lucide-react";
+import { UserPlus, Loader2, X, Check, XCircle, Briefcase } from "lucide-react";
 import { useProjectDetailsStore } from "@/infrastructure/stores/project-details.store";
 import { Badge } from "../ui/badge";
 import { Label } from "../ui/label";
 import { ConfirmDialog } from "../ui/confirm-dialog";
+import { EditButton } from "../ui/edit-button";
+import { DeleteButton } from "../ui/delete-button";
 
 interface ProjectTeamTabProps {
   users: ProjectUser[];
@@ -133,7 +135,7 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-lg flex items-center gap-2">
                 {editingUser ? (
-                  <><Edit2 className="h-4 w-4 text-primary" /> Editar Rol de {editingUser.name}</>
+                  <><Briefcase className="h-4 w-4 text-primary" /> Editar Rol de {editingUser.name}</>
                 ) : (
                   <><UserPlus className="h-4 w-4 text-primary" /> Asignar Nuevo Miembro</>
                 )}
@@ -219,30 +221,18 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
                   </div>
 
                   <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                    <EditButton
+                      label=""
                       onClick={() => {
                         setEditingUser(user);
                         setSelectedRoleId(user.role?.id || "");
                       }}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    />
+                    <DeleteButton
+                      label=""
                       onClick={() => setShowDeleteConfirm(user.appUserId)}
-                      disabled={actionLoading === user.appUserId}
-                    >
-                      {actionLoading === user.appUserId ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                    </Button>
+                      isLoading={actionLoading === user.appUserId}
+                    />
                   </div>
                 </CardContent>
               </Card>

@@ -129,7 +129,6 @@ export const ProjectsPage = () => {
                   <div className="flex justify-between items-start mb-1">
                     <Badge
                       variant={project.isActive ? "default" : "secondary"}
-                      className={project.isActive ? "bg-green-500/10 text-green-700 hover:bg-green-500/20 border-green-200" : ""}
                     >
                       {project.isActive ? "Activo" : "Inactivo"}
                     </Badge>

@@ -3,7 +3,9 @@ import { Card, CardContent } from "@/presentation/ui/components/ui/card";
 import { Badge } from "@/presentation/ui/components/ui/badge";
 import { Button } from "@/presentation/ui/components/ui/button";
 import { Input } from "@/presentation/ui/components/ui/input";
-import { Pencil, Trash2, Check, X, Loader2 } from "lucide-react";
+import { Check, X, Loader2 } from "lucide-react";
+import { EditButton } from "@/presentation/ui/components/ui/edit-button";
+import { DeleteButton } from "@/presentation/ui/components/ui/delete-button";
 
 interface TimeEntriesTableProps {
     entries: any[];
@@ -174,24 +176,16 @@ export const TimeEntriesTable = ({ entries, mode, onEdit, onDelete, onSave, isSa
                                             ) : (
                                                 <>
                                                     {(onEdit || onSave) && (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 text-muted-foreground hover:text-primary"
+                                                        <EditButton
+                                                            label=""
                                                             onClick={() => startEditing(entry)}
-                                                        >
-                                                            <Pencil className="h-4 w-4" />
-                                                        </Button>
+                                                        />
                                                     )}
                                                     {onDelete && (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                                                            onClick={() => onDelete(entry)}
-                                                        >
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </Button>
+                                                    <DeleteButton
+                                                        label=""
+                                                        onClick={() => onDelete(entry)}
+                                                    />
                                                     )}
                                                 </>
                                             )}
