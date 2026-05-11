@@ -31,3 +31,9 @@ export interface CreateTimeEntryDTO {
   hour: number;
   comment: string;
 }
+
+export interface UpdateTimeEntryDTO {
+  date: string;
+  hour: number;
+  comment: string;
+}

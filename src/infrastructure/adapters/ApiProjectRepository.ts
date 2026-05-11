@@ -2,6 +2,7 @@ import { api } from "./AxiosHttpClient";
 import type { ProjectRepository, ProjectQueryParams, PaginatedResult, ProjectTimeEntryQueryParams } from "../../domain/ports/ProjectRepository";
 import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry } from "../../domain/entities/project.entity";
 import type { CreateProjectDTO } from "../../application/dto/project.dto";
+import type { UpdateTimeEntryDTO } from "../../application/dto/user.dto";
 import { ProjectMapper } from "../mappers/ProjectMapper";
 
 export class ApiProjectRepository implements ProjectRepository {
@@ -101,5 +102,13 @@ export class ApiProjectRepository implements ProjectRepository {
 
   async removeUser(projectId: string, userId: string): Promise<void> {
     await api.delete(`projects/${projectId}/users/${userId}`);
+  }
+  
+  async updateProjectTimeEntry(projectId: string, entryId: string, data: UpdateTimeEntryDTO): Promise<void> {
+    await api.put(`projects/${projectId}/time-entries/${entryId}`, data);
+  }
+
+  async deleteProjectTimeEntry(projectId: string, entryId: string): Promise<void> {
+    await api.delete(`projects/${projectId}/time-entries/${entryId}`);
   }
 }

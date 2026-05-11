@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry } from "@/domain/entities/project.entity";
 import type { User } from "@/domain/entities/user.entity";
 import type { ClientContact } from "@/domain/entities/client.entity";
+import type { UpdateTimeEntryDTO } from "@/application/dto/user.dto";
 import { ApiProjectRepository } from "@/infrastructure/adapters/ApiProjectRepository";
 import { ProjectService } from "@/application/services/ProjectService";
 import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
@@ -32,6 +33,8 @@ interface ProjectDetailsState {
   assignUser: (projectId: string, userId: string, roleId: string) => Promise<void>;
   updateUserRole: (projectId: string, userId: string, roleId: string) => Promise<void>;
   removeUser: (projectId: string, userId: string) => Promise<void>;
+  updateTimeEntry: (projectId: string, entryId: string, data: UpdateTimeEntryDTO) => Promise<void>;
+  deleteTimeEntry: (projectId: string, entryId: string) => Promise<void>;
   clearDetails: () => void;
 }
 
@@ -138,6 +141,31 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     } catch (error: any) {
       set({ isSaving: false });
       throw error;
+    }
+  },
+
+  updateTimeEntry: async (projectId: string, entryId: string, data: UpdateTimeEntryDTO) => {
+    set({ isSaving: true });
+    try {
+      await projectService.updateProjectTimeEntry(projectId, entryId, data);
+      await get().fetchProjectTimeEntries(projectId);
+    } catch (error: any) {
+      throw error;
+    } finally {
+      set({ isSaving: false });
+    }
+  },
+
+  deleteTimeEntry: async (projectId: string, entryId: string) => {
+    set({ isSaving: true });
+
+    try {
+      await projectService.deleteProjectTimeEntry(projectId, entryId);
+      await get().fetchProjectTimeEntries(projectId);
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ isSaving: false });
     }
   },
 

@@ -1,6 +1,7 @@
 import type { ProjectRepository, ProjectQueryParams, PaginatedResult, ProjectTimeEntryQueryParams } from "../../domain/ports/ProjectRepository";
 import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry } from "../../domain/entities/project.entity";
 import type { CreateProjectDTO } from "../dto/project.dto";
+import type { UpdateTimeEntryDTO } from "../dto/user.dto";
 
 export class ProjectService {
   private readonly projectRepository: ProjectRepository;
@@ -47,5 +48,13 @@ export class ProjectService {
 
   async getProjectTimeEntries(id: string, params?: ProjectTimeEntryQueryParams): Promise<ProjectTimeEntry[]> {
     return await this.projectRepository.getProjectTimeEntries(id, params);
+  }
+
+  async updateProjectTimeEntry(projectId: string, entryId: string, data: UpdateTimeEntryDTO): Promise<void> {
+    return await this.projectRepository.updateProjectTimeEntry(projectId, entryId, data);
+  }
+
+  async deleteProjectTimeEntry(projectId: string, entryId: string): Promise<void> {
+    return await this.projectRepository.deleteProjectTimeEntry(projectId, entryId);
   }
 }

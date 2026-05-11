@@ -11,6 +11,7 @@ import { Button } from "@/presentation/ui/components/ui/button";
 import { Input } from "@/presentation/ui/components/ui/input";
 import { Card, CardContent } from "@/presentation/ui/components/ui/card";
 import { TimeEntriesTable } from "@/presentation/ui/components/shared/TimeEntriesTable";
+import { ConfirmDialog } from "@/presentation/ui/components/ui/confirm-dialog";
 import { Loader2, CheckCircle2, Clock, X } from "lucide-react";
 
 interface ProjectHoursTabProps {
@@ -19,16 +20,20 @@ interface ProjectHoursTabProps {
 
 export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
     const { user } = useAuthStore();
-    const { addTimeEntry, isLoading } = useUserDetailsStore();
-    const { timeEntries, fetchProjectTimeEntries } = useProjectDetailsStore();
+    const { addTimeEntry, isLoading: isSavingUserDetail } = useUserDetailsStore();
+    const { timeEntries, fetchProjectTimeEntries, updateTimeEntry, deleteTimeEntry, isSaving: isSavingProjectStore } = useProjectDetailsStore();
+
+    const isLoading = isSavingUserDetail || isSavingProjectStore;
 
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [entryToDelete, setEntryToDelete] = useState<any | null>(null);
 
     const {
         register,
         handleSubmit,
         reset,
+        setValue,
         formState: { errors }
     } = useForm<z.input<typeof createTimeEntrySchema>>({
         resolver: zodResolver(createTimeEntrySchema),
@@ -40,6 +45,16 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
     });
 
     const [isAdding, setIsAdding] = useState(false);
+
+    const handleDelete = async () => {
+        if (!entryToDelete) return;
+        try {
+            await deleteTimeEntry(projectId, entryToDelete.id);
+            setEntryToDelete(null);
+        } catch (err: any) {
+            setError(err.message || "Error al eliminar las horas");
+        }
+    };
 
     const onSubmit = async (formData: any) => {
         const data = formData as CreateTimeEntryFormValues;
@@ -56,15 +71,14 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
                 hour: data.hour,
                 comment: data.comment
             });
-
             setSuccess(true);
+            await fetchProjectTimeEntries(projectId);
+
             reset({
                 date: new Date().toISOString().split('T')[0],
                 hour: "",
                 comment: ""
             });
-
-            await fetchProjectTimeEntries(projectId);
 
             setTimeout(() => {
                 setSuccess(false);
@@ -84,7 +98,19 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
                     <Clock className="h-4 w-4" />
                     <span>Total imputado: <span className="text-foreground font-bold">{totalHours}h en {timeEntries.length} imputaciones</span></span>
                 </div>
-                <Button size="sm" className="gap-2" onClick={() => setIsAdding(true)} disabled={isAdding}>
+                <Button 
+                    size="sm" 
+                    className="gap-2" 
+                    onClick={() => {
+                        reset({
+                            date: new Date().toISOString().split('T')[0],
+                            hour: "",
+                            comment: ""
+                        });
+                        setIsAdding(true);
+                    }} 
+                    disabled={isAdding}
+                >
                     <Clock className="h-4 w-4" />
                     Registrar Horas
                 </Button>
@@ -97,7 +123,9 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
                             <h3 className="font-bold text-lg flex items-center gap-2">
                                 <Clock className="h-4 w-4 text-primary" /> Nueva Imputación
                             </h3>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsAdding(false)}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
+                                setIsAdding(false);
+                            }}>
                                 <X className="h-4 w-4" />
                             </Button>
                         </div>
@@ -157,7 +185,9 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
                             </div>
 
                             <div className="flex justify-end gap-2 pt-2">
-                                <Button type="button" variant="ghost" onClick={() => setIsAdding(false)}>
+                                <Button type="button" variant="ghost" onClick={() => {
+                                    setIsAdding(false);
+                                }}>
                                     Cancelar
                                 </Button>
                                 <Button type="submit" disabled={isLoading} className="min-w-[140px]">
@@ -176,7 +206,24 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
                 </Card>
             )}
 
-            <TimeEntriesTable entries={timeEntries} mode="project" />
+            <TimeEntriesTable 
+                entries={timeEntries} 
+                mode="project" 
+                onSave={(entryId, data) => updateTimeEntry(projectId, entryId, data)}
+                onDelete={setEntryToDelete}
+                isSaving={isLoading}
+            />
+
+            <ConfirmDialog
+                isOpen={!!entryToDelete}
+                title="Eliminar imputación"
+                description={`¿Estás seguro de que deseas eliminar la imputación de ${entryToDelete?.hour}h del día ${entryToDelete?.date}?`}
+                onConfirm={handleDelete}
+                onClose={() => setEntryToDelete(null)}
+                isLoading={isLoading}
+                variant="destructive"
+                confirmText="Eliminar"
+            />
         </div>
     );
 };
