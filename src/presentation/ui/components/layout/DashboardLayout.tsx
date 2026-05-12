@@ -18,8 +18,8 @@ export const DashboardLayout = () => {
     }
   }, [user?.id, profile, fetchDashboardData]);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 

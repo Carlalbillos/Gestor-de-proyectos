@@ -52,7 +52,15 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      logout: () => {
+      logout: async () => {
+        const { refreshToken } = get();
+        if (refreshToken) {
+          try {
+            await loginUseCase.logout(refreshToken);
+          } catch (error) {
+            console.error("Formal logout failed", error);
+          }
+        }
         setAccessToken(null);
         set({ user: null, token: null, refreshToken: null, isAuthenticated: false });
       },

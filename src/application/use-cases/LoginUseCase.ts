@@ -10,4 +10,8 @@ export class LoginUseCase {
   async execute(email: string, password: string): Promise<AuthResponse> {
     return this.authRepository.login({ email, password });
   }
+
+  async logout(refreshToken: string): Promise<void> {
+    return this.authRepository.logout(refreshToken);
+  }
 }

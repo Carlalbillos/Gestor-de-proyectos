@@ -13,4 +13,5 @@ export interface AuthResponse {
 
 export interface AuthRepository {
   login(credentials: AuthCredentials): Promise<AuthResponse>;
+  logout(refreshToken: string): Promise<void>;
 }

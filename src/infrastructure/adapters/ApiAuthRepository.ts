@@ -44,4 +44,12 @@ export class ApiAuthRepository implements AuthRepository {
         : new Error("Error desconocido durante el login");
     }
   }
+
+  async logout(refreshToken: string): Promise<void> {
+    try {
+      await api.post("logout", { refresh_token: refreshToken });
+    } catch (error) {
+      console.error("Error during logout", error);
+    }
+  }
 }
