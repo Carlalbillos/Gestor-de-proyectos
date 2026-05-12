@@ -1,5 +1,5 @@
 import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry } from "../entities/project.entity";
-import type { CreateProjectDTO } from "../../application/dto/project.dto";
+import type { CreateProjectDTO, UpdateProjectDTO, CreateDevelopmentDTO, UpdateDevelopmentDTO } from "../../application/dto/project.dto";
 import type { UpdateTimeEntryDTO } from "../../application/dto/user.dto";
 
 export interface ProjectQueryParams {
@@ -40,8 +40,13 @@ export interface ProjectRepository {
   updateProjectUsers(projectId: string, users: { appUserId: string, roleId: string }[]): Promise<void>;
   removeUser(projectId: string, userId: string): Promise<void>;
 
+  updateProject(id: string, project: UpdateProjectDTO): Promise<void>;
   createProject(project: CreateProjectDTO): Promise<void>;
   updateProjectTimeEntry(projectId: string, entryId: string, data: UpdateTimeEntryDTO): Promise<void>;
   deleteProjectTimeEntry(projectId: string, entryId: string): Promise<void>;
   changeStatus(id: string): Promise<void>;
+
+  createDevelopment(projectId: string, development: CreateDevelopmentDTO): Promise<void>;
+  updateDevelopment(projectId: string, development: UpdateDevelopmentDTO): Promise<void>;
+  deleteDevelopment(projectId: string, developmentId: string): Promise<void>;
 }

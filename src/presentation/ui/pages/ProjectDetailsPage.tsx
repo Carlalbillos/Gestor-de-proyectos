@@ -40,6 +40,7 @@ export const ProjectDetailsPage = () => {
     fetchProjectDetails, 
     fetchRoles, 
     fetchAllUsers, 
+    fetchTechnologies,
     changeStatus,
     clearDetails 
   } = useProjectDetailsStore();
@@ -52,9 +53,10 @@ export const ProjectDetailsPage = () => {
       fetchProjectDetails(id);
       fetchRoles();
       fetchAllUsers();
+      fetchTechnologies();
     }
     return () => clearDetails();
-  }, [id, fetchProjectDetails, fetchRoles, fetchAllUsers, clearDetails]);
+  }, [id, fetchProjectDetails, fetchRoles, fetchAllUsers, fetchTechnologies, clearDetails]);
 
   const handleToggleStatus = async () => {
     if (!id) return;

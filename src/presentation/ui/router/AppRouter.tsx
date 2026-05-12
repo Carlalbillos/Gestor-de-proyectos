@@ -5,7 +5,6 @@ import { DashboardLayout } from "@/presentation/ui/components/layout/DashboardLa
 import { LoginPage } from "@/presentation/ui/pages/LoginPage";
 import { HomePage } from "@/presentation/ui/pages/HomePage";
 import { ProjectsPage } from "@/presentation/ui/pages/ProjectsPage";
-import { CreateProjectPage } from "@/presentation/ui/pages/CreateProjectPage";
 import { ProjectDetailsPage } from "@/presentation/ui/pages/ProjectDetailsPage";
 import { ClientsPage } from "@/presentation/ui/pages/ClientsPage";
 import { CreateClientPage } from "@/presentation/ui/pages/CreateClientPage";
@@ -83,10 +82,6 @@ const router = createBrowserRouter([
               {
                 path: "clientes/sectores",
                 element: <SectorPage />,
-              },
-              {
-                path: "proyectos/nuevo",
-                element: <CreateProjectPage />,
               },
             ],
           },

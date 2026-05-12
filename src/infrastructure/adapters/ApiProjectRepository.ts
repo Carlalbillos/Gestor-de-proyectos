@@ -1,7 +1,7 @@
 import { api } from "./AxiosHttpClient";
 import type { ProjectRepository, ProjectQueryParams, PaginatedResult, ProjectTimeEntryQueryParams } from "../../domain/ports/ProjectRepository";
 import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry } from "../../domain/entities/project.entity";
-import type { CreateProjectDTO } from "../../application/dto/project.dto";
+import type { CreateProjectDTO, UpdateProjectDTO, CreateDevelopmentDTO, UpdateDevelopmentDTO } from "../../application/dto/project.dto";
 import type { UpdateTimeEntryDTO } from "../../application/dto/user.dto";
 import { ProjectMapper } from "../mappers/ProjectMapper";
 
@@ -39,6 +39,16 @@ export class ApiProjectRepository implements ProjectRepository {
   async getProjectById(id: string): Promise<Project> {
     const response = await api.get<any>(`projects/${id}`);
     return ProjectMapper.toDomain(response.data);
+  }
+
+  async updateProject(id: string, project: UpdateProjectDTO): Promise<void> {
+    await api.put(`projects/${id}`, {
+      name: project.name,
+      description: project.description,
+      start_date: project.startDate,
+      is_active: project.isActive,
+      client_id: project.clientId,
+    });
   }
 
   async createProject(project: CreateProjectDTO): Promise<void> {
@@ -93,7 +103,7 @@ export class ApiProjectRepository implements ProjectRepository {
 
   async updateProjectUsers(projectId: string, users: { appUserId: string, roleId: string }[]): Promise<void> {
     await Promise.all(
-      users.map(user =>
+      users.map(user => 
         api.put(`projects/${projectId}/users`, {
           app_user_id: user.appUserId,
           project_role_id: user.roleId,
@@ -105,7 +115,7 @@ export class ApiProjectRepository implements ProjectRepository {
   async removeUser(projectId: string, userId: string): Promise<void> {
     await api.delete(`projects/${projectId}/users/${userId}`);
   }
-
+  
   async updateProjectTimeEntry(projectId: string, entryId: string, data: UpdateTimeEntryDTO): Promise<void> {
     await api.put(`projects/${projectId}/time-entries/${entryId}`, data);
   }
@@ -116,5 +126,30 @@ export class ApiProjectRepository implements ProjectRepository {
 
   async changeStatus(id: string): Promise<void> {
     await api.patch(`projects/${id}/change-status`);
+  }
+
+  async createDevelopment(projectId: string, development: CreateDevelopmentDTO): Promise<void> {
+    await api.post(`projects/${projectId}/developments`, {
+      id: development.id,
+      name: development.name,
+      description: development.description,
+      technology_id: development.technologyId,
+      url_repository: development.urlRepository,
+    });
+  }
+
+  async updateDevelopment(projectId: string, development: UpdateDevelopmentDTO): Promise<void> {
+    await api.put(`projects/${projectId}/developments`, {
+      id: development.id,
+      name: development.name,
+      description: development.description,
+      technology_id: development.technologyId,
+      url_repository: development.urlRepository,
+      links: development.links,
+    });
+  }
+
+  async deleteDevelopment(projectId: string, developmentId: string): Promise<void> {
+    await api.delete(`projects/${projectId}/developments/${developmentId}`);
   }
 }

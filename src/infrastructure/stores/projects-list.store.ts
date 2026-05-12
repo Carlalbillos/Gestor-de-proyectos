@@ -10,6 +10,7 @@ import { useAuthStore } from "./auth.store";
 import { isAdmin } from "@/domain/services/role.service";
 
 import type { Project } from "../../domain/entities/project.entity";
+import type { CreateProjectDTO, UpdateProjectDTO } from "../../application/dto/project.dto";
 import { createBaseListSlice, handleListFetch } from "./factories/list-factory";
 import type { BaseListState } from "./factories/list-factory";
 
@@ -21,13 +22,17 @@ const userService = new UserService(userRepository);
 
 interface ProjectsListState extends BaseListState<Project> {
   page: number;
+  isSaving: boolean;
   setPage: (page: number) => void;
   fetchProjects: () => Promise<void>;
+  addProject: (project: CreateProjectDTO) => Promise<void>;
+  updateProject: (id: string, project: UpdateProjectDTO) => Promise<void>;
 }
 
 export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
   ...createBaseListSlice<Project, ProjectsListState>(set, get, "fetchProjects"),
   page: 1,
+  isSaving: false,
 
   setPage: (page: number) => {
     set({ page });
@@ -97,5 +102,25 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
       },
       false
     );
+  },
+
+  addProject: async (project: CreateProjectDTO) => {
+    set({ isSaving: true });
+    try {
+      await service.createProject(project);
+      await get().fetchProjects();
+    } finally {
+      set({ isSaving: false });
+    }
+  },
+
+  updateProject: async (id: string, project: UpdateProjectDTO) => {
+    set({ isSaving: true });
+    try {
+      await service.updateProject(id, project);
+      await get().fetchProjects();
+    } finally {
+      set({ isSaving: false });
+    }
   },
 }));

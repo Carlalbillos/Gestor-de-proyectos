@@ -1,7 +1,8 @@
 import { create } from "zustand";
-import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry } from "@/domain/entities/project.entity";
+import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry, Technology } from "@/domain/entities/project.entity";
 import type { User } from "@/domain/entities/user.entity";
 import type { ClientContact } from "@/domain/entities/client.entity";
+import type { CreateDevelopmentDTO, UpdateDevelopmentDTO, UpdateProjectDTO } from "@/application/dto/project.dto";
 import type { UpdateTimeEntryDTO } from "@/application/dto/user.dto";
 import { ApiProjectRepository } from "@/infrastructure/adapters/ApiProjectRepository";
 import { ProjectService } from "@/application/services/ProjectService";
@@ -9,10 +10,13 @@ import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
 import { UserService } from "@/application/services/UserService";
 import { ApiClientRepository } from "@/infrastructure/adapters/ApiClientRepository";
 import { ClientService } from "@/application/services/ClientService";
+import { ApiTechnologyRepository } from "@/infrastructure/adapters/ApiTechnologyRepository";
+import { TechnologyService } from "@/application/services/TechnologyService";
 
 const projectService = new ProjectService(new ApiProjectRepository());
 const userService = new UserService(new ApiUserRepository());
 const clientService = new ClientService(new ApiClientRepository());
+const technologyService = new TechnologyService(new ApiTechnologyRepository());
 
 interface ProjectDetailsState {
   project: Project | null;
@@ -22,6 +26,7 @@ interface ProjectDetailsState {
   developments: ProjectDevelopment[];
   clientContacts: ClientContact[];
   timeEntries: ProjectTimeEntry[];
+  technologies: Technology[];
   isLoading: boolean;
   isSaving: boolean;
   error: string | null;
@@ -30,12 +35,17 @@ interface ProjectDetailsState {
   fetchProjectTimeEntries: (id: string) => Promise<void>;
   fetchRoles: () => Promise<void>;
   fetchAllUsers: () => Promise<void>;
+  fetchTechnologies: () => Promise<void>;
   assignUser: (projectId: string, userId: string, roleId: string) => Promise<void>;
   updateUserRole: (projectId: string, userId: string, roleId: string) => Promise<void>;
   removeUser: (projectId: string, userId: string) => Promise<void>;
   updateTimeEntry: (projectId: string, entryId: string, data: UpdateTimeEntryDTO) => Promise<void>;
   deleteTimeEntry: (projectId: string, entryId: string) => Promise<void>;
   changeStatus: (id: string) => Promise<void>;
+  updateProject: (id: string, project: UpdateProjectDTO) => Promise<void>;
+  addDevelopment: (projectId: string, development: CreateDevelopmentDTO) => Promise<void>;
+  updateDevelopment: (projectId: string, development: UpdateDevelopmentDTO) => Promise<void>;
+  deleteDevelopment: (projectId: string, developmentId: string) => Promise<void>;
   clearDetails: () => void;
 }
 
@@ -47,6 +57,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   developments: [],
   clientContacts: [],
   timeEntries: [],
+  technologies: [],
   isLoading: false,
   isSaving: false,
   error: null,
@@ -100,6 +111,16 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       set({ allUsers: response.data });
     } catch (error: any) {
       console.error("Error fetching all users", error);
+    }
+  },
+
+  fetchTechnologies: async () => {
+    if (get().technologies.length > 0) return;
+    try {
+      const technologies = await technologyService.getTechnologies();
+      set({ technologies });
+    } catch (error: any) {
+      console.error("Error fetching technologies", error);
     }
   },
 
@@ -185,6 +206,54 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     }
   },
 
+  updateProject: async (id: string, project: UpdateProjectDTO) => {
+    set({ isSaving: true });
+    try {
+      await projectService.updateProject(id, project);
+      await get().fetchProjectDetails(id);
+    } catch (error: any) {
+      throw error;
+    } finally {
+      set({ isSaving: false });
+    }
+  },
+
+  addDevelopment: async (projectId: string, development: CreateDevelopmentDTO) => {
+    set({ isSaving: true });
+    try {
+      await projectService.createDevelopment(projectId, development);
+      const developments = await projectService.getProjectDevelopments(projectId);
+      set({ developments, isSaving: false });
+    } catch (error: any) {
+      set({ isSaving: false });
+      throw error;
+    }
+  },
+
+  updateDevelopment: async (projectId: string, development: UpdateDevelopmentDTO) => {
+    set({ isSaving: true });
+    try {
+      await projectService.updateDevelopment(projectId, development);
+      const developments = await projectService.getProjectDevelopments(projectId);
+      set({ developments, isSaving: false });
+    } catch (error: any) {
+      set({ isSaving: false });
+      throw error;
+    }
+  },
+
+  deleteDevelopment: async (projectId: string, developmentId: string) => {
+    set({ isSaving: true });
+    try {
+      await projectService.deleteDevelopment(projectId, developmentId);
+      const developments = await projectService.getProjectDevelopments(projectId);
+      set({ developments, isSaving: false });
+    } catch (error: any) {
+      set({ isSaving: false });
+      throw error;
+    }
+  },
+
   clearDetails: () => {
     set({
       project: null,
@@ -194,6 +263,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       developments: [],
       clientContacts: [],
       timeEntries: [],
+      technologies: [],
       error: null,
       isLoading: false,
       isSaving: false

@@ -12,13 +12,32 @@ import { Input } from "@/presentation/ui/components/ui/input";
 import { Building2, Users, Search, FolderPlus, Loader2, Lock, Briefcase } from "lucide-react";
 import { Pagination } from "@/presentation/ui/components/shared/pagination";
 import { useDebounce } from "@/presentation/hooks/useDebounce";
+import { ProjectForm } from "@/presentation/ui/components/projects/ProjectForm";
+import { uuidv7 } from "@/presentation/ui/lib/uuid";
 
 export const ProjectsPage = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
-  const { items: projects, total, page, limit, isLoading, error, search, filterStatus, fetchProjects, setSearch, setFilterStatus, setPage } = useProjectsListStore();
+  const { 
+    items: projects, 
+    total, 
+    page, 
+    limit, 
+    isLoading, 
+    isSaving,
+    error, 
+    search, 
+    filterStatus, 
+    fetchProjects, 
+    setSearch, 
+    setFilterStatus, 
+    setPage,
+    addProject
+  } = useProjectsListStore();
+  
   const [searchInput, setSearchInput] = useState(search);
   const debouncedSearch = useDebounce(searchInput, 400);
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     setSearch(debouncedSearch);
@@ -32,6 +51,22 @@ export const ProjectsPage = () => {
 
   const canCreateProject = isAdmin(user);
 
+  const handleSubmit = async (data: any) => {
+    try {
+      await addProject({
+        id: uuidv7(),
+        ...data,
+      });
+      setIsAdding(false);
+    } catch (error) {
+      console.error("Error creating project", error);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsAdding(false);
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader 
@@ -39,7 +74,11 @@ export const ProjectsPage = () => {
         description="Gestiona los proyectos de tu organización y su equipo"
       >
         {canCreateProject ? (
-          <Button className="flex-1 sm:flex-none shadow-sm" onClick={() => navigate("/proyectos/nuevo")}>
+          <Button 
+            className="flex-1 sm:flex-none shadow-sm" 
+            onClick={() => setIsAdding(true)}
+            disabled={isAdding}
+          >
             <FolderPlus className="mr-2 h-4 w-4" />
             Nuevo Proyecto
           </Button>
@@ -54,6 +93,14 @@ export const ProjectsPage = () => {
           </Button>
         )}
       </PageHeader>
+
+      {isAdding && (
+        <ProjectForm
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          isSaving={isSaving}
+        />
+      )}
 
       <Card className="border-muted shadow-sm">
         <CardContent className="p-4">
@@ -74,19 +121,16 @@ export const ProjectsPage = () => {
                 id="project-filter-status"
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value as "all" | "active" | "inactive")}
-                className="h-10 rounded-lg border border-input bg-background px-3 text-sm text-foreground"
+                className="h-10 rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:ring-2 focus:ring-primary outline-none transition-all"
               >
-                <option value="all">Todos</option>
+                <option value="all">Todos los estados</option>
                 <option value="active">Activos</option>
-                <option value="inactive">No activos</option>
+                <option value="inactive">Inactivos</option>
               </select>
             </div>
           </div>
-
         </CardContent>
       </Card>
-
-
 
       {isLoading && projects.length === 0 ? (
         <div className="flex flex-col justify-center items-center py-24 space-y-4">
@@ -102,9 +146,11 @@ export const ProjectsPage = () => {
             : "Aún no hay proyectos registrados en la plataforma. Comienza creando uno nuevo."
           }
           action={
-            <Button onClick={() => navigate("/proyectos/nuevo")} className="gap-2">
-              Crear primer proyecto
-            </Button>
+            canCreateProject ? (
+              <Button onClick={() => setIsAdding(true)} className="gap-2">
+                Crear primer proyecto
+              </Button>
+            ) : undefined
           }
         />
       ) : (
@@ -113,7 +159,7 @@ export const ProjectsPage = () => {
             {projects.map((project) => (
               <Card
                 key={project.id}
-                className="flex flex-col hover:border-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer group bg-card"
+                className="flex flex-col hover:border-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer group bg-card relative overflow-hidden"
                 onClick={() => navigate(`/proyectos/${project.id}`)}
               >
                 <CardHeader className="pb-3">

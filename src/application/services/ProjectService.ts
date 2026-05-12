@@ -1,6 +1,6 @@
 import type { ProjectRepository, ProjectQueryParams, PaginatedResult, ProjectTimeEntryQueryParams } from "../../domain/ports/ProjectRepository";
 import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry } from "../../domain/entities/project.entity";
-import type { CreateProjectDTO } from "../dto/project.dto";
+import type { CreateProjectDTO, UpdateProjectDTO, CreateDevelopmentDTO, UpdateDevelopmentDTO } from "../dto/project.dto";
 import type { UpdateTimeEntryDTO } from "../dto/user.dto";
 
 export class ProjectService {
@@ -20,6 +20,10 @@ export class ProjectService {
 
   async createProject(project: CreateProjectDTO): Promise<void> {
     return await this.projectRepository.createProject(project);
+  }
+
+  async updateProject(id: string, project: UpdateProjectDTO): Promise<void> {
+    return await this.projectRepository.updateProject(id, project);
   }
 
   async getProjectUsers(id: string): Promise<ProjectUser[]> {
@@ -60,5 +64,17 @@ export class ProjectService {
 
   async changeStatus(id: string): Promise<void> {
     return await this.projectRepository.changeStatus(id);
+  }
+
+  async createDevelopment(projectId: string, development: CreateDevelopmentDTO): Promise<void> {
+    return await this.projectRepository.createDevelopment(projectId, development);
+  }
+
+  async updateDevelopment(projectId: string, development: UpdateDevelopmentDTO): Promise<void> {
+    return await this.projectRepository.updateDevelopment(projectId, development);
+  }
+
+  async deleteDevelopment(projectId: string, developmentId: string): Promise<void> {
+    return await this.projectRepository.deleteDevelopment(projectId, developmentId);
   }
 }
