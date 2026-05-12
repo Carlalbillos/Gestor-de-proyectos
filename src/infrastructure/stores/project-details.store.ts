@@ -1,7 +1,8 @@
 import { create } from "zustand";
-import type { Project, ProjectUser, ProjectDevelopment, ProjectRole } from "@/domain/entities/project.entity";
+import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry } from "@/domain/entities/project.entity";
 import type { User } from "@/domain/entities/user.entity";
 import type { ClientContact } from "@/domain/entities/client.entity";
+import type { UpdateTimeEntryDTO } from "@/application/dto/user.dto";
 import { ApiProjectRepository } from "@/infrastructure/adapters/ApiProjectRepository";
 import { ProjectService } from "@/application/services/ProjectService";
 import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
@@ -20,16 +21,20 @@ interface ProjectDetailsState {
   allUsers: User[];
   developments: ProjectDevelopment[];
   clientContacts: ClientContact[];
+  timeEntries: ProjectTimeEntry[];
   isLoading: boolean;
   isSaving: boolean;
   error: string | null;
 
   fetchProjectDetails: (id: string) => Promise<void>;
+  fetchProjectTimeEntries: (id: string) => Promise<void>;
   fetchRoles: () => Promise<void>;
   fetchAllUsers: () => Promise<void>;
   assignUser: (projectId: string, userId: string, roleId: string) => Promise<void>;
   updateUserRole: (projectId: string, userId: string, roleId: string) => Promise<void>;
   removeUser: (projectId: string, userId: string) => Promise<void>;
+  updateTimeEntry: (projectId: string, entryId: string, data: UpdateTimeEntryDTO) => Promise<void>;
+  deleteTimeEntry: (projectId: string, entryId: string) => Promise<void>;
   clearDetails: () => void;
 }
 
@@ -40,6 +45,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   allUsers: [],
   developments: [],
   clientContacts: [],
+  timeEntries: [],
   isLoading: false,
   isSaving: false,
   error: null,
@@ -47,10 +53,11 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   fetchProjectDetails: async (id: string) => {
     set({ isLoading: true, error: null });
     try {
-      const [project, users, developments] = await Promise.all([
+      const [project, users, developments, timeEntries] = await Promise.all([
         projectService.getProjectById(id),
         projectService.getProjectUsers(id),
         projectService.getProjectDevelopments(id),
+        projectService.getProjectTimeEntries(id)
       ]);
 
       let clientContacts: ClientContact[] = [];
@@ -58,12 +65,20 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
         clientContacts = await clientService.getClientContacts(project.client.id);
       }
 
-      set({ project, users, developments, clientContacts, isLoading: false });
+      set({ project, users, developments, clientContacts, timeEntries, isLoading: false });
     } catch (error: any) {
-      set({ 
-        error: error.message || "Error al cargar los detalles del proyecto", 
-        isLoading: false 
+      set({
+        error: error.message || "Error al cargar los detalles del proyecto",
+        isLoading: false
       });
+    }
+  },
+
+  fetchProjectTimeEntries: async (id: string) => {
+    try {
+      const timeEntries = await projectService.getProjectTimeEntries(id);
+      set({ timeEntries });
+    } catch (error: any) {
     }
   },
 
@@ -129,15 +144,41 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     }
   },
 
+  updateTimeEntry: async (projectId: string, entryId: string, data: UpdateTimeEntryDTO) => {
+    set({ isSaving: true });
+    try {
+      await projectService.updateProjectTimeEntry(projectId, entryId, data);
+      await get().fetchProjectTimeEntries(projectId);
+    } catch (error: any) {
+      throw error;
+    } finally {
+      set({ isSaving: false });
+    }
+  },
+
+  deleteTimeEntry: async (projectId: string, entryId: string) => {
+    set({ isSaving: true });
+
+    try {
+      await projectService.deleteProjectTimeEntry(projectId, entryId);
+      await get().fetchProjectTimeEntries(projectId);
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ isSaving: false });
+    }
+  },
+
   clearDetails: () => {
-    set({ 
-      project: null, 
-      users: [], 
-      roles: [], 
-      allUsers: [], 
-      developments: [], 
-      clientContacts: [], 
-      error: null, 
+    set({
+      project: null,
+      users: [],
+      roles: [],
+      allUsers: [],
+      developments: [],
+      clientContacts: [],
+      timeEntries: [],
+      error: null,
       isLoading: false,
       isSaving: false
     });

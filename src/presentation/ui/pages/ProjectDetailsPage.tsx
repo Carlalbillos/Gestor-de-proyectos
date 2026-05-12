@@ -111,7 +111,7 @@ export const ProjectDetailsPage = () => {
           </TabsContent>
 
           <TabsContent value="horas" className="space-y-6">
-            <ProjectHoursTab />
+            <ProjectHoursTab projectId={id || ""} />
           </TabsContent>
         </div>
       </Tabs>

@@ -1,7 +1,7 @@
 import { api } from "./AxiosHttpClient";
 import type { UserRepository, UserQueryParams, PaginatedResult } from "../../domain/ports/UserRepository";
 import type { User, TimeEntriesResponse } from "../../domain/entities/user.entity";
-import type { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, AdminChangePasswordDTO } from "../../application/dto/user.dto";
+import type { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, AdminChangePasswordDTO, CreateTimeEntryDTO } from "../../application/dto/user.dto";
 import type { Project } from "../../domain/entities/project.entity";
 import { UserMapper } from "../mappers/UserMapper";
 import { ProjectMapper } from "../mappers/ProjectMapper";
@@ -72,6 +72,10 @@ export class ApiUserRepository implements UserRepository {
       totalHours: response.data.total_hours,
       data: (response.data.data || []).map(UserMapper.toTimeEntryDomain),
     };
+  }
+
+  async createTimeEntry(id: string, dto: CreateTimeEntryDTO): Promise<void> {
+    await api.post(`users/${id}/time-entries`, dto);
   }
 
   async changeActivityUser(id: string): Promise<void> {

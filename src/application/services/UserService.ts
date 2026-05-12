@@ -1,6 +1,6 @@
 import type { UserRepository, UserQueryParams, PaginatedResult } from "../../domain/ports/UserRepository";
 import type { User, TimeEntriesResponse } from "../../domain/entities/user.entity";
-import type { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, AdminChangePasswordDTO } from "../dto/user.dto";
+import type { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, AdminChangePasswordDTO, CreateTimeEntryDTO } from "../dto/user.dto";
 import type { Project } from "../../domain/entities/project.entity";
 
 export class UserService {
@@ -40,6 +40,10 @@ export class UserService {
 
   async getUserTimeEntries(id: string): Promise<TimeEntriesResponse> {
     return await this.userRepository.getUserTimeEntries(id);
+  }
+
+  async createTimeEntry(id: string, dto: CreateTimeEntryDTO): Promise<void> {
+    return await this.userRepository.createTimeEntry(id, dto);
   }
 
   async changeActivityUser(id: string): Promise<void> {

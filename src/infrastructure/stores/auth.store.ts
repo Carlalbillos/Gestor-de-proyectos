@@ -16,10 +16,12 @@ const userService = new UserService(new ApiUserRepository());
 interface AuthState {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateTokens: (token: string, refreshToken: string) => void;
   changePassword: (dto: ChangePasswordDTO) => Promise<void>;
 }
 
@@ -28,6 +30,7 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       token: null,
+      refreshToken: null,
       isLoading: false,
       isAuthenticated: false,
 
@@ -39,6 +42,7 @@ export const useAuthStore = create<AuthState>()(
           set({
             user: result.user,
             token: result.accessToken,
+            refreshToken: result.refreshToken,
             isAuthenticated: true,
             isLoading: false,
           });
@@ -50,13 +54,18 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         setAccessToken(null);
-        set({ user: null, token: null, isAuthenticated: false });
+        set({ user: null, token: null, refreshToken: null, isAuthenticated: false });
+      },
+
+      updateTokens: (token, refreshToken) => {
+        setAccessToken(token);
+        set({ token, refreshToken, isAuthenticated: true });
       },
 
       changePassword: async (dto) => {
         const { user } = get();
         if (!user) throw new Error("No autenticado");
-        
+
         set({ isLoading: true });
         try {
           await userService.changePassword(user.id, dto);
@@ -69,7 +78,11 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-storage",
-      partialize: (state) => ({ user: state.user, token: state.token }),
+      partialize: (state) => ({
+        token: state.token,
+        refreshToken: state.refreshToken,
+        user: state.user,
+      }),
       onRehydrateStorage: () => (state) => {
         if (!state?.token) return;
 

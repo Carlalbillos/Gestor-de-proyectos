@@ -134,17 +134,19 @@ export const UsersPage = () => {
                 onClick={() => navigate(`/personal/${u.id}`)}
               >
                 <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start mb-1">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
                     <Badge
                       variant={u.isActive ? "default" : "secondary"}
-                      className={u.isActive ? "bg-green-500/10 text-green-700 hover:bg-green-500/20 border-green-200" : ""}
                     >
                       {u.isActive ? "Activo" : "Inactivo"}
                     </Badge>
-                    <Badge variant="outline" className="text-[10px] h-5 bg-background">
-                      <Shield className="mr-1 h-3 w-3" />
-                      {isAdmin(u) ? "Administrador" : "Empleado"}
-                    </Badge>
+
+                    {isAdmin(u) && (
+                      <Badge variant="secondary" className="bg-primary flex items-center gap-1">
+                        <Shield className="h-3 w-3" />
+                        Administrador
+                      </Badge>
+                    )}
                   </div>
                   <CardTitle className="group-hover:text-primary transition-colors line-clamp-1" title={`${u.name} ${u.surname}`}>
                     {u.name} {u.surname}

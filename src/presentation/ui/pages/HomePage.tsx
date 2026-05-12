@@ -5,14 +5,15 @@ import { useAuthStore } from "@/infrastructure/stores/auth.store";
 import { useDashboardStore } from "@/infrastructure/stores/dashboard.store";
 
 import { Button } from "@/presentation/ui/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/presentation/ui/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle, CardFooter } from "@/presentation/ui/components/ui/card";
 import { Badge } from "@/presentation/ui/components/ui/badge";
-import { Users, ChevronRight, Briefcase } from "lucide-react";
+import { TimeEntriesTable } from "@/presentation/ui/components/shared/TimeEntriesTable";
+import { Users, ChevronRight, Briefcase, Clock } from "lucide-react";
 
 export const HomePage = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  const { profile, projects, isLoading, error, fetchDashboardData } = useDashboardStore();
+  const { profile, projects, timeEntries, totalHours, isLoading, error, fetchDashboardData } = useDashboardStore();
 
   useEffect(() => {
     if (user?.id) {
@@ -35,9 +36,6 @@ export const HomePage = () => {
     return <div className="p-8 text-center text-muted-foreground animate-pulse">Cargando tu dashboard...</div>;
   }
 
-  const initials = `${profile.name?.[0] || ""}${profile.surname?.[0] || ""}`.toUpperCase();
-  const roleName = profile.role === "ROLE_ADMIN" ? "Administrador" : "Usuario";
-
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Cabecera de Bienvenida */}
@@ -48,33 +46,10 @@ export const HomePage = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="space-y-8">
 
-        {/* Columna Izquierda: Perfil del Usuario */}
-        <div className="md:col-span-1 space-y-6">
-          <Card className="">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-xl">Tu Perfil</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center text-center space-y-4">
-              <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center border-4 border-background shadow-sm">
-                <span className="text-3xl font-bold text-primary">{initials || "U"}</span>
-              </div>
-
-              <div className="space-y-1">
-                <h3 className="font-semibold text-lg">{profile.name} {profile.surname}</h3>
-                <p className="text-sm text-muted-foreground">{profile.email.getValue()}</p>
-              </div>
-
-              <Badge variant="secondary" className="px-4 py-1 text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20">
-                {roleName}
-              </Badge>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Columna Derecha: Listado de proyectos */}
-        <div className="md:col-span-2 space-y-4">
+        {/* Sección de Proyectos */}
+        <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-semibold flex items-center gap-2">
@@ -88,16 +63,18 @@ export const HomePage = () => {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.length === 0 ? (
-              <div className="col-span-2 p-8 text-center border border-dashed rounded-lg text-muted-foreground">
-                No tienes proyectos asignados actualmente.
+              <div className="col-span-full p-12 text-center border-2 border-dashed rounded-xl text-muted-foreground bg-muted/10">
+                <Briefcase className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                <p className="text-lg font-medium">No tienes proyectos asignados actualmente.</p>
+                <p className="text-sm">Cuando te asignen a un proyecto, aparecerá aquí.</p>
               </div>
             ) : (
               projects.map((project) => (
-                <Card 
-                  key={project.id} 
-                  className="flex flex-col hover:border-primary/50 transition-colors cursor-pointer group"
+                <Card
+                  key={project.id}
+                  className="flex flex-col hover:shadow-md hover:border-primary/50 transition-all cursor-pointer group"
                   onClick={() => navigate(`/proyectos/${project.id}`)}
                 >
                   <CardHeader className="pb-3">
@@ -116,9 +93,9 @@ export const HomePage = () => {
                         {project.teamMembers != null ? project.teamMembers : 0} miembros
                       </div>
                       {project.client?.name && (
-                        <span className="text-xs max-w-[100px]" title={project.client.name}>
+                        <Badge variant="outline" className="text-[10px] font-normal py-0">
                           {project.client.name}
-                        </span>
+                        </Badge>
                       )}
                     </div>
                   </CardFooter>
@@ -130,6 +107,23 @@ export const HomePage = () => {
           <Button variant="outline" className="w-full sm:hidden mt-2" onClick={() => navigate("/proyectos")}>
             Ver Todos Proyectos
           </Button>
+        </div>
+
+        {/* Sección de Imputaciones */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between border-b pb-4">
+            <div>
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Clock className="w-5 h-5 text-primary" />
+                Tus Imputaciones Recientes
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Últimas horas registradas (Total acumulado: <span className="font-bold text-foreground">{totalHours}h</span>)
+              </p>
+            </div>
+          </div>
+
+          <TimeEntriesTable entries={timeEntries} mode="user" />
         </div>
 
       </div>
