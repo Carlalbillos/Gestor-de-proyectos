@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/presentation/ui/components/ui/card";
 import type { Project } from "@/domain/entities/project.entity";
-import { DetailItem } from "@/presentation/ui/components/ui/detail-item";
+import { DetailItem } from "@/presentation/ui/components/shared/detail-item";
 import { Info, Building2, Calendar } from "lucide-react";
 
 interface ProjectInfoTabProps {

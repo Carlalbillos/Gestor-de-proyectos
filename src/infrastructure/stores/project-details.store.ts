@@ -35,6 +35,7 @@ interface ProjectDetailsState {
   removeUser: (projectId: string, userId: string) => Promise<void>;
   updateTimeEntry: (projectId: string, entryId: string, data: UpdateTimeEntryDTO) => Promise<void>;
   deleteTimeEntry: (projectId: string, entryId: string) => Promise<void>;
+  changeStatus: (id: string) => Promise<void>;
   clearDetails: () => void;
 }
 
@@ -166,6 +167,21 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       throw error;
     } finally {
       set({ isSaving: false });
+    }
+  },
+
+  changeStatus: async (id: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await projectService.changeStatus(id);
+      const project = await projectService.getProjectById(id);
+      set({ project, isLoading: false });
+    } catch (error: any) {
+      set({
+        error: error.message || "Error al cambiar el estado del proyecto",
+        isLoading: false
+      });
+      throw error;
     }
   },
 

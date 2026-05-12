@@ -92,23 +92,29 @@ export class ApiProjectRepository implements ProjectRepository {
   }
 
   async updateProjectUsers(projectId: string, users: { appUserId: string, roleId: string }[]): Promise<void> {
-    await api.put(`projects/${projectId}/users`, {
-      users: users.map(u => ({
-        app_user_id: u.appUserId,
-        project_role_id: u.roleId,
-      })),
-    });
+    await Promise.all(
+      users.map(user =>
+        api.put(`projects/${projectId}/users`, {
+          app_user_id: user.appUserId,
+          project_role_id: user.roleId,
+        })
+      )
+    );
   }
 
   async removeUser(projectId: string, userId: string): Promise<void> {
     await api.delete(`projects/${projectId}/users/${userId}`);
   }
-  
+
   async updateProjectTimeEntry(projectId: string, entryId: string, data: UpdateTimeEntryDTO): Promise<void> {
     await api.put(`projects/${projectId}/time-entries/${entryId}`, data);
   }
 
   async deleteProjectTimeEntry(projectId: string, entryId: string): Promise<void> {
     await api.delete(`projects/${projectId}/time-entries/${entryId}`);
+  }
+
+  async changeStatus(id: string): Promise<void> {
+    await api.patch(`projects/${id}/change-status`);
   }
 }

@@ -1,20 +1,28 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useProjectsListStore } from "@/infrastructure/stores/projects-list.store";
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
-import { isAdmin } from "@/presentation/ui/lib/roleChecker";
+import { isAdmin } from "@/domain/services/role.service";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/presentation/ui/components/ui/card";
-import { Badge } from "@/presentation/ui/components/ui/badge";
+import { StatusBadge } from "@/presentation/ui/components/shared/StatusBadge";
+import { EmptyState } from "@/presentation/ui/components/shared/EmptyState";
+import { PageHeader } from "@/presentation/ui/components/shared/PageHeader";
 import { Button } from "@/presentation/ui/components/ui/button";
 import { Input } from "@/presentation/ui/components/ui/input";
-import { Building2, Users, Search, FolderPlus, Loader2, Lock } from "lucide-react";
-import Pagination from "../components/ui/pagination";
+import { Building2, Users, Search, FolderPlus, Loader2, Lock, Briefcase } from "lucide-react";
+import { Pagination } from "@/presentation/ui/components/shared/pagination";
+import { useDebounce } from "@/presentation/hooks/useDebounce";
 
 export const ProjectsPage = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const { items: projects, total, page, limit, isLoading, error, search, filterStatus, fetchProjects, setSearch, setFilterStatus, setPage } = useProjectsListStore();
   const [searchInput, setSearchInput] = useState(search);
+  const debouncedSearch = useDebounce(searchInput, 400);
+
+  useEffect(() => {
+    setSearch(debouncedSearch);
+  }, [debouncedSearch, setSearch]);
 
   useEffect(() => {
     if (user) {
@@ -22,30 +30,22 @@ export const ProjectsPage = () => {
     }
   }, [fetchProjects, user]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSearch(searchInput);
-  };
-
   const canCreateProject = isAdmin(user);
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Proyectos</h1>
-          <p className="text-muted-foreground">
-            {canCreateProject ? "Gestiona los proyectos de tu organización" : "Ve los proyectos de tu organización"}
-          </p>
-        </div>
+      <PageHeader 
+        title="Proyectos" 
+        description="Gestiona los proyectos de tu organización y su equipo"
+      >
         {canCreateProject ? (
-          <Button className="w-full sm:w-auto shadow-sm" onClick={() => navigate("/proyectos/nuevo")}>
+          <Button className="flex-1 sm:flex-none shadow-sm" onClick={() => navigate("/proyectos/nuevo")}>
             <FolderPlus className="mr-2 h-4 w-4" />
             Nuevo Proyecto
           </Button>
         ) : (
           <Button
-            className="w-full sm:w-auto shadow-sm"
+            className="flex-1 sm:flex-none shadow-sm"
             disabled
             title="Solo los administradores pueden crear proyectos"
           >
@@ -53,12 +53,12 @@ export const ProjectsPage = () => {
             Nuevo Proyecto
           </Button>
         )}
-      </div>
+      </PageHeader>
 
       <Card className="border-muted shadow-sm">
         <CardContent className="p-4">
-          <form onSubmit={handleSearch} className="flex flex-col gap-2 md:flex-row md:items-end">
-            <div className="relative flex-1 w-4">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end">
+            <div className="relative flex-1">
               <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
@@ -80,11 +80,8 @@ export const ProjectsPage = () => {
                 <option value="active">Activos</option>
                 <option value="inactive">No activos</option>
               </select>
-              <Button type="submit" variant="secondary" disabled={isLoading} className="px-6 h-10">
-                Buscar
-              </Button>
             </div>
-          </form>
+          </div>
 
         </CardContent>
       </Card>
@@ -97,25 +94,19 @@ export const ProjectsPage = () => {
           <p className="text-sm text-muted-foreground">Cargando proyectos...</p>
         </div>
       ) : projects.length === 0 && !error ? (
-        <Card className="border-dashed border-2 bg-muted/10">
-          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center mb-4">
-              <FolderPlus className="h-8 w-8 text-muted-foreground/70" />
-            </div>
-            <h3 className="text-lg font-semibold tracking-tight">No se encontraron proyectos</h3>
-            <p className="text-muted-foreground max-w-sm mt-2 text-sm">
-              {search
-                ? "No hay resultados para tu búsqueda. Intenta con otros términos para encontrar lo que buscas."
-                : "No hay proyectos registrados aún."}
-            </p>
-            {!search && canCreateProject && (
-              <Button className="mt-6 shadow-sm" onClick={() => navigate("/proyectos/nuevo")}>
-                <FolderPlus className="mr-2 h-4 w-4" />
-                Crear el primer Proyecto
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={Briefcase}
+          title="No se encontraron proyectos"
+          description={filterStatus !== "all" 
+            ? `No hay proyectos con estado "${filterStatus === 'active' ? 'activo' : 'inactivo'}" que coincidan con tu búsqueda.`
+            : "Aún no hay proyectos registrados en la plataforma. Comienza creando uno nuevo."
+          }
+          action={
+            <Button onClick={() => navigate("/proyectos/nuevo")} className="gap-2">
+              Crear primer proyecto
+            </Button>
+          }
+        />
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -127,11 +118,7 @@ export const ProjectsPage = () => {
               >
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start mb-1">
-                    <Badge
-                      variant={project.isActive ? "default" : "secondary"}
-                    >
-                      {project.isActive ? "Activo" : "Inactivo"}
-                    </Badge>
+                    <StatusBadge isActive={project.isActive} />
                   </div>
                   <CardTitle className="group-hover:text-primary transition-colors line-clamp-1" title={project.name}>
                     {project.name}

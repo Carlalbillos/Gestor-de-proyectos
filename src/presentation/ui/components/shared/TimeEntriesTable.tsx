@@ -4,8 +4,8 @@ import { Badge } from "@/presentation/ui/components/ui/badge";
 import { Button } from "@/presentation/ui/components/ui/button";
 import { Input } from "@/presentation/ui/components/ui/input";
 import { Check, X, Loader2 } from "lucide-react";
-import { EditButton } from "@/presentation/ui/components/ui/edit-button";
-import { DeleteButton } from "@/presentation/ui/components/ui/delete-button";
+import { EditButton } from "@/presentation/ui/components/shared/edit-button";
+import { DeleteButton } from "@/presentation/ui/components/shared/delete-button";
 
 interface TimeEntriesTableProps {
     entries: any[];

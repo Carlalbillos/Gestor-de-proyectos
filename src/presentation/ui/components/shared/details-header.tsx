@@ -1,6 +1,6 @@
 import React from "react";
-import { Button } from "./button";
-import { Badge } from "./badge";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 import { ArrowLeft, Power, Trash2, Loader2 } from "lucide-react";
 
 interface DetailsHeaderProps {

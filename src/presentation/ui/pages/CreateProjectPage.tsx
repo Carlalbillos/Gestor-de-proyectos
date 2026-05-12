@@ -4,15 +4,17 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/presentation/ui/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/presentation/ui/components/ui/card";
-import { Input } from "@/presentation/ui/components/ui/input";
 import { Label } from "@/presentation/ui/components/ui/label";
-import { ChevronLeft, Loader2, Save } from "lucide-react";
+import { FormInput } from "@/presentation/ui/components/shared/FormInput";
+import { FormActions } from "@/presentation/ui/components/shared/form-actions";
+import { ChevronLeft } from "lucide-react";
+import { useAsync } from "@/presentation/hooks/useAsync";
 import { ApiProjectRepository } from "@/infrastructure/adapters/ApiProjectRepository";
 import { ProjectService } from "@/application/services/ProjectService";
 import { ApiClientRepository } from "@/infrastructure/adapters/ApiClientRepository";
 import { ClientService } from "@/application/services/ClientService";
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
-import { isAdmin } from "@/presentation/ui/lib/roleChecker";
+import { isAdmin } from "@/domain/services/role.service";
 import { createProjectSchema } from "@/presentation/ui/validators/create-project.schema";
 import type { CreateProjectFormData } from "@/presentation/ui/validators/create-project.schema";
 import type { Client } from "@/domain/ports/ClientRepository";
@@ -27,7 +29,7 @@ const clientService = new ClientService(clientRepository);
 export const CreateProjectPage = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
-  const [isLoading, setIsLoading] = useState(false);
+  const { execute: createProject, isLoading } = useAsync(projectService.createProject.bind(projectService));
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoadingClients, setIsLoadingClients] = useState(true);
 
@@ -67,10 +69,8 @@ export const CreateProjectPage = () => {
   }, []);
 
   const onSubmit = async (data: CreateProjectFormData): Promise<void> => {
-    setIsLoading(true);
-
     try {
-      await projectService.createProject({
+      await createProject({
         id: uuidv7(),
         ...data,
       });
@@ -81,7 +81,6 @@ export const CreateProjectPage = () => {
         type: "server",
         message: "Error al crear el proyecto. Revisa los datos e inténtalo de nuevo.",
       });
-      setIsLoading(false);
     }
   };
 
@@ -104,18 +103,13 @@ export const CreateProjectPage = () => {
             <CardDescription>Detalles básicos del proyecto y cliente asociado</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nombre del Proyecto</Label>
-              <Input
-                id="name"
-                placeholder="Ej: Portal de Clientes v2"
-                aria-invalid={!!errors.name}
-                {...register("name")}
-              />
-              {errors.name && (
-                <p className="text-sm text-destructive">{errors.name.message}</p>
-              )}
-            </div>
+            <FormInput
+              id="name"
+              label="Nombre del Proyecto"
+              placeholder="Ej: Portal de Clientes v2"
+              registration={register("name")}
+              error={errors.name?.message}
+            />
 
             <div className="space-y-2">
               <Label htmlFor="description">Descripción</Label>
@@ -132,18 +126,13 @@ export const CreateProjectPage = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="startDate">Fecha de Inicio</Label>
-                <Input
-                  id="startDate"
-                  type="date"
-                  aria-invalid={!!errors.startDate}
-                  {...register("startDate")}
-                />
-                {errors.startDate && (
-                  <p className="text-sm text-destructive">{errors.startDate.message}</p>
-                )}
-              </div>
+              <FormInput
+                id="startDate"
+                label="Fecha de Inicio"
+                type="date"
+                registration={register("startDate")}
+                error={errors.startDate?.message}
+              />
 
               <div className="space-y-2">
                 <Label htmlFor="clientId">Cliente</Label>
@@ -167,23 +156,13 @@ export const CreateProjectPage = () => {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-end gap-3 border-t p-6 bg-muted/20">
-            <Button type="button" variant="ghost" onClick={() => navigate("/proyectos")} disabled={isLoading}>
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isLoading || isLoadingClients} className="min-w-[140px]">
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Guardando...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Crear Proyecto
-                </>
-              )}
-            </Button>
+          <CardFooter className="border-t p-6 bg-muted/20">
+            <FormActions 
+              className="pt-0 w-full justify-end"
+              onCancel={() => navigate("/proyectos")}
+              isSaving={isLoading || isLoadingClients}
+              saveLabel="Crear Proyecto"
+            />
           </CardFooter>
         </Card>
       </form>

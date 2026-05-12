@@ -18,41 +18,42 @@ import { updateContactSchema } from "@/presentation/ui/validators/update-contact
 import type { UpdateContactFormData } from "@/presentation/ui/validators/update-contact.schema";
 import { ArrowLeft, Loader2, XCircle, Building2, Briefcase, Users, Users2, Calendar, Mail, Phone, Star, StickyNote, Save, X, UserPlus } from "lucide-react";
 import { uuidv7 } from "@/presentation/ui/lib/uuid";
-import { DetailsHeader } from "@/presentation/ui/components/ui/details-header";
-import { ConfirmDialog } from "@/presentation/ui/components/ui/confirm-dialog";
-import { DetailItem } from "@/presentation/ui/components/ui/detail-item";
-import { EditButton } from "@/presentation/ui/components/ui/edit-button";
-import { DeleteButton } from "@/presentation/ui/components/ui/delete-button";
-import { FormActions } from "@/presentation/ui/components/ui/form-actions";
+import { useDisclosure } from "@/presentation/hooks/useDisclosure";
+import { DetailsHeader } from "@/presentation/ui/components/shared/details-header";
+import { ConfirmDialog } from "@/presentation/ui/components/shared/confirm-dialog";
+import { DetailItem } from "@/presentation/ui/components/shared/detail-item";
+import { EditButton } from "@/presentation/ui/components/shared/edit-button";
+import { DeleteButton } from "@/presentation/ui/components/shared/delete-button";
+import { FormActions } from "@/presentation/ui/components/shared/form-actions";
 
 export const ClientsDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { 
-    client, 
-    projects, 
-    contacts, 
-    isLoading, 
-    error, 
-    fetchClientDetails, 
-    updateClient, 
-    deleteClient, 
-    changeStatus, 
-    createContact, 
-    updateContact, 
-    deleteContact, 
-    clearDetails 
+  const {
+    client,
+    projects,
+    contacts,
+    isLoading,
+    error,
+    fetchClientDetails,
+    updateClient,
+    deleteClient,
+    changeStatus,
+    createContact,
+    updateContact,
+    deleteContact,
+    clearDetails
   } = useClientDetailsStore();
 
   const { sectors, fetchSectors } = useSectorsStore();
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  const editing = useDisclosure();
+  const deleteConfirm = useDisclosure();
+  const addingContact = useDisclosure();
 
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
-  const [isAddingContact, setIsAddingContact] = useState(false);
   const [isSavingContact, setIsSavingContact] = useState(false);
   const [editingContactId, setEditingContactId] = useState<string | null>(null);
   const [isUpdatingContact, setIsUpdatingContact] = useState(false);
@@ -100,10 +101,9 @@ export const ClientsDetailsPage = () => {
     if (!client) return;
     reset({
       name: client.name,
-      sectorId: client.sector?.id || "",
       isActive: client.isActive,
     });
-    setIsEditing(true);
+    editing.open();
 
     if (sectors.length === 0) {
       fetchSectors();
@@ -111,7 +111,7 @@ export const ClientsDetailsPage = () => {
   };
 
   const cancelEditing = () => {
-    setIsEditing(false);
+    editing.close();
   };
 
   const onSubmit = async (data: UpdateClientFormData) => {
@@ -123,7 +123,7 @@ export const ClientsDetailsPage = () => {
         sectorId: data.sectorId,
         isActive: data.isActive,
       });
-      setIsEditing(false);
+      editing.close();
     } catch (e: any) {
       setError("name", {
         type: "server",
@@ -141,7 +141,7 @@ export const ClientsDetailsPage = () => {
       await deleteClient(id);
       navigate("/clientes");
     } catch (e: any) {
-      setShowDeleteConfirm(false);
+      deleteConfirm.close();
       setIsDeleting(false);
     }
   };
@@ -151,7 +151,7 @@ export const ClientsDetailsPage = () => {
     setIsSavingContact(true);
     try {
       await createContact(id, uuidv7(), data);
-      setIsAddingContact(false);
+      addingContact.close();
       resetContact();
     } catch (e: any) {
       console.error("Error creating contact", e);
@@ -225,15 +225,15 @@ export const ClientsDetailsPage = () => {
             setIsToggling(false);
           }
         }}
-        onDelete={() => setShowDeleteConfirm(true)}
+        onDelete={deleteConfirm.open}
         isToggling={isToggling}
-        showActions={!isEditing}
+        showActions={!editing.isOpen}
         icon={<Building2 className="h-7 w-7 text-primary" />}
       />
 
       <ConfirmDialog
-        isOpen={showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(false)}
+        isOpen={deleteConfirm.isOpen}
+        onClose={deleteConfirm.close}
         onConfirm={handleDelete}
         title="Eliminar Cliente"
         description={`¿Estás seguro de que deseas eliminar a ${client.name}? Esta acción no se puede deshacer.`}
@@ -248,10 +248,10 @@ export const ClientsDetailsPage = () => {
             <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
               Datos del Cliente
             </CardTitle>
-            {!isEditing && <EditButton onClick={startEditing} />}
+            {!editing.isOpen && <EditButton onClick={startEditing} />}
           </CardHeader>
           <CardContent className="pt-6 space-y-5">
-            {isEditing ? (
+            {editing.isOpen ? (
               <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="edit-name">Nombre</Label>
@@ -373,21 +373,21 @@ export const ClientsDetailsPage = () => {
               </Badge>
             )}
           </div>
-          {!isAddingContact && (
-            <Button size="sm" onClick={() => setIsAddingContact(true)} className="shadow-sm">
+          {!addingContact.isOpen && (
+            <Button size="sm" onClick={addingContact.open} className="shadow-sm">
               <UserPlus className="mr-2 h-4 w-4" />
               Nuevo Contacto
             </Button>
           )}
         </div>
 
-        {isAddingContact && (
+        {addingContact.isOpen && (
           <Card className="border-primary/30 bg-primary/5 animate-in fade-in slide-in-from-top-4 duration-300">
             <CardHeader className="pb-3 flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="text-lg">Añadir Nuevo Contacto</CardTitle>
               </div>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsAddingContact(false)}>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={addingContact.close}>
                 <X className="h-4 w-4" />
               </Button>
             </CardHeader>
@@ -457,7 +457,7 @@ export const ClientsDetailsPage = () => {
                 </div>
 
                 <div className="flex justify-end gap-2 pt-2">
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setIsAddingContact(false)}>
+                  <Button type="button" variant="ghost" size="sm" onClick={addingContact.close}>
                     Cancelar
                   </Button>
                   <Button type="submit" size="sm" disabled={isSavingContact}>

@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { useDebounce } from "@/presentation/hooks/useDebounce";
 import { useUsersListStore } from "@/infrastructure/stores/users-list.store";
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/presentation/ui/components/ui/card";
 import { Badge } from "@/presentation/ui/components/ui/badge";
+import { StatusBadge } from "@/presentation/ui/components/shared/StatusBadge";
+import { EmptyState } from "@/presentation/ui/components/shared/EmptyState";
+import { PageHeader } from "@/presentation/ui/components/shared/PageHeader";
 import { Button } from "@/presentation/ui/components/ui/button";
 import { Input } from "@/presentation/ui/components/ui/input";
 import { Users, UserPlus, Loader2, Search, Mail, Shield } from "lucide-react";
-import { isAdmin } from "@/presentation/ui/lib/roleChecker";
-import { Pagination } from "../components/ui/pagination";
+import { isAdmin } from "@/domain/services/role.service";
+import { Pagination } from "@/presentation/ui/components/shared/pagination";
 
 export const UsersPage = () => {
   const navigate = useNavigate();
@@ -30,14 +34,11 @@ export const UsersPage = () => {
     setPage,
   } = useUsersListStore();
   const [searchInput, setSearchInput] = useState(search);
+  const debouncedSearch = useDebounce(searchInput, 300);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setSearch(searchInput);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchInput, setSearch]);
+    setSearch(debouncedSearch);
+  }, [debouncedSearch, setSearch]);
 
   useEffect(() => {
     if (user) {
@@ -47,18 +48,17 @@ export const UsersPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Personal</h1>
-          <p className="text-muted-foreground">
-            Gestiona los usuarios de tu organización
-          </p>
-        </div>
-        <Button className="w-full sm:w-auto shadow-sm" onClick={() => navigate("/personal/nuevo")}>
-          <UserPlus className="mr-2 h-4 w-4" />
-          Nuevo Usuario
-        </Button>
-      </div>
+      <PageHeader 
+        title="Personal" 
+        description="Gestiona el equipo de tu organización y sus permisos"
+      >
+        {isAdmin(user) && (
+          <Button className="flex-1 sm:flex-none shadow-sm" onClick={() => navigate("/personal/nuevo")}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Nuevo Usuario
+          </Button>
+        )}
+      </PageHeader>
 
       <Card className="border-muted shadow-sm">
         <CardContent className="p-4">
@@ -105,25 +105,19 @@ export const UsersPage = () => {
           <p className="text-sm text-muted-foreground">Cargando usuarios...</p>
         </div>
       ) : users.length === 0 && !error ? (
-        <Card className="border-dashed border-2 bg-muted/10">
-          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center mb-4">
-              <Users className="h-8 w-8 text-muted-foreground/70" />
-            </div>
-            <h3 className="text-lg font-semibold tracking-tight">No se encontraron usuarios</h3>
-            <p className="text-muted-foreground max-w-sm mt-2 text-sm">
-              {search
-                ? "No hay resultados para tu búsqueda. Intenta con otros términos para encontrar lo que buscas."
-                : "No hay usuarios registrados aún."}
-            </p>
-            {filterStatus === "all" && filterRole === "all" && (
-              <Button className="mt-6 shadow-sm" onClick={() => navigate("/personal/nuevo")}>
-                <UserPlus className="mr-2 h-4 w-4" />
-                Crear el primer Usuario
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={Users}
+          title="No se encontraron usuarios"
+          description={filterStatus !== "all" 
+            ? `No hay usuarios con estado "${filterStatus === 'active' ? 'activo' : 'inactivo'}" que coincidan con tu búsqueda.`
+            : "Aún no hay usuarios registrados en la plataforma."
+          }
+          action={
+            <Button onClick={() => navigate("/usuarios/nuevo")} className="gap-2">
+              Registrar primer usuario
+            </Button>
+          }
+        />
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -135,11 +129,7 @@ export const UsersPage = () => {
               >
                 <CardHeader className="pb-3">
                   <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
-                    <Badge
-                      variant={u.isActive ? "default" : "secondary"}
-                    >
-                      {u.isActive ? "Activo" : "Inactivo"}
-                    </Badge>
+                    <StatusBadge isActive={u.isActive} />
 
                     {isAdmin(u) && (
                       <Badge variant="secondary" className="bg-primary flex items-center gap-1">

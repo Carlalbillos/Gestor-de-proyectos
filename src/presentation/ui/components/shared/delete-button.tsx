@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "./button";
+import { Button } from "../ui/button";
 import { Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/presentation/ui/lib/utils";
 

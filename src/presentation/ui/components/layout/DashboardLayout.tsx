@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
 import { useDashboardStore } from "@/infrastructure/stores/dashboard.store";
 import { Button } from "@/presentation/ui/components/ui/button";
-import { isAdmin } from "@/presentation/ui/lib/roleChecker";
+import { isAdmin } from "@/domain/services/role.service";
 import { Home, Users, Building2, Briefcase, Settings, LogOut } from "lucide-react";
 
 export const DashboardLayout = () => {

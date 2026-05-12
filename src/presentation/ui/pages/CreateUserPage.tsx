@@ -1,12 +1,20 @@
-import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/presentation/ui/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/presentation/ui/components/ui/card";
-import { Input } from "@/presentation/ui/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/presentation/ui/components/ui/card";
 import { Label } from "@/presentation/ui/components/ui/label";
-import { ChevronLeft, Loader2, Save } from "lucide-react";
+import { FormInput } from "@/presentation/ui/components/shared/FormInput";
+import { FormActions } from "@/presentation/ui/components/shared/form-actions";
+import { ChevronLeft } from "lucide-react";
+import { useAsync } from "@/presentation/hooks/useAsync";
 import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
 import { UserService } from "@/application/services/UserService";
 import { createUserSchema } from "@/presentation/ui/validators/create-user.schema";
@@ -19,7 +27,7 @@ const userService = new UserService(userRepository);
 
 export const CreateUserPage = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
+  const { execute: createUser, isLoading } = useAsync(userService.createUser.bind(userService));
 
   const {
     register,
@@ -38,10 +46,8 @@ export const CreateUserPage = () => {
   });
 
   const onSubmit = async (data: CreateUserFormData): Promise<void> => {
-    setIsLoading(true);
-
     try {
-      await userService.createUser({
+      await createUser({
         id: uuidv7(),
         ...data,
       });
@@ -58,8 +64,6 @@ export const CreateUserPage = () => {
       } else {
         setError("name", { type: "server", message });
       }
-
-      setIsLoading(false);
     }
   };
 
@@ -83,60 +87,40 @@ export const CreateUserPage = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nombre</Label>
-                <Input
-                  id="name"
-                  placeholder="Ej: Juan"
-                  aria-invalid={!!errors.name}
-                  {...register("name")}
-                />
-                {errors.name && (
-                  <p className="text-sm text-destructive">{errors.name.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="surname">Apellidos</Label>
-                <Input
-                  id="surname"
-                  placeholder="Ej: García López"
-                  aria-invalid={!!errors.surname}
-                  {...register("surname")}
-                />
-                {errors.surname && (
-                  <p className="text-sm text-destructive">{errors.surname.message}</p>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Ej: juan.garcia@empresa.com"
-                aria-invalid={!!errors.email}
-                {...register("email")}
+              <FormInput
+                id="name"
+                label="Nombre"
+                placeholder="Ej: Juan"
+                registration={register("name")}
+                error={errors.name?.message}
               />
-              {errors.email && (
-                <p className="text-sm text-destructive">{errors.email.message}</p>
-              )}
+
+              <FormInput
+                id="surname"
+                label="Apellidos"
+                placeholder="Ej: García López"
+                registration={register("surname")}
+                error={errors.surname?.message}
+              />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Mínimo 6 caracteres"
-                aria-invalid={!!errors.password}
-                {...register("password")}
-              />
-              {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
-              )}
-            </div>
+            <FormInput
+              id="email"
+              label="Email"
+              type="email"
+              placeholder="Ej: juan.garcia@empresa.com"
+              registration={register("email")}
+              error={errors.email?.message}
+            />
+
+            <FormInput
+              id="password"
+              label="Contraseña"
+              type="password"
+              placeholder="Mínimo 6 caracteres"
+              registration={register("password")}
+              error={errors.password?.message}
+            />
 
             <div className="space-y-2">
               <Label htmlFor="role">Rol</Label>
@@ -155,23 +139,13 @@ export const CreateUserPage = () => {
               )}
             </div>
           </CardContent>
-          <CardFooter className="flex justify-end gap-3 border-t p-6 bg-muted/20">
-            <Button type="button" variant="ghost" onClick={() => navigate("/personal")} disabled={isLoading}>
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isLoading} className="min-w-[140px]">
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Guardando...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Crear Usuario
-                </>
-              )}
-            </Button>
+          <CardFooter className="border-t p-6 bg-muted/20">
+            <FormActions 
+              className="pt-0 w-full justify-end"
+              onCancel={() => navigate("/personal")}
+              isSaving={isLoading}
+              saveLabel="Crear Usuario"
+            />
           </CardFooter>
         </Card>
       </form>

@@ -11,7 +11,7 @@ import { Button } from "@/presentation/ui/components/ui/button";
 import { Input } from "@/presentation/ui/components/ui/input";
 import { Card, CardContent } from "@/presentation/ui/components/ui/card";
 import { TimeEntriesTable } from "@/presentation/ui/components/shared/TimeEntriesTable";
-import { ConfirmDialog } from "@/presentation/ui/components/ui/confirm-dialog";
+import { ConfirmDialog } from "@/presentation/ui/components/shared/confirm-dialog";
 import { Loader2, CheckCircle2, Clock, X } from "lucide-react";
 
 interface ProjectHoursTabProps {
