@@ -42,6 +42,7 @@ export const ProjectDetailsPage = () => {
     fetchAllUsers, 
     fetchTechnologies,
     changeStatus,
+    deleteProject,
     clearDetails 
   } = useProjectDetailsStore();
 
@@ -63,6 +64,17 @@ export const ProjectDetailsPage = () => {
     toggleConfirm.close();
     try {
       await changeStatus(id);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    deleteConfirm.close();
+    try {
+      await deleteProject(id);
+      navigate("/proyectos");
     } catch (e) {
       console.error(e);
     }
@@ -161,14 +173,12 @@ export const ProjectDetailsPage = () => {
       <ConfirmDialog
         isOpen={deleteConfirm.isOpen}
         onClose={deleteConfirm.close}
-        onConfirm={async () => {
-          // TODO: Implement delete project if needed
-          deleteConfirm.close();
-        }}
+        onConfirm={handleDelete}
         title="Eliminar Proyecto"
         description={`¿Estás seguro de que deseas eliminar el proyecto "${project.name}"? Esta acción no se puede deshacer.`}
         confirmText="Eliminar"
         variant="destructive"
+        isLoading={isLoading}
       />
     </div>
   );

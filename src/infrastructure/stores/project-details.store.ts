@@ -43,9 +43,11 @@ interface ProjectDetailsState {
   deleteTimeEntry: (projectId: string, entryId: string) => Promise<void>;
   changeStatus: (id: string) => Promise<void>;
   updateProject: (id: string, project: UpdateProjectDTO) => Promise<void>;
+  deleteProject: (id: string) => Promise<void>;
   addDevelopment: (projectId: string, development: CreateDevelopmentDTO) => Promise<void>;
   updateDevelopment: (projectId: string, development: UpdateDevelopmentDTO) => Promise<void>;
   deleteDevelopment: (projectId: string, developmentId: string) => Promise<void>;
+  setMainContact: (clientId: string, contactId: string) => Promise<void>;
   clearDetails: () => void;
 }
 
@@ -218,6 +220,20 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     }
   },
 
+  deleteProject: async (id: string) => {
+    set({ isSaving: true, error: null });
+    try {
+      await projectService.deleteProject(id);
+      set({ project: null, isSaving: false });
+    } catch (error: any) {
+      set({
+        error: error.message || "Error al eliminar el proyecto",
+        isSaving: false
+      });
+      throw error;
+    }
+  },
+
   addDevelopment: async (projectId: string, development: CreateDevelopmentDTO) => {
     set({ isSaving: true });
     try {
@@ -250,6 +266,21 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       set({ developments, isSaving: false });
     } catch (error: any) {
       set({ isSaving: false });
+      throw error;
+    }
+  },
+
+  setMainContact: async (clientId: string, contactId: string) => {
+    set({ isSaving: true, error: null });
+    try {
+      await clientService.setMainContact(clientId, contactId);
+      const clientContacts = await clientService.getClientContacts(clientId);
+      set({ clientContacts, isSaving: false });
+    } catch (error: any) {
+      set({
+        error: error.message || "Error al marcar el contacto como principal",
+        isSaving: false
+      });
       throw error;
     }
   },
