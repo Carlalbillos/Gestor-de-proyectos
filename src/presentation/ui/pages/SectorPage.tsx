@@ -12,8 +12,10 @@ import { createSectorSchema } from "@/presentation/ui/validators/create-sector.s
 import type { CreateSectorFormData } from "@/presentation/ui/validators/create-sector.schema";
 import type { Sector } from "@/domain/entities/sector.entity";
 import { uuidv7 } from "@/presentation/ui/lib/uuid";
-import { EditButton } from "@/presentation/ui/components/ui/edit-button";
-import { DeleteButton } from "@/presentation/ui/components/ui/delete-button";
+import { EditButton } from "@/presentation/ui/components/shared/edit-button";
+import { DeleteButton } from "@/presentation/ui/components/shared/delete-button";
+import { useAsync } from "@/presentation/hooks/useAsync";
+import { useDisclosure } from "@/presentation/hooks/useDisclosure";
 
 import {
   Dialog,
@@ -24,8 +26,8 @@ import {
   DialogTitle,
 } from "@/presentation/ui/components/ui/dialog";
 
-import { DetailsHeader } from "@/presentation/ui/components/ui/details-header";
-import { ConfirmDialog } from "@/presentation/ui/components/ui/confirm-dialog";
+import { DetailsHeader } from "@/presentation/ui/components/shared/details-header";
+import { ConfirmDialog } from "@/presentation/ui/components/shared/confirm-dialog";
 
 export const SectorPage = () => {
   const navigate = useNavigate();
@@ -38,12 +40,14 @@ export const SectorPage = () => {
     deleteSector
   } = useSectorsStore();
 
-  const [isLoading, setIsLoading] = useState(false);
   const [sectorToEdit, setSectorToEdit] = useState<Sector | null>(null);
   const [sectorToDelete, setSectorToDelete] = useState<Sector | null>(null);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const editModal = useDisclosure();
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const createAsync = useAsync(createSector);
+  const updateAsync = useAsync(updateSector);
+  const deleteAsync = useAsync(deleteSector);
 
   const {
     register: registerCreate,
@@ -71,9 +75,8 @@ export const SectorPage = () => {
   }, [fetchSectors]);
 
   const onCreateSubmit = async (data: CreateSectorFormData): Promise<void> => {
-    setIsLoading(true);
     try {
-      await createSector({ id: uuidv7(), ...data });
+      await createAsync.execute({ id: uuidv7(), ...data });
       resetCreate();
     } catch (error: any) {
       console.error("Error creating sector", error);
@@ -81,21 +84,20 @@ export const SectorPage = () => {
       let message = "Error al crear el sector. Revisa los datos e inténtalo de nuevo.";
       if (status === 409) message = "Ya existe un sector con ese nombre.";
       setErrorCreate("name", { type: "server", message });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleOpenEdit = (sector: Sector) => {
     setSectorToEdit(sector);
     resetUpdate({ name: sector.name });
+    editModal.open();
   };
 
   const onUpdateSubmit = async (data: CreateSectorFormData) => {
     if (!sectorToEdit) return;
-    setIsUpdating(true);
     try {
-      await updateSector(sectorToEdit.id, { name: data.name });
+      await updateAsync.execute(sectorToEdit.id, { name: data.name });
+      editModal.close();
       setSectorToEdit(null);
     } catch (error: any) {
       console.error("Error updating sector", error);
@@ -103,17 +105,14 @@ export const SectorPage = () => {
       let message = "Error al actualizar el sector.";
       if (status === 409) message = "Ya existe un sector con ese nombre.";
       setErrorUpdate("name", { type: "server", message });
-    } finally {
-      setIsUpdating(false);
     }
   };
 
   const onConfirmDelete = async () => {
     if (!sectorToDelete) return;
-    setIsDeleting(true);
     setDeleteError(null);
     try {
-      await deleteSector(sectorToDelete.id);
+      await deleteAsync.execute(sectorToDelete.id);
       setSectorToDelete(null);
     } catch (error: any) {
       if (error?.response?.status === 409) {
@@ -121,8 +120,6 @@ export const SectorPage = () => {
       } else {
         setDeleteError("Ha ocurrido un error al intentar eliminar el sector.");
       }
-    } finally {
-      setIsDeleting(false);
     }
   };
 
@@ -152,7 +149,7 @@ export const SectorPage = () => {
                     placeholder="Ej: Tecnología"
                     aria-invalid={!!errorsCreate.name}
                     {...registerCreate("name")}
-                    disabled={isLoading}
+                    disabled={createAsync.isLoading}
                   />
                   {errorsCreate.name && (
                     <p className="text-sm text-destructive">{errorsCreate.name.message}</p>
@@ -160,8 +157,8 @@ export const SectorPage = () => {
                 </div>
               </CardContent>
               <CardFooter className="flex justify-end p-4 border-t bg-muted/10">
-                <Button type="submit" disabled={isLoading} className="w-full">
-                  {isLoading ? (
+                <Button type="submit" disabled={createAsync.isLoading} className="w-full">
+                  {createAsync.isLoading ? (
                     <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Guardando...</>
                   ) : (
                     <><Save className="mr-2 h-4 w-4" /> Crear Sector</>
@@ -203,7 +200,7 @@ export const SectorPage = () => {
       </div>
 
       {/* EDIT MODAL */}
-      <Dialog open={!!sectorToEdit} onOpenChange={(open) => !open && setSectorToEdit(null)}>
+      <Dialog open={editModal.isOpen} onOpenChange={(open) => !open && editModal.close()}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Editar Sector</DialogTitle>
@@ -216,7 +213,7 @@ export const SectorPage = () => {
                 <Input
                   id="update-name"
                   {...registerUpdate("name")}
-                  disabled={isUpdating}
+                  disabled={updateAsync.isLoading}
                   className={errorsUpdate.name ? "border-destructive" : ""}
                 />
                 {errorsUpdate.name && (
@@ -225,11 +222,11 @@ export const SectorPage = () => {
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setSectorToEdit(null)} disabled={isUpdating}>
+              <Button type="button" variant="outline" onClick={editModal.close} disabled={updateAsync.isLoading}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isUpdating}>
-                {isUpdating ? (
+              <Button type="submit" disabled={updateAsync.isLoading}>
+                {updateAsync.isLoading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
@@ -251,7 +248,7 @@ export const SectorPage = () => {
         title="¿Eliminar sector?"
         description={deleteError || `Esta acción eliminará el sector "${sectorToDelete?.name}". Asegúrate de que ningún cliente dependa de él.`}
         confirmText="Sí, eliminar"
-        isLoading={isDeleting}
+        isLoading={deleteAsync.isLoading}
         variant="destructive"
       />
     </div>

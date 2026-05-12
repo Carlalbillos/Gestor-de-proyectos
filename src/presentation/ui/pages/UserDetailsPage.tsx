@@ -1,19 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useUserDetailsStore } from "@/infrastructure/stores/user-details.store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/presentation/ui/components/ui/card";
 import { Badge } from "@/presentation/ui/components/ui/badge";
 import { Button } from "@/presentation/ui/components/ui/button";
 import { Lock, Loader2, XCircle, Mail, Shield, Briefcase, Clock, Calendar } from "lucide-react";
-import { isAdmin } from "@/presentation/ui/lib/roleChecker";
+import { isAdmin } from "@/domain/services/role.service";
 import { AdminChangePasswordModal } from "@/presentation/ui/components/users/AdminChangePasswordModal";
 import { useAuthStore } from "@/infrastructure/stores/auth.store";
-import { DetailsHeader } from "@/presentation/ui/components/ui/details-header";
-import { ConfirmDialog } from "@/presentation/ui/components/ui/confirm-dialog";
+import { useDisclosure } from "@/presentation/hooks/useDisclosure";
+import { DetailsHeader } from "@/presentation/ui/components/shared/details-header";
+import { ConfirmDialog } from "@/presentation/ui/components/shared/confirm-dialog";
 import { useForm } from "react-hook-form";
-import { DetailItem } from "@/presentation/ui/components/ui/detail-item";
-import { EditButton } from "@/presentation/ui/components/ui/edit-button";
-import { FormActions } from "@/presentation/ui/components/ui/form-actions";
+import { DetailItem } from "@/presentation/ui/components/shared/detail-item";
+import { EditButton } from "@/presentation/ui/components/shared/edit-button";
+import { FormActions } from "@/presentation/ui/components/shared/form-actions";
 import { Input } from "@/presentation/ui/components/ui/input";
 import { Label } from "@/presentation/ui/components/ui/label";
 
@@ -36,10 +37,10 @@ export const UserDetailsPage = () => {
     clearDetails
   } = useUserDetailsStore();
 
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [showToggleConfirm, setShowToggleConfirm] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const passwordModal = useDisclosure();
+  const editing = useDisclosure();
+  const toggleConfirm = useDisclosure();
+  const deleteConfirm = useDisclosure();
 
   const {
     register,
@@ -63,7 +64,7 @@ export const UserDetailsPage = () => {
   }, [id, fetchUserDetails, clearDetails]);
 
   const handleToggleActive = async () => {
-    setShowToggleConfirm(false);
+    toggleConfirm.close();
     try {
       await changeActivityUser(user!.id);
     } catch (e) {
@@ -72,7 +73,7 @@ export const UserDetailsPage = () => {
   };
 
   const handleDelete = async () => {
-    setShowDeleteConfirm(false);
+    deleteConfirm.close();
     try {
       await deleteUser(user!.id);
       navigate("/usuarios");
@@ -89,7 +90,7 @@ export const UserDetailsPage = () => {
       email: user.email.getValue(),
       role: user.role,
     });
-    setIsEditing(true);
+    editing.open();
   };
 
   const onEditSubmit = async (data: any) => {
@@ -99,7 +100,7 @@ export const UserDetailsPage = () => {
         ...data,
         isActive: user.isActive
       });
-      setIsEditing(false);
+      editing.close();
     } catch (e) {
       console.error(e);
     }
@@ -133,8 +134,8 @@ export const UserDetailsPage = () => {
         title={`${user.name} ${user.surname}`}
         onBack={() => navigate("/personal")}
         isActive={user.isActive}
-        onToggleStatus={!isSelf ? () => setShowToggleConfirm(true) : undefined}
-        onDelete={!isSelf ? () => setShowDeleteConfirm(true) : undefined}
+        onToggleStatus={!isSelf ? toggleConfirm.open : undefined}
+        onDelete={!isSelf ? deleteConfirm.open : undefined}
         isToggling={isLoading}
         showActions={!isSelf}
         icon={<div className="font-bold text-xl text-primary">{user.name.charAt(0)}{user.surname.charAt(0)}</div>}
@@ -159,12 +160,12 @@ export const UserDetailsPage = () => {
               <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
                 Información Personal
               </CardTitle>
-              {isAdmin(currentUser) && !isEditing && (
+              {isAdmin(currentUser) && !editing.isOpen && (
                 <EditButton onClick={startEditing} />
               )}
             </CardHeader>
             <CardContent className="pt-6">
-              {isEditing ? (
+              {editing.isOpen ? (
                 <form onSubmit={handleSubmit(onEditSubmit)} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Nombre</Label>
@@ -195,7 +196,7 @@ export const UserDetailsPage = () => {
                       </p>
                     )}
                   </div>
-                  <FormActions isSaving={isLoading} onCancel={() => setIsEditing(false)} />
+                  <FormActions isSaving={isLoading} onCancel={editing.close} />
                 </form>
               ) : (
                 <div className="space-y-6">
@@ -258,7 +259,7 @@ export const UserDetailsPage = () => {
 
               {isAdmin(currentUser) && (
                 <div className="pt-4 border-t space-y-2">
-                  <Button variant="outline" className="w-full justify-start" onClick={() => setIsPasswordModalOpen(true)}>
+                  <Button variant="outline" className="w-full justify-start" onClick={passwordModal.open}>
                     <Lock className="mr-2 h-4 w-4" /> Cambiar Contraseña
                   </Button>
                 </div>
@@ -355,15 +356,15 @@ export const UserDetailsPage = () => {
       </div>
 
       <AdminChangePasswordModal
-        isOpen={isPasswordModalOpen}
-        onClose={() => setIsPasswordModalOpen(false)}
+        isOpen={passwordModal.isOpen}
+        onClose={passwordModal.close}
         userName={user.name}
         onSubmit={(password) => adminChangePassword(user.id, password)}
       />
 
       <ConfirmDialog
-        isOpen={showToggleConfirm}
-        onClose={() => setShowToggleConfirm(false)}
+        isOpen={toggleConfirm.isOpen}
+        onClose={toggleConfirm.close}
         onConfirm={handleToggleActive}
         title={user.isActive ? "Desactivar Usuario" : "Activar Usuario"}
         description={`¿Estás seguro de que deseas ${user.isActive ? "desactivar" : "activar"} a ${user.name}?`}
@@ -373,8 +374,8 @@ export const UserDetailsPage = () => {
       />
 
       <ConfirmDialog
-        isOpen={showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(false)}
+        isOpen={deleteConfirm.isOpen}
+        onClose={deleteConfirm.close}
         onConfirm={handleDelete}
         title="Eliminar Usuario"
         description={`¿Estás seguro de que deseas eliminar a ${user.name}? Esta acción no se puede deshacer.`}

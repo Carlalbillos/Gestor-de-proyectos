@@ -7,6 +7,8 @@ import { useDashboardStore } from "@/infrastructure/stores/dashboard.store";
 import { Button } from "@/presentation/ui/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle, CardFooter } from "@/presentation/ui/components/ui/card";
 import { Badge } from "@/presentation/ui/components/ui/badge";
+import { PageHeader } from "@/presentation/ui/components/shared/PageHeader";
+import { EmptyState } from "@/presentation/ui/components/shared/EmptyState";
 import { TimeEntriesTable } from "@/presentation/ui/components/shared/TimeEntriesTable";
 import { Users, ChevronRight, Briefcase, Clock } from "lucide-react";
 
@@ -38,13 +40,10 @@ export const HomePage = () => {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {/* Cabecera de Bienvenida */}
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight">¡Hola, {profile.name}!</h1>
-        <p className="text-muted-foreground text-lg">
-          Gestiona tus proyectos y horas de trabajo
-        </p>
-      </div>
+      <PageHeader 
+        title={`¡Hola, ${profile.name}!`} 
+        description="Gestiona tus proyectos y horas de trabajo"
+      />
 
       <div className="space-y-8">
 
@@ -65,10 +64,13 @@ export const HomePage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.length === 0 ? (
-              <div className="col-span-full p-12 text-center border-2 border-dashed rounded-xl text-muted-foreground bg-muted/10">
-                <Briefcase className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                <p className="text-lg font-medium">No tienes proyectos asignados actualmente.</p>
-                <p className="text-sm">Cuando te asignen a un proyecto, aparecerá aquí.</p>
+              <div className="col-span-full">
+                <EmptyState
+                  icon={Briefcase}
+                  title="Sin proyectos asignados"
+                  description="Actualmente no tienes proyectos asignados. Cuando seas incluido en un equipo, verás tus proyectos aquí."
+                  className="py-12"
+                />
               </div>
             ) : (
               projects.map((project) => (

@@ -16,7 +16,9 @@ import {
   Briefcase
 } from "lucide-react";
 
-import { DetailsHeader } from "@/presentation/ui/components/ui/details-header";
+import { useDisclosure } from "@/presentation/hooks/useDisclosure";
+import { DetailsHeader } from "@/presentation/ui/components/shared/details-header";
+import { ConfirmDialog } from "@/presentation/ui/components/shared/confirm-dialog";
 import { ProjectInfoTab } from "@/presentation/ui/components/projects/ProjectInfoTab";
 import { ProjectTeamTab } from "@/presentation/ui/components/projects/ProjectTeamTab";
 import { ProjectClientTab } from "@/presentation/ui/components/projects/ProjectClientTab";
@@ -26,7 +28,24 @@ import { ProjectHoursTab } from "../components/projects/ProjectHoursTab";
 export const ProjectDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { project, users, roles, allUsers, developments, clientContacts, isLoading, error, fetchProjectDetails, fetchRoles, fetchAllUsers, clearDetails } = useProjectDetailsStore();
+  const { 
+    project, 
+    users, 
+    roles, 
+    allUsers, 
+    developments, 
+    clientContacts, 
+    isLoading, 
+    error, 
+    fetchProjectDetails, 
+    fetchRoles, 
+    fetchAllUsers, 
+    changeStatus,
+    clearDetails 
+  } = useProjectDetailsStore();
+
+  const toggleConfirm = useDisclosure();
+  const deleteConfirm = useDisclosure();
 
   useEffect(() => {
     if (id) {
@@ -36,6 +55,16 @@ export const ProjectDetailsPage = () => {
     }
     return () => clearDetails();
   }, [id, fetchProjectDetails, fetchRoles, fetchAllUsers, clearDetails]);
+
+  const handleToggleStatus = async () => {
+    if (!id) return;
+    toggleConfirm.close();
+    try {
+      await changeStatus(id);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   if (isLoading && !project) {
     return (
@@ -70,9 +99,9 @@ export const ProjectDetailsPage = () => {
         title={project.name}
         onBack={() => navigate("/proyectos")}
         isActive={project.isActive}
-        onToggleStatus={() => {}} // Not implemented for projects yet
-        onDelete={() => {}} // Not implemented for projects yet
-        showActions={false}
+        onToggleStatus={toggleConfirm.open}
+        onDelete={deleteConfirm.open}
+        showActions={true}
         icon={<Briefcase className="h-7 w-7 text-primary" />}
       />
 
@@ -115,6 +144,30 @@ export const ProjectDetailsPage = () => {
           </TabsContent>
         </div>
       </Tabs>
+
+      <ConfirmDialog
+        isOpen={toggleConfirm.isOpen}
+        onClose={toggleConfirm.close}
+        onConfirm={handleToggleStatus}
+        title={project.isActive ? "Desactivar Proyecto" : "Activar Proyecto"}
+        description={`¿Estás seguro de que deseas ${project.isActive ? "desactivar" : "activar"} el proyecto "${project.name}"?`}
+        confirmText={project.isActive ? "Desactivar" : "Activar"}
+        variant={project.isActive ? "destructive" : "default"}
+        isLoading={isLoading}
+      />
+
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={deleteConfirm.close}
+        onConfirm={async () => {
+          // TODO: Implement delete project if needed
+          deleteConfirm.close();
+        }}
+        title="Eliminar Proyecto"
+        description={`¿Estás seguro de que deseas eliminar el proyecto "${project.name}"? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        variant="destructive"
+      />
     </div>
   );
 };

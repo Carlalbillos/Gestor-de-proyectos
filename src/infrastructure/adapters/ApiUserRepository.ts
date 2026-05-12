@@ -79,7 +79,7 @@ export class ApiUserRepository implements UserRepository {
   }
 
   async changeActivityUser(id: string): Promise<void> {
-    await api.patch(`users/${id}/change-status`);
+    await api.patch(`users/${id}`);
   }
 
   async deleteUser(id: string): Promise<void> {

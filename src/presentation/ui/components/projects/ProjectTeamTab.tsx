@@ -7,9 +7,9 @@ import { UserPlus, Loader2, X, Check, XCircle, Briefcase } from "lucide-react";
 import { useProjectDetailsStore } from "@/infrastructure/stores/project-details.store";
 import { Badge } from "../ui/badge";
 import { Label } from "../ui/label";
-import { ConfirmDialog } from "../ui/confirm-dialog";
-import { EditButton } from "../ui/edit-button";
-import { DeleteButton } from "../ui/delete-button";
+import { ConfirmDialog } from "../shared/confirm-dialog";
+import { EditButton } from "../shared/edit-button";
+import { DeleteButton } from "../shared/delete-button";
 
 interface ProjectTeamTabProps {
   users: ProjectUser[];

@@ -57,4 +57,8 @@ export class ProjectService {
   async deleteProjectTimeEntry(projectId: string, entryId: string): Promise<void> {
     return await this.projectRepository.deleteProjectTimeEntry(projectId, entryId);
   }
+
+  async changeStatus(id: string): Promise<void> {
+    return await this.projectRepository.changeStatus(id);
+  }
 }

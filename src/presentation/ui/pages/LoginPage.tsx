@@ -14,8 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/presentation/ui/components/ui/card";
-import { Input } from "@/presentation/ui/components/ui/input";
-import { Label } from "@/presentation/ui/components/ui/label";
+import { FormInput } from "@/presentation/ui/components/shared/FormInput";
 
 export const LoginPage = () => {
   const navigate = useNavigate();
@@ -62,37 +61,23 @@ export const LoginPage = () => {
             onSubmit={handleSubmit(onSubmit)}
             noValidate
           >
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="tu@email.com"
-                aria-invalid={!!errors.email}
-                {...register("email")}
-              />
-              {errors.email !== undefined && (
-                <p className="text-sm text-destructive">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
+            <FormInput
+              id="email"
+              label="Email"
+              type="email"
+              placeholder="tu@email.com"
+              registration={register("email")}
+              error={errors.email?.message}
+            />
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Tu contraseña"
-                aria-invalid={!!errors.password}
-                {...register("password")}
-              />
-              {errors.password !== undefined && (
-                <p className="text-sm text-destructive">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
+            <FormInput
+              id="password"
+              label="Contraseña"
+              type="password"
+              placeholder="Tu contraseña"
+              registration={register("password")}
+              error={errors.password?.message}
+            />
 
             <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
               {isLoading ? "Entrando..." : "Iniciar sesión"}

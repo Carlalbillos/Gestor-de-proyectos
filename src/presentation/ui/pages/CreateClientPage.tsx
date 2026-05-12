@@ -1,11 +1,12 @@
-import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/presentation/ui/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/presentation/ui/components/ui/card";
-import { Input } from "@/presentation/ui/components/ui/input";
-import { ChevronLeft, Loader2, Save } from "lucide-react";
+import { FormInput } from "@/presentation/ui/components/shared/FormInput";
+import { FormActions } from "@/presentation/ui/components/shared/form-actions";
+import { ChevronLeft } from "lucide-react";
+import { useAsync } from "@/presentation/hooks/useAsync";
 import { ApiClientRepository } from "@/infrastructure/adapters/ApiClientRepository";
 import { ClientService } from "@/application/services/ClientService";
 import { SectorSelect } from "@/presentation/ui/components/sectors/SectorSelect";
@@ -21,7 +22,7 @@ const clientService = new ClientService(clientRepository);
 
 export const CreateClientPage = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
+  const { execute: createClient, isLoading } = useAsync(clientService.createClient.bind(clientService));
 
   const {
     register,
@@ -37,10 +38,8 @@ export const CreateClientPage = () => {
   });
 
   const onSubmit = async (data: CreateClientFormData): Promise<void> => {
-    setIsLoading(true);
-
     try {
-      await clientService.createClient({
+      await createClient({
         id: uuidv7(),
         ...data,
       });
@@ -60,10 +59,7 @@ export const CreateClientPage = () => {
         type: "server",
         message,
       });
-    } finally {
-      setIsLoading(false);
     }
-
   };
 
   return (
@@ -85,44 +81,27 @@ export const CreateClientPage = () => {
             <CardDescription>Datos básicos del cliente y sector asociado</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Nombre del Cliente
-              </label>
-              <Input
-                id="name"
-                placeholder="Ej: Acme Corp"
-                aria-invalid={!!errors.name}
-                {...register("name")}
-              />
-              {errors.name && (
-                <p className="text-sm text-destructive">{errors.name.message}</p>
-              )}
-            </div>
+            <FormInput
+              id="name"
+              label="Nombre del Cliente"
+              placeholder="Ej: Acme Corp"
+              registration={register("name")}
+              error={errors.name?.message}
+            />
 
-            <SectorSelect 
+            <SectorSelect
               id="sectorId"
               error={errors.sectorId?.message}
               {...register("sectorId")}
             />
           </CardContent>
-          <CardFooter className="flex justify-end gap-3 border-t p-6 bg-muted/20">
-            <Button type="button" variant="ghost" onClick={() => navigate("/clientes")} disabled={isLoading}>
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isLoading} className="min-w-[140px]">
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Guardando...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Crear Cliente
-                </>
-              )}
-            </Button>
+          <CardFooter className="border-t p-6 bg-muted/20">
+            <FormActions
+              className="pt-0 w-full justify-end"
+              onCancel={() => navigate("/clientes")}
+              isSaving={isLoading}
+              saveLabel="Crear Cliente"
+            />
           </CardFooter>
         </Card>
       </form>

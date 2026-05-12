@@ -43,4 +43,5 @@ export interface ProjectRepository {
   createProject(project: CreateProjectDTO): Promise<void>;
   updateProjectTimeEntry(projectId: string, entryId: string, data: UpdateTimeEntryDTO): Promise<void>;
   deleteProjectTimeEntry(projectId: string, entryId: string): Promise<void>;
+  changeStatus(id: string): Promise<void>;
 }

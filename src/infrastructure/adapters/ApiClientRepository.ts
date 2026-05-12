@@ -67,7 +67,8 @@ export class ApiClientRepository implements ClientRepository {
   }
 
   async createContact(clientId: string, contactId: string, contact: any): Promise<void> {
-    await api.post(`clients/${clientId}/contacts/${contactId}`, {
+    await api.post(`clients/${clientId}/contacts`, {
+      id: contactId,
       full_name: contact.fullName,
       phone_number: contact.phoneNumber,
       email: contact.email,

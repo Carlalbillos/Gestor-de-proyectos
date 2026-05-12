@@ -7,7 +7,7 @@ import { ApiProjectRepository } from "../adapters/ApiProjectRepository";
 import { ApiUserRepository } from "../adapters/ApiUserRepository";
 
 import { useAuthStore } from "./auth.store";
-import { isAdmin } from "@/presentation/ui/lib/roleChecker";
+import { isAdmin } from "@/domain/services/role.service";
 
 import type { Project } from "../../domain/entities/project.entity";
 import { createBaseListSlice, handleListFetch } from "./factories/list-factory";
