@@ -18,6 +18,7 @@ interface ClientDetailsState {
   createContact: (clientId: string, contactId: string, contact: any) => Promise<void>;
   updateContact: (clientId: string, contactId: string, contact: any) => Promise<void>;
   deleteContact: (clientId: string, contactId: string) => Promise<void>;
+  setMainContact: (clientId: string, contactId: string) => Promise<void>;
   clearDetails: () => void;
 }
 
@@ -112,6 +113,18 @@ export const useClientDetailsStore = create<ClientDetailsState>((set) => ({
       set({ contacts, isLoading: false });
     } catch (error: any) {
       set({ error: error.message || "Error al eliminar el contacto", isLoading: false });
+      throw error;
+    }
+  },
+
+  setMainContact: async (clientId: string, contactId: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await clientService.setMainContact(clientId, contactId);
+      const contacts = await clientService.getClientContacts(clientId);
+      set({ contacts, isLoading: false });
+    } catch (error: any) {
+      set({ error: error.message || "Error al marcar el contacto como principal", isLoading: false });
       throw error;
     }
   },

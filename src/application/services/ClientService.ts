@@ -47,6 +47,10 @@ export class ClientService {
     return await this.clientRepository.updateContact(clientId, contactId, contact);
   }
 
+  async setMainContact(clientId: string, contactId: string): Promise<void> {
+    return await this.clientRepository.setMainContact(clientId, contactId);
+  }
+
   async deleteContact(clientId: string, contactId: string): Promise<void> {
     return await this.clientRepository.deleteContact(clientId, contactId);
   }

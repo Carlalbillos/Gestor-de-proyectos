@@ -60,7 +60,7 @@ export const ProjectClientTab = ({ client, contacts }: ProjectClientTabProps) =>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                   {contacts.length > 0 ? (
                     contacts.map((contact) => (
-                      <Card key={contact.id} className="">
+                      <Card key={contact.id} className="group transition-all hover:border-primary/20 shadow-none border-muted/60">
                         <CardContent className="p-4">
                           <div className="space-y-3">
                             <div className="flex items-center justify-between gap-2">

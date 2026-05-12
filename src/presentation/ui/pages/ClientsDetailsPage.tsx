@@ -42,6 +42,7 @@ export const ClientsDetailsPage = () => {
     createContact,
     updateContact,
     deleteContact,
+    setMainContact,
     clearDetails
   } = useClientDetailsStore();
 
@@ -596,7 +597,18 @@ export const ClientsDetailsPage = () => {
                         )}
                       </div>
                       <div className="flex gap-2">
-                        <EditButton onClick={() => handleStartEditContact(contact)} />
+                        {!contact.isMain && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-amber-500 hover:text-amber-600 hover:bg-amber-50"
+                            onClick={() => setMainContact(id!, contact.id)}
+                            title="Marcar como principal"
+                          >
+                            <Star className="h-4 w-4" />
+                          </Button>
+                        )}
+                        <EditButton label="" onClick={() => handleStartEditContact(contact)} />
                         <DeleteButton
                           label=""
                           onClick={async () => {

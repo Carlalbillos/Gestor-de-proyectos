@@ -87,6 +87,10 @@ export class ApiClientRepository implements ClientRepository {
     });
   }
 
+  async setMainContact(clientId: string, contactId: string): Promise<void> {
+    await api.patch(`clients/${clientId}/contacts/${contactId}`);
+  }
+
   async deleteContact(clientId: string, contactId: string): Promise<void> {
     await api.delete(`clients/${clientId}/contacts/${contactId}`);
   }

@@ -27,5 +27,6 @@ export interface ClientRepository {
   getClientContacts(clientId: string): Promise<ClientContact[]>;
   createContact(clientId: string, contactId: string, contact: any): Promise<void>;
   updateContact(clientId: string, contactId: string, contact: any): Promise<void>;
+  setMainContact(clientId: string, contactId: string): Promise<void>;
   deleteContact(clientId: string, contactId: string): Promise<void>;
 }
