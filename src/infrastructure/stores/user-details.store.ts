@@ -1,12 +1,27 @@
 import { create } from "zustand";
-import { UserService } from "../../application/services/UserService";
+import { GetUserByIdUseCase } from "../../application/use-cases/user/GetUserByIdUseCase";
+import { GetUserProjectsUseCase } from "../../application/use-cases/user/GetUserProjectsUseCase";
+import { GetUserTimeEntriesUseCase } from "../../application/use-cases/user/GetUserTimeEntriesUseCase";
+import { UpdateUserUseCase } from "../../application/use-cases/user/UpdateUserUseCase";
+import { ChangeActivityUserUseCase } from "../../application/use-cases/user/ChangeActivityUserUseCase";
+import { DeleteUserUseCase } from "../../application/use-cases/user/DeleteUserUseCase";
+import { AdminChangePasswordUseCase } from "../../application/use-cases/user/AdminChangePasswordUseCase";
+import { CreateTimeEntryUseCase } from "../../application/use-cases/user/CreateTimeEntryUseCase";
+
 import { ApiUserRepository } from "../adapters/ApiUserRepository";
 import type { User, TimeEntry } from "../../domain/entities/user.entity";
 import type { Project } from "../../domain/entities/project.entity";
-import type { CreateTimeEntryDTO } from "../../application/dto/user.dto";
+import type { CreateTimeEntryDTO } from "../../application/dto/user/CreateTimeEntry.dto";
 
 const userRepository = new ApiUserRepository();
-const userService = new UserService(userRepository);
+const getUserByIdUseCase = new GetUserByIdUseCase(userRepository);
+const getUserProjectsUseCase = new GetUserProjectsUseCase(userRepository);
+const getUserTimeEntriesUseCase = new GetUserTimeEntriesUseCase(userRepository);
+const updateUserUseCase = new UpdateUserUseCase(userRepository);
+const changeActivityUserUseCase = new ChangeActivityUserUseCase(userRepository);
+const deleteUserUseCase = new DeleteUserUseCase(userRepository);
+const adminChangePasswordUseCase = new AdminChangePasswordUseCase(userRepository);
+const createTimeEntryUseCase = new CreateTimeEntryUseCase(userRepository);
 
 interface UserDetailsState {
   user: User | null;
@@ -36,9 +51,9 @@ export const useUserDetailsStore = create<UserDetailsState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const [user, projects, timeEntriesResponse] = await Promise.all([
-        userService.getUserProfile(id),
-        userService.getUserProjects(id),
-        userService.getUserTimeEntries(id),
+        getUserByIdUseCase.execute(id),
+        getUserProjectsUseCase.execute(id),
+        getUserTimeEntriesUseCase.execute(id),
       ]);
       set({
         user,
@@ -55,8 +70,8 @@ export const useUserDetailsStore = create<UserDetailsState>((set) => ({
   updateUser: async (id: string, data: any) => {
     set({ isLoading: true, error: null });
     try {
-      await userService.updateUser(id, data);
-      const updatedUser = await userService.getUserProfile(id);
+      await updateUserUseCase.execute(id, data);
+      const updatedUser = await getUserByIdUseCase.execute(id);
       set({ user: updatedUser, isLoading: false });
     } catch (error: any) {
       set({ error: error.message || "Error al actualizar el usuario", isLoading: false });
@@ -67,8 +82,8 @@ export const useUserDetailsStore = create<UserDetailsState>((set) => ({
   changeActivityUser: async (id: string) => {
     set({ isLoading: true, error: null });
     try {
-      await userService.changeActivityUser(id);
-      const updatedUser = await userService.getUserProfile(id);
+      await changeActivityUserUseCase.execute(id);
+      const updatedUser = await getUserByIdUseCase.execute(id);
       set({ user: updatedUser, isLoading: false });
     } catch (error: any) {
       set({ error: error.message || "Error al cambiar el estado del usuario", isLoading: false });
@@ -79,7 +94,7 @@ export const useUserDetailsStore = create<UserDetailsState>((set) => ({
   deleteUser: async (id: string) => {
     set({ isLoading: true, error: null });
     try {
-      await userService.deleteUser(id);
+      await deleteUserUseCase.execute(id);
       set({ user: null, isLoading: false });
     } catch (error: any) {
       set({ error: error.message || "Error al borrar el usuario", isLoading: false });
@@ -90,7 +105,7 @@ export const useUserDetailsStore = create<UserDetailsState>((set) => ({
   adminChangePassword: async (id: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
-      await userService.adminChangePassword(id, { newPassword: password });
+      await adminChangePasswordUseCase.execute(id, { newPassword: password });
       set({ isLoading: false });
     } catch (error: any) {
       set({ error: error.message || "Error al cambiar la contraseña", isLoading: false });
@@ -101,8 +116,8 @@ export const useUserDetailsStore = create<UserDetailsState>((set) => ({
   addTimeEntry: async (id: string, data: CreateTimeEntryDTO) => {
     set({ isLoading: true, error: null });
     try {
-      await userService.createTimeEntry(id, data);
-      const timeEntriesResponse = await userService.getUserTimeEntries(id);
+      await createTimeEntryUseCase.execute(id, data);
+      const timeEntriesResponse = await getUserTimeEntriesUseCase.execute(id);
       set({ 
         timeEntries: timeEntriesResponse.data,
         totalHours: timeEntriesResponse.totalHours,

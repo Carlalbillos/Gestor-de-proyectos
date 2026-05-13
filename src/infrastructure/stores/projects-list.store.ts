@@ -1,7 +1,9 @@
 import { create } from "zustand";
 
-import { ProjectService } from "../../application/services/ProjectService";
-import { UserService } from "../../application/services/UserService";
+import { GetProjectsUseCase } from "../../application/use-cases/project/GetProjectsUseCase";
+import { CreateProjectUseCase } from "../../application/use-cases/project/CreateProjectUseCase";
+import { UpdateProjectUseCase } from "../../application/use-cases/project/UpdateProjectUseCase";
+import { GetUserProjectsUseCase } from "../../application/use-cases/user/GetUserProjectsUseCase";
 
 import { ApiProjectRepository } from "../adapters/ApiProjectRepository";
 import { ApiUserRepository } from "../adapters/ApiUserRepository";
@@ -10,15 +12,18 @@ import { useAuthStore } from "./auth.store";
 import { isAdmin } from "@/domain/services/role.service";
 
 import type { Project } from "../../domain/entities/project.entity";
-import type { CreateProjectDTO, UpdateProjectDTO } from "../../application/dto/project.dto";
+import type { CreateProjectDTO } from "../../application/dto/project/CreateProject.dto";
+import type { UpdateProjectDTO } from "../../application/dto/project/UpdateProject.dto";
 import { createBaseListSlice, handleListFetch } from "./factories/list-factory";
 import type { BaseListState } from "./factories/list-factory";
 
-const repository = new ApiProjectRepository();
-const service = new ProjectService(repository);
-
+const projectRepository = new ApiProjectRepository();
 const userRepository = new ApiUserRepository();
-const userService = new UserService(userRepository);
+
+const getProjectsUseCase = new GetProjectsUseCase(projectRepository);
+const createProjectUseCase = new CreateProjectUseCase(projectRepository);
+const updateProjectUseCase = new UpdateProjectUseCase(projectRepository);
+const getUserProjectsUseCase = new GetUserProjectsUseCase(userRepository);
 
 interface ProjectsListState extends BaseListState<Project> {
   page: number;
@@ -75,11 +80,11 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
             params.search = state.search.trim();
           }
 
-          const result = await service.getProjectsList(params);
+          const result = await getProjectsUseCase.execute(params);
           return result;
         }
 
-        return await userService.getUserProjects(user.id);
+        return await getUserProjectsUseCase.execute(user.id);
       },
       (projects, state) => {
         let filteredProjects = projects;
@@ -107,7 +112,7 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
   addProject: async (project: CreateProjectDTO) => {
     set({ isSaving: true });
     try {
-      await service.createProject(project);
+      await createProjectUseCase.execute(project);
       await get().fetchProjects();
     } finally {
       set({ isSaving: false });
@@ -117,7 +122,7 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
   updateProject: async (id: string, project: UpdateProjectDTO) => {
     set({ isSaving: true });
     try {
-      await service.updateProject(id, project);
+      await updateProjectUseCase.execute(id, project);
       await get().fetchProjects();
     } finally {
       set({ isSaving: false });

@@ -5,13 +5,18 @@ import { jwtDecode } from "jwt-decode";
 import type { User } from "@/domain/entities/user.entity";
 import { setAccessToken } from "@/infrastructure/adapters/AxiosHttpClient";
 import { ApiAuthRepository } from "@/infrastructure/adapters/ApiAuthRepository";
-import { LoginUseCase } from "@/application/use-cases/LoginUseCase";
-import { UserService } from "@/application/services/UserService";
+import { LoginUseCase } from "@/application/use-cases/auth/LoginUseCase";
+import { LogoutUseCase } from "@/application/use-cases/auth/LogoutUseCase";
+import { ChangePasswordUseCase } from "@/application/use-cases/user/ChangePasswordUseCase";
 import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
-import type { ChangePasswordDTO } from "@/application/dto/user.dto";
+import type { ChangePasswordDTO } from "@/application/dto/user/ChangePassword.dto";
 
-const loginUseCase = new LoginUseCase(new ApiAuthRepository());
-const userService = new UserService(new ApiUserRepository());
+const authRepository = new ApiAuthRepository();
+const userRepository = new ApiUserRepository();
+
+const loginUseCase = new LoginUseCase(authRepository);
+const logoutUseCase = new LogoutUseCase(authRepository);
+const changePasswordUseCase = new ChangePasswordUseCase(userRepository);
 
 interface AuthState {
   user: User | null;
@@ -56,7 +61,7 @@ export const useAuthStore = create<AuthState>()(
         const { refreshToken } = get();
         if (refreshToken) {
           try {
-            await loginUseCase.logout(refreshToken);
+            await logoutUseCase.execute(refreshToken);
           } catch (error) {
             console.error("Formal logout failed", error);
           }
@@ -76,7 +81,7 @@ export const useAuthStore = create<AuthState>()(
 
         set({ isLoading: true });
         try {
-          await userService.changePassword(user.id, dto);
+          await changePasswordUseCase.execute(user.id, dto);
           set({ isLoading: false });
         } catch (error: any) {
           set({ isLoading: false });

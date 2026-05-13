@@ -1,9 +1,18 @@
 import { create } from "zustand";
-import type { Client, ClientContact } from "@/domain/entities/client.entity";
-import type { UpdateClientDTO } from "@/application/dto/client.dto";
-import type { Project } from "@/domain/entities/project.entity";
+import { GetClientByIdUseCase } from "@/application/use-cases/client/GetClientByIdUseCase";
+import { GetClientProjectsUseCase } from "@/application/use-cases/client/GetClientProjectsUseCase";
+import { GetClientContactsUseCase } from "@/application/use-cases/client/GetClientContactsUseCase";
+import { UpdateClientUseCase } from "@/application/use-cases/client/UpdateClientUseCase";
+import { DeleteClientUseCase } from "@/application/use-cases/client/DeleteClientUseCase";
+import { ChangeClientStatusUseCase } from "@/application/use-cases/client/ChangeClientStatusUseCase";
+import { CreateContactUseCase } from "@/application/use-cases/client/CreateContactUseCase";
+import { UpdateContactUseCase } from "@/application/use-cases/client/UpdateContactUseCase";
+import { DeleteContactUseCase } from "@/application/use-cases/client/DeleteContactUseCase";
+import { SetMainContactUseCase } from "@/application/use-cases/client/SetMainContactUseCase";
 import { ApiClientRepository } from "@/infrastructure/adapters/ApiClientRepository";
-import { ClientService } from "@/application/services/ClientService";
+import type { Client, ClientContact } from "@/domain/entities/client.entity";
+import type { UpdateClientDTO } from "@/application/dto/client/UpdateClient.dto";
+import type { Project } from "@/domain/entities/project.entity";
 
 interface ClientDetailsState {
   client: Client | null;
@@ -23,7 +32,16 @@ interface ClientDetailsState {
 }
 
 const clientRepository = new ApiClientRepository();
-const clientService = new ClientService(clientRepository);
+const getClientByIdUseCase = new GetClientByIdUseCase(clientRepository);
+const getClientProjectsUseCase = new GetClientProjectsUseCase(clientRepository);
+const getClientContactsUseCase = new GetClientContactsUseCase(clientRepository);
+const updateClientUseCase = new UpdateClientUseCase(clientRepository);
+const deleteClientUseCase = new DeleteClientUseCase(clientRepository);
+const changeClientStatusUseCase = new ChangeClientStatusUseCase(clientRepository);
+const createContactUseCase = new CreateContactUseCase(clientRepository);
+const updateContactUseCase = new UpdateContactUseCase(clientRepository);
+const deleteContactUseCase = new DeleteContactUseCase(clientRepository);
+const setMainContactUseCase = new SetMainContactUseCase(clientRepository);
 
 export const useClientDetailsStore = create<ClientDetailsState>((set) => ({
   client: null,
@@ -36,9 +54,9 @@ export const useClientDetailsStore = create<ClientDetailsState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const [client, projects, contacts] = await Promise.all([
-        clientService.getClientById(id),
-        clientService.getClientProjects(id),
-        clientService.getClientContacts(id),
+        getClientByIdUseCase.execute(id),
+        getClientProjectsUseCase.execute(id),
+        getClientContactsUseCase.execute(id),
       ]);
       set({ client, projects, contacts, isLoading: false });
     } catch (error: any) {
@@ -49,8 +67,8 @@ export const useClientDetailsStore = create<ClientDetailsState>((set) => ({
   updateClient: async (id: string, dto: UpdateClientDTO) => {
     set({ isLoading: true, error: null });
     try {
-      await clientService.updateClient(id, dto);
-      const client = await clientService.getClientById(id);
+      await updateClientUseCase.execute(id, dto);
+      const client = await getClientByIdUseCase.execute(id);
       set({ client, isLoading: false });
     } catch (error: any) {
       set({ error: error.message || "Error al actualizar el cliente", isLoading: false });
@@ -61,7 +79,7 @@ export const useClientDetailsStore = create<ClientDetailsState>((set) => ({
   deleteClient: async (id: string) => {
     set({ isLoading: true, error: null });
     try {
-      await clientService.deleteClient(id);
+      await deleteClientUseCase.execute(id);
       set({ isLoading: false });
     } catch (error: any) {
       set({ error: error.message || "Error al eliminar el cliente", isLoading: false });
@@ -72,8 +90,8 @@ export const useClientDetailsStore = create<ClientDetailsState>((set) => ({
   changeStatus: async (id: string) => {
     set({ isLoading: true, error: null });
     try {
-      await clientService.changeStatus(id);
-      const client = await clientService.getClientById(id);
+      await changeClientStatusUseCase.execute(id);
+      const client = await getClientByIdUseCase.execute(id);
       set({ client, isLoading: false });
     } catch (error: any) {
       set({ error: error.message || "Error al cambiar el estado del cliente", isLoading: false });
@@ -84,8 +102,8 @@ export const useClientDetailsStore = create<ClientDetailsState>((set) => ({
   createContact: async (clientId: string, contactId: string, contact: any) => {
     set({ isLoading: true, error: null });
     try {
-      await clientService.createContact(clientId, contactId, contact);
-      const contacts = await clientService.getClientContacts(clientId);
+      await createContactUseCase.execute(clientId, contactId, contact);
+      const contacts = await getClientContactsUseCase.execute(clientId);
       set({ contacts, isLoading: false });
     } catch (error: any) {
       set({ error: error.message || "Error al crear el contacto", isLoading: false });
@@ -96,8 +114,8 @@ export const useClientDetailsStore = create<ClientDetailsState>((set) => ({
   updateContact: async (clientId: string, contactId: string, contact: any) => {
     set({ isLoading: true, error: null });
     try {
-      await clientService.updateContact(clientId, contactId, contact);
-      const contacts = await clientService.getClientContacts(clientId);
+      await updateContactUseCase.execute(clientId, contactId, contact);
+      const contacts = await getClientContactsUseCase.execute(clientId);
       set({ contacts, isLoading: false });
     } catch (error: any) {
       set({ error: error.message || "Error al actualizar el contacto", isLoading: false });
@@ -108,8 +126,8 @@ export const useClientDetailsStore = create<ClientDetailsState>((set) => ({
   deleteContact: async (clientId: string, contactId: string) => {
     set({ isLoading: true, error: null });
     try {
-      await clientService.deleteContact(clientId, contactId);
-      const contacts = await clientService.getClientContacts(clientId);
+      await deleteContactUseCase.execute(clientId, contactId);
+      const contacts = await getClientContactsUseCase.execute(clientId);
       set({ contacts, isLoading: false });
     } catch (error: any) {
       set({ error: error.message || "Error al eliminar el contacto", isLoading: false });
@@ -120,8 +138,8 @@ export const useClientDetailsStore = create<ClientDetailsState>((set) => ({
   setMainContact: async (clientId: string, contactId: string) => {
     set({ isLoading: true, error: null });
     try {
-      await clientService.setMainContact(clientId, contactId);
-      const contacts = await clientService.getClientContacts(clientId);
+      await setMainContactUseCase.execute(clientId, contactId);
+      const contacts = await getClientContactsUseCase.execute(clientId);
       set({ contacts, isLoading: false });
     } catch (error: any) {
       set({ error: error.message || "Error al marcar el contacto como principal", isLoading: false });

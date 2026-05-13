@@ -1,11 +1,15 @@
 import { create } from "zustand";
-import { UserService } from "../../application/services/UserService";
+import { GetUserByIdUseCase } from "../../application/use-cases/user/GetUserByIdUseCase";
+import { GetUserProjectsUseCase } from "../../application/use-cases/user/GetUserProjectsUseCase";
+import { GetUserTimeEntriesUseCase } from "../../application/use-cases/user/GetUserTimeEntriesUseCase";
 import { ApiUserRepository } from "../adapters/ApiUserRepository";
 import type { User, TimeEntry } from "../../domain/entities/user.entity";
 import type { Project } from "../../domain/entities/project.entity";
 
 const userRepository = new ApiUserRepository();
-const userService = new UserService(userRepository);
+const getUserByIdUseCase = new GetUserByIdUseCase(userRepository);
+const getUserProjectsUseCase = new GetUserProjectsUseCase(userRepository);
+const getUserTimeEntriesUseCase = new GetUserTimeEntriesUseCase(userRepository);
 
 interface DashboardState {
   profile: User | null;
@@ -29,9 +33,9 @@ export const useDashboardStore = create<DashboardState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const [profile, projects, timeEntriesResponse] = await Promise.all([
-        userService.getUserProfile(userId),
-        userService.getUserProjects(userId),
-        userService.getUserTimeEntries(userId),
+        getUserByIdUseCase.execute(userId),
+        getUserProjectsUseCase.execute(userId),
+        getUserTimeEntriesUseCase.execute(userId),
       ]);
       set({ 
         profile, 

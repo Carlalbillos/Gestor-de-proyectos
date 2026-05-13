@@ -2,21 +2,63 @@ import { create } from "zustand";
 import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry, Technology } from "@/domain/entities/project.entity";
 import type { User } from "@/domain/entities/user.entity";
 import type { ClientContact } from "@/domain/entities/client.entity";
-import type { CreateDevelopmentDTO, UpdateDevelopmentDTO, UpdateProjectDTO } from "@/application/dto/project.dto";
-import type { UpdateTimeEntryDTO } from "@/application/dto/user.dto";
+import type { CreateDevelopmentDTO } from "@/application/dto/project/CreateDevelopment.dto";
+import type { UpdateDevelopmentDTO } from "@/application/dto/project/UpdateDevelopment.dto";
+import type { UpdateProjectDTO } from "@/application/dto/project/UpdateProject.dto";
+import type { UpdateTimeEntryDTO } from "@/application/dto/user/UpdateTimeEntry.dto";
 import { ApiProjectRepository } from "@/infrastructure/adapters/ApiProjectRepository";
-import { ProjectService } from "@/application/services/ProjectService";
 import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
-import { UserService } from "@/application/services/UserService";
 import { ApiClientRepository } from "@/infrastructure/adapters/ApiClientRepository";
-import { ClientService } from "@/application/services/ClientService";
 import { ApiTechnologyRepository } from "@/infrastructure/adapters/ApiTechnologyRepository";
-import { TechnologyService } from "@/application/services/TechnologyService";
 
-const projectService = new ProjectService(new ApiProjectRepository());
-const userService = new UserService(new ApiUserRepository());
-const clientService = new ClientService(new ApiClientRepository());
-const technologyService = new TechnologyService(new ApiTechnologyRepository());
+import { GetProjectByIdUseCase } from "@/application/use-cases/project/GetProjectByIdUseCase";
+import { GetProjectUsersUseCase } from "@/application/use-cases/project/GetProjectUsersUseCase";
+import { GetProjectDevelopmentsUseCase } from "@/application/use-cases/project/GetProjectDevelopmentsUseCase";
+import { GetProjectTimeEntriesUseCase } from "@/application/use-cases/project/GetProjectTimeEntriesUseCase";
+import { GetProjectRolesUseCase } from "@/application/use-cases/project/GetProjectRolesUseCase";
+import { AssignUserUseCase } from "@/application/use-cases/project/AssignUserUseCase";
+import { UpdateProjectUsersUseCase } from "@/application/use-cases/project/UpdateProjectUsersUseCase";
+import { RemoveUserUseCase } from "@/application/use-cases/project/RemoveUserUseCase";
+import { UpdateProjectTimeEntryUseCase } from "@/application/use-cases/project/UpdateProjectTimeEntryUseCase";
+import { DeleteProjectTimeEntryUseCase } from "@/application/use-cases/project/DeleteProjectTimeEntryUseCase";
+import { ChangeProjectStatusUseCase } from "@/application/use-cases/project/ChangeProjectStatusUseCase";
+import { UpdateProjectUseCase } from "@/application/use-cases/project/UpdateProjectUseCase";
+import { DeleteProjectUseCase } from "@/application/use-cases/project/DeleteProjectUseCase";
+import { CreateDevelopmentUseCase } from "@/application/use-cases/project/CreateDevelopmentUseCase";
+import { UpdateDevelopmentUseCase } from "@/application/use-cases/project/UpdateDevelopmentUseCase";
+import { DeleteDevelopmentUseCase } from "@/application/use-cases/project/DeleteDevelopmentUseCase";
+
+import { GetUsersUseCase } from "@/application/use-cases/user/GetUsersUseCase";
+import { GetClientContactsUseCase } from "@/application/use-cases/client/GetClientContactsUseCase";
+import { SetMainContactUseCase } from "@/application/use-cases/client/SetMainContactUseCase";
+import { GetTechnologiesUseCase } from "@/application/use-cases/technology/GetTechnologiesUseCase";
+
+const projectRepository = new ApiProjectRepository();
+const userRepository = new ApiUserRepository();
+const clientRepository = new ApiClientRepository();
+const technologyRepository = new ApiTechnologyRepository();
+
+const getProjectByIdUseCase = new GetProjectByIdUseCase(projectRepository);
+const getProjectUsersUseCase = new GetProjectUsersUseCase(projectRepository);
+const getProjectDevelopmentsUseCase = new GetProjectDevelopmentsUseCase(projectRepository);
+const getProjectTimeEntriesUseCase = new GetProjectTimeEntriesUseCase(projectRepository);
+const getProjectRolesUseCase = new GetProjectRolesUseCase(projectRepository);
+const assignUserUseCase = new AssignUserUseCase(projectRepository);
+const updateProjectUsersUseCase = new UpdateProjectUsersUseCase(projectRepository);
+const removeUserUseCase = new RemoveUserUseCase(projectRepository);
+const updateProjectTimeEntryUseCase = new UpdateProjectTimeEntryUseCase(projectRepository);
+const deleteProjectTimeEntryUseCase = new DeleteProjectTimeEntryUseCase(projectRepository);
+const changeProjectStatusUseCase = new ChangeProjectStatusUseCase(projectRepository);
+const updateProjectUseCase = new UpdateProjectUseCase(projectRepository);
+const deleteProjectUseCase = new DeleteProjectUseCase(projectRepository);
+const createDevelopmentUseCase = new CreateDevelopmentUseCase(projectRepository);
+const updateDevelopmentUseCase = new UpdateDevelopmentUseCase(projectRepository);
+const deleteDevelopmentUseCase = new DeleteDevelopmentUseCase(projectRepository);
+
+const getUsersUseCase = new GetUsersUseCase(userRepository);
+const getClientContactsUseCase = new GetClientContactsUseCase(clientRepository);
+const setMainContactUseCase = new SetMainContactUseCase(clientRepository);
+const getTechnologiesUseCase = new GetTechnologiesUseCase(technologyRepository);
 
 interface ProjectDetailsState {
   project: Project | null;
@@ -68,15 +110,15 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     set({ isLoading: true, error: null });
     try {
       const [project, users, developments, timeEntries] = await Promise.all([
-        projectService.getProjectById(id),
-        projectService.getProjectUsers(id),
-        projectService.getProjectDevelopments(id),
-        projectService.getProjectTimeEntries(id)
+        getProjectByIdUseCase.execute(id),
+        getProjectUsersUseCase.execute(id),
+        getProjectDevelopmentsUseCase.execute(id),
+        getProjectTimeEntriesUseCase.execute(id)
       ]);
 
       let clientContacts: ClientContact[] = [];
       if (project?.client?.id) {
-        clientContacts = await clientService.getClientContacts(project.client.id);
+        clientContacts = await getClientContactsUseCase.execute(project.client.id);
       }
 
       set({ project, users, developments, clientContacts, timeEntries, isLoading: false });
@@ -90,7 +132,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
 
   fetchProjectTimeEntries: async (id: string) => {
     try {
-      const timeEntries = await projectService.getProjectTimeEntries(id);
+      const timeEntries = await getProjectTimeEntriesUseCase.execute(id);
       set({ timeEntries });
     } catch (error: any) {
     }
@@ -99,7 +141,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   fetchRoles: async () => {
     if (get().roles.length > 0) return;
     try {
-      const roles = await projectService.getProjectRoles();
+      const roles = await getProjectRolesUseCase.execute();
       set({ roles });
     } catch (error: any) {
       console.error("Error fetching roles", error);
@@ -109,7 +151,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   fetchAllUsers: async () => {
     if (get().allUsers.length > 0) return;
     try {
-      const response = await userService.getUsers({ limit: 9999 });
+      const response = await getUsersUseCase.execute({ limit: 9999 });
       set({ allUsers: response.data });
     } catch (error: any) {
       console.error("Error fetching all users", error);
@@ -119,7 +161,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   fetchTechnologies: async () => {
     if (get().technologies.length > 0) return;
     try {
-      const technologies = await technologyService.getTechnologies();
+      const technologies = await getTechnologiesUseCase.execute();
       set({ technologies });
     } catch (error: any) {
       console.error("Error fetching technologies", error);
@@ -129,8 +171,8 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   assignUser: async (projectId: string, userId: string, roleId: string) => {
     set({ isSaving: true });
     try {
-      await projectService.assignUser(projectId, userId, roleId);
-      const users = await projectService.getProjectUsers(projectId);
+      await assignUserUseCase.execute(projectId, userId, roleId);
+      const users = await getProjectUsersUseCase.execute(projectId);
       set({ users, isSaving: false });
     } catch (error: any) {
       set({ isSaving: false });
@@ -147,8 +189,8 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     }));
 
     try {
-      await projectService.updateProjectUsers(projectId, updatedUsers);
-      const usersResponse = await projectService.getProjectUsers(projectId);
+      await updateProjectUsersUseCase.execute(projectId, updatedUsers);
+      const usersResponse = await getProjectUsersUseCase.execute(projectId);
       set({ users: usersResponse, isSaving: false });
     } catch (error: any) {
       set({ isSaving: false });
@@ -159,8 +201,8 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   removeUser: async (projectId: string, userId: string) => {
     set({ isSaving: true });
     try {
-      await projectService.removeUser(projectId, userId);
-      const usersResponse = await projectService.getProjectUsers(projectId);
+      await removeUserUseCase.execute(projectId, userId);
+      const usersResponse = await getProjectUsersUseCase.execute(projectId);
       set({ users: usersResponse, isSaving: false });
     } catch (error: any) {
       set({ isSaving: false });
@@ -171,7 +213,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   updateTimeEntry: async (projectId: string, entryId: string, data: UpdateTimeEntryDTO) => {
     set({ isSaving: true });
     try {
-      await projectService.updateProjectTimeEntry(projectId, entryId, data);
+      await updateProjectTimeEntryUseCase.execute(projectId, entryId, data);
       await get().fetchProjectTimeEntries(projectId);
     } catch (error: any) {
       throw error;
@@ -184,7 +226,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     set({ isSaving: true });
 
     try {
-      await projectService.deleteProjectTimeEntry(projectId, entryId);
+      await deleteProjectTimeEntryUseCase.execute(projectId, entryId);
       await get().fetchProjectTimeEntries(projectId);
     } catch (error) {
       throw error;
@@ -196,8 +238,8 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   changeStatus: async (id: string) => {
     set({ isLoading: true, error: null });
     try {
-      await projectService.changeStatus(id);
-      const project = await projectService.getProjectById(id);
+      await changeProjectStatusUseCase.execute(id);
+      const project = await getProjectByIdUseCase.execute(id);
       set({ project, isLoading: false });
     } catch (error: any) {
       set({
@@ -211,7 +253,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   updateProject: async (id: string, project: UpdateProjectDTO) => {
     set({ isSaving: true });
     try {
-      await projectService.updateProject(id, project);
+      await updateProjectUseCase.execute(id, project);
       await get().fetchProjectDetails(id);
     } catch (error: any) {
       throw error;
@@ -223,7 +265,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   deleteProject: async (id: string) => {
     set({ isSaving: true, error: null });
     try {
-      await projectService.deleteProject(id);
+      await deleteProjectUseCase.execute(id);
       set({ project: null, isSaving: false });
     } catch (error: any) {
       set({
@@ -237,8 +279,8 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   addDevelopment: async (projectId: string, development: CreateDevelopmentDTO) => {
     set({ isSaving: true });
     try {
-      await projectService.createDevelopment(projectId, development);
-      const developments = await projectService.getProjectDevelopments(projectId);
+      await createDevelopmentUseCase.execute(projectId, development);
+      const developments = await getProjectDevelopmentsUseCase.execute(projectId);
       set({ developments, isSaving: false });
     } catch (error: any) {
       set({ isSaving: false });
@@ -249,8 +291,8 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   updateDevelopment: async (projectId: string, development: UpdateDevelopmentDTO) => {
     set({ isSaving: true });
     try {
-      await projectService.updateDevelopment(projectId, development);
-      const developments = await projectService.getProjectDevelopments(projectId);
+      await updateDevelopmentUseCase.execute(projectId, development);
+      const developments = await getProjectDevelopmentsUseCase.execute(projectId);
       set({ developments, isSaving: false });
     } catch (error: any) {
       set({ isSaving: false });
@@ -261,8 +303,8 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   deleteDevelopment: async (projectId: string, developmentId: string) => {
     set({ isSaving: true });
     try {
-      await projectService.deleteDevelopment(projectId, developmentId);
-      const developments = await projectService.getProjectDevelopments(projectId);
+      await deleteDevelopmentUseCase.execute(projectId, developmentId);
+      const developments = await getProjectDevelopmentsUseCase.execute(projectId);
       set({ developments, isSaving: false });
     } catch (error: any) {
       set({ isSaving: false });
@@ -273,8 +315,8 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
   setMainContact: async (clientId: string, contactId: string) => {
     set({ isSaving: true, error: null });
     try {
-      await clientService.setMainContact(clientId, contactId);
-      const clientContacts = await clientService.getClientContacts(clientId);
+      await setMainContactUseCase.execute(clientId, contactId);
+      const clientContacts = await getClientContactsUseCase.execute(clientId);
       set({ clientContacts, isSaving: false });
     } catch (error: any) {
       set({

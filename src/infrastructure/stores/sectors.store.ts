@@ -1,11 +1,18 @@
 import { create } from "zustand";
-import { SectorService } from "../../application/services/SectorService";
+import { GetSectorsUseCase } from "../../application/use-cases/sector/GetSectorsUseCase";
+import { CreateSectorUseCase } from "../../application/use-cases/sector/CreateSectorUseCase";
+import { UpdateSectorUseCase } from "../../application/use-cases/sector/UpdateSectorUseCase";
+import { DeleteSectorUseCase } from "../../application/use-cases/sector/DeleteSectorUseCase";
 import { ApiSectorRepository } from "../adapters/ApiSectorRepository";
 import type { Sector } from "../../domain/entities/sector.entity";
-import type { CreateSectorDTO, UpdateSectorDTO } from "@/application/dto/sector.dto";
+import type { CreateSectorDTO } from "@/application/dto/sector/CreateSector.dto";
+import type { UpdateSectorDTO } from "@/application/dto/sector/UpdateSector.dto";
 
 const repository = new ApiSectorRepository();
-const service = new SectorService(repository);
+const getSectorsUseCase = new GetSectorsUseCase(repository);
+const createSectorUseCase = new CreateSectorUseCase(repository);
+const updateSectorUseCase = new UpdateSectorUseCase(repository);
+const deleteSectorUseCase = new DeleteSectorUseCase(repository);
 
 interface SectorsState {
   sectors: Sector[];
@@ -29,7 +36,7 @@ export const useSectorsStore = create<SectorsState>((set, get) => ({
 
     set({ isLoading: true, error: null });
     try {
-      const data = await service.getSectors();
+      const data = await getSectorsUseCase.execute();
       set({ sectors: data, isLoading: false });
     } catch (error: any) {
       set({ isLoading: false, error: error.message || "Error al cargar sectores" });
@@ -39,7 +46,7 @@ export const useSectorsStore = create<SectorsState>((set, get) => ({
   createSector: async (dto: CreateSectorDTO) => {
     set({ isLoading: true });
     try {
-      await service.createSector(dto);
+      await createSectorUseCase.execute(dto);
       // Recargamos la lista después de crear
       await get().fetchSectors(true);
     } catch (error: any) {
@@ -51,7 +58,7 @@ export const useSectorsStore = create<SectorsState>((set, get) => ({
   updateSector: async (id: string, dto: UpdateSectorDTO) => {
     set({ isLoading: true });
     try {
-      await service.updateSector(id, dto);
+      await updateSectorUseCase.execute(id, dto);
       // Actualizamos localmente para evitar parpadeos
       set((state) => ({
         sectors: state.sectors.map((s) => 
@@ -68,7 +75,7 @@ export const useSectorsStore = create<SectorsState>((set, get) => ({
   deleteSector: async (id: string) => {
     set({ isLoading: true });
     try {
-      await service.deleteSector(id);
+      await deleteSectorUseCase.execute(id);
       // Actualizamos localmente
       set((state) => ({
         sectors: state.sectors.filter((s) => s.id !== id),

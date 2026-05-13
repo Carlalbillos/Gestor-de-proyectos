@@ -1,23 +1,29 @@
 import { create } from "zustand";
-import { UserService } from "../../application/services/UserService";
+import { GetUsersUseCase } from "../../application/use-cases/user/GetUsersUseCase";
+import { CreateUserUseCase } from "../../application/use-cases/user/CreateUserUseCase";
 import { ApiUserRepository } from "../adapters/ApiUserRepository";
 import type { User } from "../../domain/entities/user.entity";
 import type { UserQueryParams } from "../../domain/ports/UserRepository";
 import { createBaseListSlice, handleListFetch } from "./factories/list-factory";
 import type { BaseListState } from "./factories/list-factory";
+import type { CreateUserDTO } from "@/application/dto/user/CreateUser.dto";
 
 const repository = new ApiUserRepository();
-const service = new UserService(repository);
+const getUsersUseCase = new GetUsersUseCase(repository);
+const createUserUseCase = new CreateUserUseCase(repository);
 
 interface UsersListState extends BaseListState<User> {
   filterRole: "all" | "admin" | "user";
+  isSaving: boolean;
   setFilterRole: (filterRole: "all" | "admin" | "user") => void;
   fetchUsers: () => Promise<void>;
+  addUser: (user: CreateUserDTO) => Promise<void>;
 }
 
 export const useUsersListStore = create<UsersListState>((set, get) => ({
   ...createBaseListSlice<User, UsersListState>(set, get, "fetchUsers"),
   filterRole: "all",
+  isSaving: false,
 
   setFilterRole: (filterRole) => {
     set({ filterRole, page: 1 });
@@ -50,7 +56,7 @@ export const useUsersListStore = create<UsersListState>((set, get) => ({
     await handleListFetch<User, UsersListState>(
       set,
       get,
-      () => service.getUsers(params),
+      () => getUsersUseCase.execute(params),
       (users, state) => {
         let filtered = users;
 
@@ -76,5 +82,15 @@ export const useUsersListStore = create<UsersListState>((set, get) => ({
         return filtered;
       }
     );
+  },
+
+  addUser: async (user: CreateUserDTO) => {
+    set({ isSaving: true });
+    try {
+      await createUserUseCase.execute(user);
+      await get().fetchUsers();
+    } finally {
+      set({ isSaving: false });
+    }
   },
 }));
