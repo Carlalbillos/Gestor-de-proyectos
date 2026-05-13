@@ -9,8 +9,8 @@ import { ChevronLeft } from "lucide-react";
 import { useClientsListStore } from "@/presentation/stores/clients-list.store";
 import { SectorSelect } from "@/presentation/components/sectors/SectorSelect";
 
-import { createClientSchema } from "@/presentation/schemas/createClientSchema";
-import type { CreateClientFormData } from "@/presentation/schemas/createClientSchema";
+import { createClientSchema } from "@/presentation/schemas/client/createClientSchema";
+import type { CreateClientFormData } from "@/presentation/schemas/client/createClientSchema";
 
 import { uuidv7 } from "@/presentation/ui/lib/uuid";
 import { isAxiosError } from "axios";

@@ -7,7 +7,7 @@ import { FormInput } from "../shared/FormInput";
 import { FormActions } from "../shared/form-actions";
 import { X, Lock, ShieldCheck } from "lucide-react";
 import { useState } from "react";
-import { adminChangePasswordSchema, type AdminChangePasswordFormData } from "@/presentation/schemas/changePasswordSchema";
+import { adminChangePasswordSchema, type AdminChangePasswordFormData } from "@/presentation/schemas/user/changePasswordSchema";
 
 interface AdminChangePasswordModalProps {
   userName: string;

@@ -15,8 +15,8 @@ import { FormInput } from "@/presentation/components/shared/FormInput";
 import { FormActions } from "@/presentation/components/shared/form-actions";
 import { ChevronLeft } from "lucide-react";
 import { useUsersListStore } from "@/presentation/stores/users-list.store";
-import { createUserSchema } from "@/presentation/schemas/createUserSchema";
-import type { CreateUserFormData } from "@/presentation/schemas/createUserSchema";
+import { createUserSchema } from "@/presentation/schemas/user/createUserSchema";
+import type { CreateUserFormData } from "@/presentation/schemas/user/createUserSchema";
 
 import { uuidv7 } from "@/presentation/ui/lib/uuid";
 

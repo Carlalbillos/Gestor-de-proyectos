@@ -3,8 +3,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useAuthStore } from "@/presentation/stores/auth.store";
-import { loginSchema } from "@/presentation/schemas/loginSchema";
-import type { LoginFormData } from "@/presentation/schemas/loginSchema";
+import { loginSchema } from "@/presentation/schemas/auth/loginSchema";
+import type { LoginFormData } from "@/presentation/schemas/auth/loginSchema";
 
 import { Button } from "@/presentation/components/ui/button";
 import {

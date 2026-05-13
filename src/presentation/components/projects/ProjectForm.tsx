@@ -8,8 +8,8 @@ import { FormInput } from "@/presentation/components/shared/FormInput";
 import { FormActions } from "@/presentation/components/shared/form-actions";
 import { Loader2, Briefcase, X } from "lucide-react";
 import { useClientsListStore } from "@/presentation/stores/clients-list.store";
-import { createProjectSchema } from "@/presentation/schemas/createProjectSchema";
-import type { CreateProjectFormData } from "@/presentation/schemas/createProjectSchema";
+import { createProjectSchema } from "@/presentation/schemas/project/createProjectSchema";
+import type { CreateProjectFormData } from "@/presentation/schemas/project/createProjectSchema";
 import type { Project } from "@/domain/entities/project.entity";
 
 interface ProjectFormProps {

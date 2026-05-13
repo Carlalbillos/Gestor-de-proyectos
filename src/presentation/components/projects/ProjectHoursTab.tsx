@@ -6,7 +6,7 @@ import { useUserDetailsStore } from "@/presentation/stores/user-details.store";
 import { useProjectDetailsStore } from "@/presentation/stores/project-details.store";
 import { uuidv7 } from "@/presentation/ui/lib/uuid";
 import * as z from "zod";
-import { createTimeEntrySchema, type CreateTimeEntryFormValues } from "@/presentation/schemas/createTimeEntrySchema";
+import { createTimeEntrySchema, type CreateTimeEntryFormValues } from "@/presentation/schemas/user/createTimeEntrySchema";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
 import { Card, CardContent } from "@/presentation/components/ui/card";

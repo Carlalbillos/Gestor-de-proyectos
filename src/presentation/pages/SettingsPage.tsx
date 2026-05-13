@@ -6,7 +6,7 @@ import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
 import { Label } from "@/presentation/components/ui/label";
 import { Loader2, Lock, ShieldCheck } from "lucide-react";
-import { userChangePasswordSchema, type UserChangePasswordFormData } from "@/presentation/schemas/changePasswordSchema";
+import { userChangePasswordSchema, type UserChangePasswordFormData } from "@/presentation/schemas/user/changePasswordSchema";
 import { useState } from "react";
 
 export const SettingsPage = () => {
