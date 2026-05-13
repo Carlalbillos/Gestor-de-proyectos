@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios";
-import { api } from "@/infrastructure/adapters/AxiosHttpClient";
+import { api } from "@/infrastructure/http/AxiosHttpClient";
 import { AuthMapper } from "../mappers/AuthMapper";
 
 import type {

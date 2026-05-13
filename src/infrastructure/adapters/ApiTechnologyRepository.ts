@@ -1,4 +1,4 @@
-import { api } from "./AxiosHttpClient";
+import { api } from "../http/AxiosHttpClient";
 import type { TechnologyRepository } from "../../domain/ports/TechnologyRepository";
 import type { Technology } from "../../domain/entities/technology.entity";
 import { TechnologyMapper } from "../mappers/TechnologyMapper";

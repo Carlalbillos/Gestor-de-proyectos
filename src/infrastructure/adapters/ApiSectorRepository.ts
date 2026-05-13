@@ -1,4 +1,4 @@
-import { api } from "./AxiosHttpClient";
+import { api } from "../http/AxiosHttpClient";
 import type { SectorRepository } from "../../domain/ports/SectorRepository";
 import type { Sector } from "../../domain/entities/sector.entity";
 import { SectorMapper } from "../mappers/SectorMapper";

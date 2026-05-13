@@ -1,4 +1,4 @@
-import { api } from "./AxiosHttpClient";
+import { api } from "../http/AxiosHttpClient";
 import type { UserRepository, UserQueryParams, PaginatedResult } from "../../domain/ports/UserRepository";
 import type { User, TimeEntriesResponse } from "../../domain/entities/user.entity";
 import type { CreateUserDTO } from "../../application/dto/user/CreateUser.dto";

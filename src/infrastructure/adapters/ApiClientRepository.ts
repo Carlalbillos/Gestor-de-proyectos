@@ -1,4 +1,4 @@
-import { api } from "./AxiosHttpClient";
+import { api } from "../http/AxiosHttpClient";
 import type { ClientRepository, Client, ClientContact, CreateClientDTO, UpdateClientDTO, Project, ClientQueryParams, PaginatedResult } from "../../domain/ports/ClientRepository";
 import { ClientMapper } from "../mappers/ClientMapper";
 import { ProjectMapper } from "../mappers/ProjectMapper";
