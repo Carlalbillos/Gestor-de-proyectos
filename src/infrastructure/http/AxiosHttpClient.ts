@@ -7,7 +7,7 @@ export const setAccessToken = (token: string | null): void => {
 };
 
 export const api = axios.create({
-  baseURL: "/api/",
+  baseURL: import.meta.env.VITE_API_URL,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -62,7 +62,7 @@ api.interceptors.response.use(
 
         const authRepository = new ApiAuthRepository();
         const refreshTokenUseCase = new RefreshTokenUseCase(authRepository);
-        
+
         const { accessToken: newToken, refreshToken: newRefreshToken } = await refreshTokenUseCase.execute(refreshToken);
 
         useAuthStore.getState().updateTokens(newToken, newRefreshToken || refreshToken);
@@ -89,6 +89,8 @@ api.interceptors.response.use(
 
     if (error.response?.data?.message) {
       error.message = error.response.data.message;
+    } else if (error.response?.data?.detail) {
+      error.message = error.response.data.detail;
     }
     error.status = error.response?.status;
 

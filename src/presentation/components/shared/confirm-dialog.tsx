@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -20,6 +20,7 @@ interface ConfirmDialogProps {
   cancelText?: string;
   variant?: "default" | "destructive";
   isLoading?: boolean;
+  errorMessage?: string;
 }
 
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
@@ -32,6 +33,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   cancelText = "Cancelar",
   variant = "destructive",
   isLoading = false,
+  errorMessage,
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -40,6 +42,12 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
+        {errorMessage && (
+          <div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
             {cancelText}

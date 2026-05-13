@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useUserDetailsStore } from "@/presentation/stores/user-details.store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/presentation/components/ui/card";
@@ -37,6 +37,8 @@ export const UserDetailsPage = () => {
     clearDetails
   } = useUserDetailsStore();
 
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
   const passwordModal = useDisclosure();
   const editing = useDisclosure();
   const toggleConfirm = useDisclosure();
@@ -73,12 +75,12 @@ export const UserDetailsPage = () => {
   };
 
   const handleDelete = async () => {
-    deleteConfirm.close();
+    setDeleteError(null);
     try {
       await deleteUser(user!.id);
-      navigate("/usuarios");
-    } catch (e) {
-      console.error(e);
+      navigate("/personal");
+    } catch (e: any) {
+      setDeleteError(e.message || "No se ha podido eliminar el usuario.");
     }
   };
 
@@ -119,7 +121,7 @@ export const UserDetailsPage = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
         <XCircle className="h-12 w-12 text-destructive/50" />
-        <h2 className="text-2xl font-bold">Usuario no encontrado</h2>
+        <h2 className="text-2xl font-bold">Error al eliminar el usuario</h2>
         <p className="text-muted-foreground">{error || "El usuario que buscas no existe o ha sido eliminado."}</p>
         <Button onClick={() => navigate("/usuarios")}>Volver al listado</Button>
       </div>
@@ -375,12 +377,13 @@ export const UserDetailsPage = () => {
 
       <ConfirmDialog
         isOpen={deleteConfirm.isOpen}
-        onClose={deleteConfirm.close}
+        onClose={() => { deleteConfirm.close(); setDeleteError(null); }}
         onConfirm={handleDelete}
         title="Eliminar Usuario"
         description={`¿Estás seguro de que deseas eliminar a ${user.name}? Esta acción no se puede deshacer.`}
         confirmText="Eliminar"
         isLoading={isLoading}
+        errorMessage={deleteError ?? undefined}
       />
     </div>
   );
