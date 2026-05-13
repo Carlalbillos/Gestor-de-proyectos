@@ -56,7 +56,7 @@ export class ApiAuthRepository implements AuthRepository {
   async refreshToken(token: string): Promise<{ accessToken: string; refreshToken: string }> {
     // Usamos axios directamente para evitar interceptores y posibles bucles infinitos
     const response = await axios.post("/api/token/refresh", { refresh_token: token });
-    
+
     if (!response.data.token) {
       throw new Error("No se recibió un nuevo token");
     }

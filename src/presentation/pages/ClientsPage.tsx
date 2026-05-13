@@ -10,7 +10,8 @@ import { PageHeader } from "@/presentation/components/shared/PageHeader";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
 import { Pagination } from "@/presentation/components/shared/pagination";
-import { Building2, UserPlus, Loader2, Search, Tags } from "lucide-react";
+import { Building2, UserPlus, Search, Tags } from "lucide-react";
+import { PageLoader } from "@/presentation/components/shared/page-loader";
 
 export const ClientsPage = () => {
   const navigate = useNavigate();
@@ -90,10 +91,7 @@ export const ClientsPage = () => {
       </Card>
 
       {isLoading && clients.length === 0 ? (
-        <div className="flex flex-col justify-center items-center py-24 space-y-4">
-          <Loader2 className="h-10 w-8 animate-spin text-primary/60" />
-          <p className="text-sm text-muted-foreground">Cargando clientes...</p>
-        </div>
+        <PageLoader message="Cargando clientes..." />
       ) : clients.length === 0 && !error ? (
         <EmptyState
           icon={Building2}

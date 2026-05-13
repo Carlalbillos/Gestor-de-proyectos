@@ -9,7 +9,8 @@ import { EmptyState } from "@/presentation/components/shared/EmptyState";
 import { PageHeader } from "@/presentation/components/shared/PageHeader";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
-import { Building2, Users, Search, FolderPlus, Loader2, Lock, Briefcase } from "lucide-react";
+import { Building2, Users, Search, FolderPlus, Lock, Briefcase } from "lucide-react";
+import { PageLoader } from "@/presentation/components/shared/page-loader";
 import { Pagination } from "@/presentation/components/shared/pagination";
 import { useDebounce } from "@/presentation/hooks/useDebounce";
 import { ProjectForm } from "@/presentation/components/projects/ProjectForm";
@@ -133,10 +134,7 @@ export const ProjectsPage = () => {
       </Card>
 
       {isLoading && projects.length === 0 ? (
-        <div className="flex flex-col justify-center items-center py-24 space-y-4">
-          <Loader2 className="h-10 w-8 animate-spin text-primary/60" />
-          <p className="text-sm text-muted-foreground">Cargando proyectos...</p>
-        </div>
+        <PageLoader message="Cargando proyectos..." />
       ) : projects.length === 0 && !error ? (
         <EmptyState
           icon={Briefcase}

@@ -1,20 +1,18 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useProjectDetailsStore } from "@/presentation/stores/project-details.store";
-import { Card, CardContent } from "@/presentation/components/ui/card";
-import { Button } from "@/presentation/components/ui/button";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/presentation/components/ui/tabs";
 import {
   Building2,
   Users,
-  ArrowLeft,
-  Loader2,
-  XCircle,
   Code2,
   Info,
   Clock,
   Briefcase
 } from "lucide-react";
+import { PageLoader } from "@/presentation/components/shared/page-loader";
+import { DetailError } from "@/presentation/components/shared/detail-error";
 
 import { useDisclosure } from "@/presentation/hooks/useDisclosure";
 import { DetailsHeader } from "@/presentation/components/shared/details-header";
@@ -81,27 +79,17 @@ export const ProjectDetailsPage = () => {
   };
 
   if (isLoading && !project) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-muted-foreground animate-pulse">Cargando detalles del proyecto...</p>
-      </div>
-    );
+    return <PageLoader variant="detail" message="Cargando detalles del proyecto..." />;
   }
 
   if (error) {
     return (
-      <Card className="border-destructive/20 bg-destructive/5 mt-8">
-        <CardContent className="flex flex-col items-center py-12 text-center">
-          <XCircle className="h-12 w-12 text-destructive mb-4" />
-          <h2 className="text-xl font-semibold text-destructive">Error al cargar el proyecto</h2>
-          <p className="text-muted-foreground mt-2 max-w-md">{error}</p>
-          <Button variant="outline" className="mt-6" onClick={() => navigate("/proyectos")}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver a Proyectos
-          </Button>
-        </CardContent>
-      </Card>
+      <DetailError
+        message={error}
+        title="Error al cargar el proyecto"
+        backLabel="Volver a Proyectos"
+        onBack={() => navigate("/proyectos")}
+      />
     );
   }
 

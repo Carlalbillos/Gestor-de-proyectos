@@ -10,7 +10,8 @@ import { EmptyState } from "@/presentation/components/shared/EmptyState";
 import { PageHeader } from "@/presentation/components/shared/PageHeader";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
-import { Users, UserPlus, Loader2, Search, Mail, Shield } from "lucide-react";
+import { Users, UserPlus, Search, Mail, Shield } from "lucide-react";
+import { PageLoader } from "@/presentation/components/shared/page-loader";
 import { isAdmin } from "@/domain/services/role.service";
 import { Pagination } from "@/presentation/components/shared/pagination";
 
@@ -100,10 +101,7 @@ export const UsersPage = () => {
       </Card>
 
       {isLoading && users.length === 0 ? (
-        <div className="flex flex-col justify-center items-center py-24 space-y-4">
-          <Loader2 className="h-10 w-8 animate-spin text-primary/60" />
-          <p className="text-sm text-muted-foreground">Cargando usuarios...</p>
-        </div>
+        <PageLoader message="Cargando usuarios..." />
       ) : users.length === 0 && !error ? (
         <EmptyState
           icon={Users}

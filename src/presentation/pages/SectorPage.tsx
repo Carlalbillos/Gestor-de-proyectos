@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/presenta
 import { Input } from "@/presentation/components/ui/input";
 import { Label } from "@/presentation/components/ui/label";
 import { Loader2, Save } from "lucide-react";
+import { PageLoader } from "@/presentation/components/shared/page-loader";
 import { useSectorsStore } from "@/presentation/stores/sectors.store";
 import { createSectorSchema } from "@/presentation/schemas/sector/createSectorSchema";
 import type { CreateSectorFormData } from "@/presentation/schemas/sector/createSectorSchema";
@@ -172,9 +173,7 @@ export const SectorPage = () => {
         {/* LIST OF SECTORS */}
         <div className="md:col-span-2 space-y-4">
           {isStoreLoading ? (
-            <div className="flex justify-center p-12">
-              <Loader2 className="h-10 w-10 animate-spin text-primary/40" />
-            </div>
+            <PageLoader className="py-12" />
           ) : sectors.length === 0 ? (
             <Card className="border-dashed border-2 bg-muted/20">
               <CardContent className="p-12 text-center text-muted-foreground italic">
