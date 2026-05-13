@@ -11,7 +11,6 @@ export interface User {
 
 export interface TimeEntry {
   id: string;
-  projectUserId: string;
   date: string;
   hour: number;
   comment: string;
