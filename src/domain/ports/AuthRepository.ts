@@ -1,17 +1,8 @@
-import type { User } from "@/domain/entities/user.entity";
-
-export interface AuthCredentials {
-  email: string;
-  password: string;
-}
-
-export interface AuthResponse {
-  user: User;
-  accessToken: string;
-  refreshToken: string;
-}
+import type { LoginRequestDTO } from "@/application/dto/auth/LoginRequest.dto";
+import type { LoginResponseDTO } from "@/application/dto/auth/LoginResponse.dto";
 
 export interface AuthRepository {
-  login(credentials: AuthCredentials): Promise<AuthResponse>;
+  login(credentials: LoginRequestDTO): Promise<LoginResponseDTO>;
   logout(refreshToken: string): Promise<void>;
+  refreshToken(token: string): Promise<{ accessToken: string; refreshToken: string }>;
 }

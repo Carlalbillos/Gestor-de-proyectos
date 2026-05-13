@@ -1,5 +1,6 @@
 import type { Client, ClientContact } from "../entities/client.entity";
-import type { CreateClientDTO, UpdateClientDTO } from "../../application/dto/client.dto";
+import type { CreateClientDTO } from "../../application/dto/client/CreateClient.dto";
+import type { UpdateClientDTO } from "../../application/dto/client/UpdateClient.dto";
 import type { Project } from "../entities/project.entity";
 
 export type { Client, ClientContact, CreateClientDTO, UpdateClientDTO, Project };

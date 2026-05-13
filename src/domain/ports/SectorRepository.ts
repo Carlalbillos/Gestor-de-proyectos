@@ -1,5 +1,6 @@
 import type { Sector } from "../entities/sector.entity";
-import type { CreateSectorDTO, UpdateSectorDTO } from "@/application/dto/sector.dto";
+import type { CreateSectorDTO } from "@/application/dto/sector/CreateSector.dto";
+import type { UpdateSectorDTO } from "@/application/dto/sector/UpdateSector.dto";
 
 
 export interface SectorRepository {

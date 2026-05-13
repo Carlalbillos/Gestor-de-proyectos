@@ -1,5 +1,9 @@
 import type { User, TimeEntriesResponse } from "../entities/user.entity";
-import type { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, AdminChangePasswordDTO, CreateTimeEntryDTO } from "../../application/dto/user.dto";
+import type { CreateUserDTO } from "../../application/dto/user/CreateUser.dto";
+import type { UpdateUserDTO } from "../../application/dto/user/UpdateUser.dto";
+import type { ChangePasswordDTO } from "../../application/dto/user/ChangePassword.dto";
+import type { AdminChangePasswordDTO } from "../../application/dto/user/AdminChangePassword.dto";
+import type { CreateTimeEntryDTO } from "../../application/dto/user/CreateTimeEntry.dto";
 import type { Project } from "../entities/project.entity";
 
 export interface UserQueryParams {

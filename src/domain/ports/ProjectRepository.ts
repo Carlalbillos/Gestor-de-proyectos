@@ -1,6 +1,9 @@
 import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry } from "../entities/project.entity";
-import type { CreateProjectDTO, UpdateProjectDTO, CreateDevelopmentDTO, UpdateDevelopmentDTO } from "../../application/dto/project.dto";
-import type { UpdateTimeEntryDTO } from "../../application/dto/user.dto";
+import type { CreateProjectDTO } from "../../application/dto/project/CreateProject.dto";
+import type { UpdateProjectDTO } from "../../application/dto/project/UpdateProject.dto";
+import type { CreateDevelopmentDTO } from "../../application/dto/project/CreateDevelopment.dto";
+import type { UpdateDevelopmentDTO } from "../../application/dto/project/UpdateDevelopment.dto";
+import type { UpdateTimeEntryDTO } from "../../application/dto/user/UpdateTimeEntry.dto";
 
 export interface ProjectQueryParams {
   page?: number;
