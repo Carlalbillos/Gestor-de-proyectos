@@ -1,8 +1,11 @@
 import { api } from "./AxiosHttpClient";
 import type { ProjectRepository, ProjectQueryParams, PaginatedResult, ProjectTimeEntryQueryParams } from "../../domain/ports/ProjectRepository";
 import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry } from "../../domain/entities/project.entity";
-import type { CreateProjectDTO, UpdateProjectDTO, CreateDevelopmentDTO, UpdateDevelopmentDTO } from "../../application/dto/project.dto";
-import type { UpdateTimeEntryDTO } from "../../application/dto/user.dto";
+import type { CreateProjectDTO } from "../../application/dto/project/CreateProject.dto";
+import type { UpdateProjectDTO } from "../../application/dto/project/UpdateProject.dto";
+import type { CreateDevelopmentDTO } from "../../application/dto/project/CreateDevelopment.dto";
+import type { UpdateDevelopmentDTO } from "../../application/dto/project/UpdateDevelopment.dto";
+import type { UpdateTimeEntryDTO } from "../../application/dto/user/UpdateTimeEntry.dto";
 import { ProjectMapper } from "../mappers/ProjectMapper";
 
 export class ApiProjectRepository implements ProjectRepository {
@@ -103,7 +106,7 @@ export class ApiProjectRepository implements ProjectRepository {
 
   async updateProjectUsers(projectId: string, users: { appUserId: string, roleId: string }[]): Promise<void> {
     await Promise.all(
-      users.map(user => 
+      users.map(user =>
         api.put(`projects/${projectId}/users`, {
           app_user_id: user.appUserId,
           project_role_id: user.roleId,
@@ -115,7 +118,7 @@ export class ApiProjectRepository implements ProjectRepository {
   async removeUser(projectId: string, userId: string): Promise<void> {
     await api.delete(`projects/${projectId}/users/${userId}`);
   }
-  
+
   async updateProjectTimeEntry(projectId: string, entryId: string, data: UpdateTimeEntryDTO): Promise<void> {
     await api.put(`projects/${projectId}/time-entries/${entryId}`, data);
   }

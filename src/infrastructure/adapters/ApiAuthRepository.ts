@@ -1,12 +1,12 @@
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import { api } from "@/infrastructure/adapters/AxiosHttpClient";
 import { AuthMapper } from "../mappers/AuthMapper";
 
 import type {
   AuthRepository,
-  AuthCredentials,
-  AuthResponse,
 } from "@/domain/ports/AuthRepository";
+import type { LoginRequestDTO } from "@/application/dto/auth/LoginRequest.dto";
+import type { LoginResponseDTO } from "@/application/dto/auth/LoginResponse.dto";
 
 import { InvalidCredentialsError } from "@/domain/exceptions/InvalidCredentialsError";
 
@@ -19,7 +19,7 @@ interface LoginApiResponse {
 }
 
 export class ApiAuthRepository implements AuthRepository {
-  async login(credentials: AuthCredentials): Promise<AuthResponse> {
+  async login(credentials: LoginRequestDTO): Promise<LoginResponseDTO> {
     try {
       const response = await api.post<LoginApiResponse>("login", {
         email: credentials.email,
@@ -51,5 +51,19 @@ export class ApiAuthRepository implements AuthRepository {
     } catch (error) {
       console.error("Error during logout", error);
     }
+  }
+
+  async refreshToken(token: string): Promise<{ accessToken: string; refreshToken: string }> {
+    // Usamos axios directamente para evitar interceptores y posibles bucles infinitos
+    const response = await axios.post("/api/token/refresh", { refresh_token: token });
+    
+    if (!response.data.token) {
+      throw new Error("No se recibió un nuevo token");
+    }
+
+    return {
+      accessToken: response.data.token,
+      refreshToken: response.data.refresh_token || token,
+    };
   }
 }

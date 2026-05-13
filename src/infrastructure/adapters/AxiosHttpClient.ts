@@ -51,20 +51,19 @@ api.interceptors.response.use(
 
       try {
         const { useAuthStore } = await import("@/infrastructure/stores/auth.store");
+        const { RefreshTokenUseCase } = await import("@/application/use-cases/auth/RefreshTokenUseCase");
+        const { ApiAuthRepository } = await import("@/infrastructure/adapters/ApiAuthRepository");
+
         const refreshToken = useAuthStore.getState().refreshToken;
 
         if (!refreshToken) {
           throw new Error("No refresh token available");
         }
-        // Llamada directa con axios para evitar interceptores y bucles
-        const response = await axios.post("/api/token/refresh", { refresh_token: refreshToken });
 
-        const newToken = response.data.token;
-        const newRefreshToken = response.data.refresh_token;
-
-        if (!newToken) {
-          throw new Error("No new token received");
-        }
+        const authRepository = new ApiAuthRepository();
+        const refreshTokenUseCase = new RefreshTokenUseCase(authRepository);
+        
+        const { accessToken: newToken, refreshToken: newRefreshToken } = await refreshTokenUseCase.execute(refreshToken);
 
         useAuthStore.getState().updateTokens(newToken, newRefreshToken || refreshToken);
         onTokenRefreshed(newToken);
