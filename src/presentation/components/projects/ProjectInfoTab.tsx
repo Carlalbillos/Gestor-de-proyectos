@@ -6,6 +6,8 @@ import { Info, Building2, Calendar } from "lucide-react";
 import { EditButton } from "@/presentation/components/shared/edit-button";
 import { ProjectForm } from "./ProjectForm";
 import { useProjectDetailsStore } from "@/presentation/stores/project-details.store";
+import { isAdmin } from "@/domain/services/role.service";
+import { useAuthStore } from "@/presentation/stores/auth.store";
 
 interface ProjectInfoTabProps {
   project: Project;
@@ -13,6 +15,7 @@ interface ProjectInfoTabProps {
 
 export const ProjectInfoTab = ({ project }: ProjectInfoTabProps) => {
   const [isEditing, setIsEditing] = useState(false);
+  const user = useAuthStore((state) => state.user);
   const { updateProject, isSaving } = useProjectDetailsStore();
 
   const handleSubmit = async (data: any) => {
@@ -41,7 +44,10 @@ export const ProjectInfoTab = ({ project }: ProjectInfoTabProps) => {
   return (
     <Card className="overflow-hidden border-muted/60 shadow-sm relative group">
       <div className="absolute top-4 right-4 z-10">
-        <EditButton onClick={() => setIsEditing(true)} label="Editar Información" />
+        {isAdmin(user) && (
+          <EditButton onClick={() => setIsEditing(true)} label="" />
+        )}
+
       </div>
       <CardContent className="pt-6 space-y-6">
         <DetailItem

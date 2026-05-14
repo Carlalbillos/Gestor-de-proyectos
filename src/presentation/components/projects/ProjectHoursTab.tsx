@@ -13,6 +13,7 @@ import { Card, CardContent } from "@/presentation/components/ui/card";
 import { TimeEntriesTable } from "@/presentation/components/shared/TimeEntriesTable";
 import { ConfirmDialog } from "@/presentation/components/shared/confirm-dialog";
 import { Loader2, CheckCircle2, Clock, X } from "lucide-react";
+import { isAdmin } from "@/domain/services/role.service";
 
 interface ProjectHoursTabProps {
     projectId: string;
@@ -21,7 +22,10 @@ interface ProjectHoursTabProps {
 export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
     const { user } = useAuthStore();
     const { addTimeEntry, isLoading: isSavingUserDetail } = useUserDetailsStore();
-    const { timeEntries, fetchProjectTimeEntries, updateTimeEntry, deleteTimeEntry, isSaving: isSavingProjectStore } = useProjectDetailsStore();
+    const { timeEntries, users: projectUsers, fetchProjectTimeEntries, updateTimeEntry, deleteTimeEntry, isSaving: isSavingProjectStore } = useProjectDetailsStore();
+
+    // Resolve the current user's display name from the project team list
+    const currentMember = projectUsers.find(pu => pu.appUserId === user?.id);
 
     const isLoading = isSavingUserDetail || isSavingProjectStore;
 
@@ -211,6 +215,9 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
                 onSave={(entryId, data) => updateTimeEntry(projectId, entryId, data)}
                 onDelete={setEntryToDelete}
                 isSaving={isLoading}
+                canEditEntry={(entry) =>
+                    isAdmin(user) || (!!currentMember && entry.name === currentMember.name && entry.surname === currentMember.surname)
+                }
             />
 
             <ConfirmDialog

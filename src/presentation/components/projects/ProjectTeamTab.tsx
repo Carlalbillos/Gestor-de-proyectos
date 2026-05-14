@@ -10,6 +10,8 @@ import { Label } from "../ui/label";
 import { ConfirmDialog } from "../shared/confirm-dialog";
 import { EditButton } from "../shared/edit-button";
 import { DeleteButton } from "../shared/delete-button";
+import { isAdmin } from "@/domain/services/role.service";
+import { useAuthStore } from "@/presentation/stores/auth.store";
 
 interface ProjectTeamTabProps {
   users: ProjectUser[];
@@ -89,6 +91,7 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
       setActionLoading(null);
     }
   };
+  const user = useAuthStore((state) => state.user);
 
   return (
     <div className="grid gap-4">
@@ -96,10 +99,12 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
         <div className="text-sm text-muted-foreground">
           {usersCount} {usersCount === 1 ? "miembro" : "miembros"} asignados
         </div>
-        <Button size="sm" className="gap-2" onClick={() => setIsManaging(true)}>
-          <UserPlus className="h-4 w-4" />
-          Asignar Miembro
-        </Button>
+        {isAdmin(user) && (
+          <Button size="sm" className="gap-2" onClick={() => setIsManaging(true)}>
+            <UserPlus className="h-4 w-4" />
+            Asignar Miembro
+          </Button>
+        )}
       </div>
 
       {tabError && (
@@ -129,7 +134,7 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
         isLoading={!!actionLoading}
       />
 
-      {(isManaging || editingUser) && (
+      {isAdmin(user) && (isManaging || editingUser) && (
         <Card className="border-primary/50 bg-primary/5 shadow-lg animate-in fade-in slide-in-from-top-4 duration-300">
           <CardContent className="p-4 space-y-4">
             <div className="flex items-center justify-between">
@@ -200,40 +205,42 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
       {usersCount > 0 ? (
         <Card className="border-muted/60 shadow-sm bg-card/30">
           <CardContent className="p-4 grid gap-4">
-            {users.map(user => (
-              <Card key={user.appUserId} className="border-muted/50 hover:border-primary/30">
+            {users.map(member => (
+              <Card key={member.appUserId} className="border-muted/50 hover:border-primary/30">
                 <CardContent className="p-3 flex items-center gap-4">
                   <div
                     aria-hidden
                     className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
                   >
-                    {`${user.name?.[0] ?? ""}${user.surname?.[0] ?? ""}`}
+                    {`${member.name?.[0] ?? ""}${member.surname?.[0] ?? ""}`}
                   </div>
                   <div className="flex-1 overflow-hidden">
                     <p className="font-bold truncate text-base">
-                      {user.name} {user.surname}
+                      {member.name} {member.surname}
                     </p>
                     <div className="flex items-center gap-2 mt-0.5">
                       <Badge variant="outline" className="text-[10px] uppercase font-bold py-0 h-5 bg-background/80">
-                        {user.role?.name || "Colaborador"}
+                        {member.role?.name || "Colaborador"}
                       </Badge>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1">
-                    <EditButton
-                      label=""
-                      onClick={() => {
-                        setEditingUser(user);
-                        setSelectedRoleId(user.role?.id || "");
-                      }}
-                    />
-                    <DeleteButton
-                      label=""
-                      onClick={() => setShowDeleteConfirm(user.appUserId)}
-                      isLoading={actionLoading === user.appUserId}
-                    />
-                  </div>
+                  {isAdmin(user) && (
+                    <div className="flex items-center gap-1">
+                      <EditButton
+                        label=""
+                        onClick={() => {
+                          setEditingUser(member);
+                          setSelectedRoleId(member.role?.id || "");
+                        }}
+                      />
+                      <DeleteButton
+                        label=""
+                        onClick={() => setShowDeleteConfirm(member.appUserId)}
+                        isLoading={actionLoading === member.appUserId}
+                      />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}

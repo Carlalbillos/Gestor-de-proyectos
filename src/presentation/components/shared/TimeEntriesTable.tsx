@@ -14,9 +14,10 @@ interface TimeEntriesTableProps {
     onDelete?: (entry: any) => void;
     onSave?: (entryId: string, data: { date: string, hour: number, comment: string }) => Promise<void>;
     isSaving?: boolean;
+    canEditEntry?: (entry: any) => boolean;
 }
 
-export const TimeEntriesTable = ({ entries, mode, onEdit, onDelete, onSave, isSaving }: TimeEntriesTableProps) => {
+export const TimeEntriesTable = ({ entries, mode, onEdit, onDelete, onSave, isSaving, canEditEntry }: TimeEntriesTableProps) => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editForm, setEditForm] = useState<{ date: string, hour: string, comment: string }>({
         date: "",
@@ -29,8 +30,8 @@ export const TimeEntriesTable = ({ entries, mode, onEdit, onDelete, onSave, isSa
             <Card className="border-dashed bg-muted/20">
                 <CardContent className="p-8 text-center">
                     <p className="text-muted-foreground italic">
-                        {mode === "project" 
-                            ? "No hay imputaciones de horas registradas en este proyecto todavía." 
+                        {mode === "project"
+                            ? "No hay imputaciones de horas registradas en este proyecto todavía."
                             : "No tienes imputaciones de horas recientes."}
                     </p>
                 </CardContent>
@@ -91,18 +92,18 @@ export const TimeEntriesTable = ({ entries, mode, onEdit, onDelete, onSave, isSa
                                 <tr key={entry.id} className={`${isEditing ? "bg-primary/5" : "hover:bg-muted/20"} transition-colors`}>
                                     <td className="px-4 py-2 whitespace-nowrap">
                                         {isEditing ? (
-                                            <Input 
-                                                type="date" 
+                                            <Input
+                                                type="date"
                                                 size={1}
-                                                className="h-8 text-xs" 
+                                                className="h-8 text-xs"
                                                 value={editForm.date}
-                                                onChange={(e) => setEditForm({...editForm, date: e.target.value})}
+                                                onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
                                             />
                                         ) : (
                                             entry.date
                                         )}
                                     </td>
-                                    
+
                                     {mode === "project" ? (
                                         <td className="px-4 py-2 font-medium">
                                             <div className="flex items-center gap-2">
@@ -123,12 +124,12 @@ export const TimeEntriesTable = ({ entries, mode, onEdit, onDelete, onSave, isSa
 
                                     <td className="px-4 py-2">
                                         {isEditing ? (
-                                            <Input 
-                                                type="number" 
+                                            <Input
+                                                type="number"
                                                 step="0.5"
-                                                className="h-8 text-xs" 
+                                                className="h-8 text-xs"
                                                 value={editForm.hour}
-                                                onChange={(e) => setEditForm({...editForm, hour: e.target.value})}
+                                                onChange={(e) => setEditForm({ ...editForm, hour: e.target.value })}
                                             />
                                         ) : (
                                             <Badge variant="secondary" className="font-bold text-xs px-2 py-0">
@@ -138,11 +139,11 @@ export const TimeEntriesTable = ({ entries, mode, onEdit, onDelete, onSave, isSa
                                     </td>
                                     <td className="px-4 py-2 text-muted-foreground">
                                         {isEditing ? (
-                                            <Input 
-                                                className="h-8 text-xs" 
+                                            <Input
+                                                className="h-8 text-xs"
                                                 placeholder="Comentario..."
                                                 value={editForm.comment}
-                                                onChange={(e) => setEditForm({...editForm, comment: e.target.value})}
+                                                onChange={(e) => setEditForm({ ...editForm, comment: e.target.value })}
                                             />
                                         ) : (
                                             <div className="max-w-[300px] truncate" title={entry.comment || ""}>
@@ -175,17 +176,17 @@ export const TimeEntriesTable = ({ entries, mode, onEdit, onDelete, onSave, isSa
                                                 </>
                                             ) : (
                                                 <>
-                                                    {(onEdit || onSave) && (
+                                                    {(onEdit || onSave) && (!canEditEntry || canEditEntry(entry)) && (
                                                         <EditButton
                                                             label=""
                                                             onClick={() => startEditing(entry)}
                                                         />
                                                     )}
-                                                    {onDelete && (
-                                                    <DeleteButton
-                                                        label=""
-                                                        onClick={() => onDelete(entry)}
-                                                    />
+                                                    {onDelete && (!canEditEntry || canEditEntry(entry)) && (
+                                                        <DeleteButton
+                                                            label=""
+                                                            onClick={() => onDelete(entry)}
+                                                        />
                                                     )}
                                                 </>
                                             )}

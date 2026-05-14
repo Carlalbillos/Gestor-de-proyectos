@@ -2,6 +2,8 @@ import React from "react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { ArrowLeft, Power, Trash2, Loader2 } from "lucide-react";
+import { useAuthStore } from "@/presentation/stores/auth.store";
+import { isAdmin } from "@/domain/services/role.service";
 
 interface DetailsHeaderProps {
   title: string;
@@ -14,7 +16,6 @@ interface DetailsHeaderProps {
   isToggling?: boolean;
   showActions?: boolean;
 }
-
 export const DetailsHeader: React.FC<DetailsHeaderProps> = ({
   title,
   subTitle,
@@ -26,6 +27,8 @@ export const DetailsHeader: React.FC<DetailsHeaderProps> = ({
   isToggling = false,
   showActions = true,
 }) => {
+  const user = useAuthStore((state) => state.user);
+
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
       <div className="space-y-2 w-full">
@@ -57,7 +60,7 @@ export const DetailsHeader: React.FC<DetailsHeaderProps> = ({
               </div>
             </div>
           </div>
-          {showActions && (
+          {(showActions && isAdmin(user)) && (
             <div className="flex items-center gap-2">
               {onToggleStatus && (
                 <Button

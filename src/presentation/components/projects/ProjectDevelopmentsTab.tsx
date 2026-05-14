@@ -13,6 +13,9 @@ import { EditButton } from "../shared/edit-button";
 import { DeleteButton } from "../shared/delete-button";
 import { uuidv7 } from "@/presentation/ui/lib/uuid";
 
+import { useAuthStore } from "@/presentation/stores/auth.store";
+import { isAdmin } from "@/domain/services/role.service";
+
 interface ProjectDevelopmentsTabProps {
   developments: ProjectDevelopment[];
 }
@@ -26,6 +29,7 @@ export const ProjectDevelopmentsTab = ({ developments }: ProjectDevelopmentsTabP
     updateDevelopment,
     deleteDevelopment
   } = useProjectDetailsStore();
+  const user = useAuthStore((state) => state.user);
 
   const formModal = useDisclosure();
   const deleteConfirm = useDisclosure();
@@ -87,10 +91,12 @@ export const ProjectDevelopmentsTab = ({ developments }: ProjectDevelopmentsTabP
           <Code2 className="h-5 w-5 text-primary" />
           Desarrollos del Proyecto
         </h3>
-        <Button onClick={handleAdd} size="sm" className="gap-2">
-          <Plus className="h-4 w-4" />
-          Añadir Desarrollo
-        </Button>
+        {isAdmin(user) && (
+          <Button onClick={handleAdd} size="sm" className="gap-2">
+            <Plus className="h-4 w-4" />
+            Añadir Desarrollo
+          </Button>
+        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -109,10 +115,12 @@ export const ProjectDevelopmentsTab = ({ developments }: ProjectDevelopmentsTabP
                         {dev.technology.name}
                       </Badge>
                     )}
-                    <div className="flex items-center gap-1">
-                      <EditButton onClick={() => handleEdit(dev)} label="" />
-                      <DeleteButton onClick={() => handleDeleteClick(dev)} label="" />
-                    </div>
+                    {isAdmin(user) && (
+                      <div className="flex items-center gap-1">
+                        <EditButton onClick={() => handleEdit(dev)} label="" />
+                        <DeleteButton onClick={() => handleDeleteClick(dev)} label="" />
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardHeader>
@@ -142,9 +150,11 @@ export const ProjectDevelopmentsTab = ({ developments }: ProjectDevelopmentsTabP
           <div className="col-span-full py-12 flex flex-col items-center justify-center border-2 border-dashed border-muted rounded-xl bg-muted/10">
             <Code2 className="h-10 w-10 text-muted-foreground/40 mb-3" />
             <p className="text-muted-foreground text-sm">No hay desarrollos registrados.</p>
-            <Button variant="link" onClick={handleAdd} className="mt-1">
-              Registrar el primero
-            </Button>
+            {isAdmin(user) && (
+              <Button variant="link" onClick={handleAdd} className="mt-1">
+                Registrar el primero
+              </Button>
+            )}
           </div>
         )}
       </div>

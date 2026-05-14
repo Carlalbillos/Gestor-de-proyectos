@@ -57,6 +57,7 @@ export class ProjectMapper {
   static toTimeEntryDomain(raw: any): ProjectTimeEntry {
     return {
       id: raw.id,
+      appUserId: raw.app_user_id,
       name: raw.name,
       surname: raw.surname,
       date: raw.date,
