@@ -70,20 +70,18 @@ export class ApiClientRepository implements ClientRepository {
     await api.post(`clients/${clientId}/contacts`, {
       id: contactId,
       full_name: contact.fullName,
-      phone_number: contact.phoneNumber,
+      phone_number: contact.phoneNumber || null,
       email: contact.email,
-      is_main: contact.isMain,
-      note: contact.note,
+      note: contact.note || null,
     });
   }
 
   async updateContact(clientId: string, contactId: string, contact: any): Promise<void> {
     await api.put(`clients/${clientId}/contacts/${contactId}`, {
       full_name: contact.fullName,
-      phone_number: contact.phoneNumber,
+      phone_number: contact.phoneNumber || null,
       email: contact.email,
-      is_main: contact.isMain,
-      note: contact.note,
+      note: contact.note || null,
     });
   }
 

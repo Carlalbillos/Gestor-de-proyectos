@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useProjectDetailsStore } from "@/presentation/stores/project-details.store";
+import { useAuthStore } from "@/presentation/stores/auth.store";
+import { isAdmin } from "@/domain/services/role.service";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/presentation/components/ui/tabs";
 import {
@@ -43,6 +45,7 @@ export const ProjectDetailsPage = () => {
     deleteProject,
     clearDetails 
   } = useProjectDetailsStore();
+  const { user } = useAuthStore();
 
   const toggleConfirm = useDisclosure();
   const deleteConfirm = useDisclosure();
@@ -50,12 +53,15 @@ export const ProjectDetailsPage = () => {
   useEffect(() => {
     if (id) {
       fetchProjectDetails(id);
-      fetchRoles();
-      fetchAllUsers();
-      fetchTechnologies();
+      
+      if (isAdmin(user)) {
+        fetchRoles();
+        fetchAllUsers();
+        fetchTechnologies();
+      }
     }
     return () => clearDetails();
-  }, [id, fetchProjectDetails, fetchRoles, fetchAllUsers, fetchTechnologies, clearDetails]);
+  }, [id, user, fetchProjectDetails, fetchRoles, fetchAllUsers, fetchTechnologies, clearDetails]);
 
   const handleToggleStatus = async () => {
     if (!id) return;

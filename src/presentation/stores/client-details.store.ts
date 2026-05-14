@@ -103,6 +103,9 @@ export const useClientDetailsStore = create<ClientDetailsState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       await createContactUseCase.execute(clientId, contactId, contact);
+      if (contact.isMain) {
+        await setMainContactUseCase.execute(clientId, contactId);
+      }
       const contacts = await getClientContactsUseCase.execute(clientId);
       set({ contacts, isLoading: false });
     } catch (error: any) {
@@ -115,6 +118,9 @@ export const useClientDetailsStore = create<ClientDetailsState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       await updateContactUseCase.execute(clientId, contactId, contact);
+      if (contact.isMain) {
+        await setMainContactUseCase.execute(clientId, contactId);
+      }
       const contacts = await getClientContactsUseCase.execute(clientId);
       set({ contacts, isLoading: false });
     } catch (error: any) {

@@ -16,17 +16,17 @@ import { createContactSchema } from "@/presentation/schemas/client/createContact
 import type { CreateContactFormData } from "@/presentation/schemas/client/createContactSchema";
 import { updateContactSchema } from "@/presentation/schemas/client/updateContactSchema";
 import type { UpdateContactFormData } from "@/presentation/schemas/client/updateContactSchema";
-import { 
-  Loader2, 
-  Building2, 
-  Briefcase, 
-  Users, 
-  Mail, 
-  Phone, 
-  Star, 
-  StickyNote, 
-  Save, 
-  X, 
+import {
+  Loader2,
+  Building2,
+  Briefcase,
+  Users,
+  Mail,
+  Phone,
+  Star,
+  StickyNote,
+  Save,
+  X,
   UserPlus,
   Info
 } from "lucide-react";
@@ -89,6 +89,7 @@ export const ClientsDetailsPage = () => {
     register: registerContact,
     handleSubmit: handleSubmitContact,
     reset: resetContact,
+    setError: setErrorContact,
     formState: { errors: contactErrors },
   } = useForm<CreateContactFormData>({
     resolver: zodResolver(createContactSchema),
@@ -102,6 +103,7 @@ export const ClientsDetailsPage = () => {
     handleSubmit: handleSubmitEditContact,
     reset: resetEditContact,
     setValue: setEditContactValue,
+    setError: setErrorEditContact,
     formState: { errors: editContactErrors },
   } = useForm<UpdateContactFormData>({
     resolver: zodResolver(updateContactSchema),
@@ -171,7 +173,10 @@ export const ClientsDetailsPage = () => {
       addingContact.close();
       resetContact();
     } catch (e: any) {
-      console.error("Error creating contact", e);
+      setErrorContact("email", {
+        type: "server",
+        message: e.message || "Error al crear el contacto.",
+      });
     } finally {
       setIsSavingContact(false);
     }
@@ -194,7 +199,10 @@ export const ClientsDetailsPage = () => {
       setEditingContactId(null);
       resetEditContact();
     } catch (e: any) {
-      console.error("Error updating contact", e);
+      setErrorEditContact("email", {
+        type: "server",
+        message: e.message || "Error al actualizar el contacto.",
+      });
     } finally {
       setIsUpdatingContact(false);
     }
@@ -251,16 +259,16 @@ export const ClientsDetailsPage = () => {
       <Tabs defaultValue="info" className="w-full">
         <TabsList className="grid w-full grid-cols-3 h-12 mb-8">
           <TabsTrigger value="info" className="flex gap-2">
-            <Info className="h-4 w-4" /> 
+            <Info className="h-4 w-4" />
             <span className="hidden sm:inline">Información</span>
           </TabsTrigger>
           <TabsTrigger value="projects" className="flex gap-2">
-            <Briefcase className="h-4 w-4" /> 
+            <Briefcase className="h-4 w-4" />
             <span className="hidden sm:inline">Proyectos</span>
           </TabsTrigger>
           <TabsTrigger value="contacts" className="flex gap-2">
-            <Users className="h-4 w-4" /> 
-            <span className="hidden sm:inline">Directorio</span>
+            <Users className="h-4 w-4" />
+            <span className="hidden sm:inline">Contactos</span>
           </TabsTrigger>
         </TabsList>
 
@@ -386,8 +394,6 @@ export const ClientsDetailsPage = () => {
         <TabsContent value="contacts" className="mt-0 focus-visible:ring-0 space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              <h2 className="text-xl font-bold tracking-tight">Directorio de Contactos</h2>
             </div>
             {!addingContact.isOpen && (
               <Button size="sm" onClick={addingContact.open}>
@@ -417,6 +423,16 @@ export const ClientsDetailsPage = () => {
                       <Input id="contact-email" type="email" {...registerContact("email")} />
                       {contactErrors.email && <p className="text-xs text-destructive">{contactErrors.email.message}</p>}
                     </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="contact-phoneNumber">Teléfono</Label>
+                      <Input id="contact-phoneNumber" placeholder="+34 000 000 000" {...registerContact("phoneNumber")} />
+                      {contactErrors.phoneNumber && <p className="text-xs text-destructive">{contactErrors.phoneNumber.message}</p>}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="contact-note">Nota / Observaciones</Label>
+                    <Input id="contact-note" placeholder="Información adicional del contacto..." {...registerContact("note")} />
+                    {contactErrors.note && <p className="text-xs text-destructive">{contactErrors.note.message}</p>}
                   </div>
                   <div className="flex justify-end gap-2 pt-2">
                     <Button type="button" variant="ghost" size="sm" onClick={addingContact.close}>Cancelar</Button>
@@ -440,11 +456,33 @@ export const ClientsDetailsPage = () => {
                           <div className="space-y-2">
                             <Label htmlFor="edit-contact-fullName">Nombre Completo</Label>
                             <Input id="edit-contact-fullName" {...registerEditContact("fullName")} />
+                            {editContactErrors.fullName && <p className="text-xs text-destructive">{editContactErrors.fullName.message}</p>}
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="edit-contact-email">Email</Label>
                             <Input id="edit-contact-email" type="email" {...registerEditContact("email")} />
+                            {editContactErrors.email && <p className="text-xs text-destructive">{editContactErrors.email.message}</p>}
                           </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-contact-phoneNumber">Teléfono</Label>
+                            <Input id="edit-contact-phoneNumber" {...registerEditContact("phoneNumber")} />
+                            {editContactErrors.phoneNumber && <p className="text-xs text-destructive">{editContactErrors.phoneNumber.message}</p>}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-contact-note">Nota / Observaciones</Label>
+                          <Input id="edit-contact-note" {...registerEditContact("note")} />
+                        </div>
+                        <div className="flex items-center space-x-2 py-2">
+                          <input
+                            type="checkbox"
+                            id="edit-contact-isMain"
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                            {...registerEditContact("isMain")}
+                          />
+                          <Label htmlFor="edit-contact-isMain" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            Contacto principal
+                          </Label>
                         </div>
                         <div className="flex justify-end gap-2 pt-2">
                           <Button type="button" variant="ghost" size="sm" onClick={() => setEditingContactId(null)}>Cancelar</Button>
