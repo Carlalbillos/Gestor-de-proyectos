@@ -9,7 +9,7 @@ import { EmptyState } from "@/presentation/components/shared/EmptyState";
 import { PageHeader } from "@/presentation/components/shared/PageHeader";
 import { Button } from "@/presentation/components/ui/button";
 import { Input } from "@/presentation/components/ui/input";
-import { Building2, Users, Search, FolderPlus, Lock, Briefcase } from "lucide-react";
+import { Building2, Users, Search, FolderPlus, Lock, Briefcase, Cpu } from "lucide-react";
 import { PageLoader } from "@/presentation/components/shared/page-loader";
 import { Pagination } from "@/presentation/components/shared/pagination";
 import { useDebounce } from "@/presentation/hooks/useDebounce";
@@ -74,6 +74,12 @@ export const ProjectsPage = () => {
         title="Proyectos" 
         description="Gestiona los proyectos de tu organización y su equipo"
       >
+        {canCreateProject && (
+          <Button variant="outline" className="flex-1 sm:flex-none shadow-sm" onClick={() => navigate("/proyectos/tecnologias")}>
+            <Cpu className="mr-2 h-4 w-4" />
+            Administrar tecnologías
+          </Button>
+        )}
         {canCreateProject ? (
           <Button 
             className="flex-1 sm:flex-none shadow-sm" 

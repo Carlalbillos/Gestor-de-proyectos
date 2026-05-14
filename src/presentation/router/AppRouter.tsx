@@ -10,6 +10,7 @@ import { ClientsPage } from "@/presentation/pages/ClientsPage";
 import { CreateClientPage } from "@/presentation/pages/CreateClientPage";
 import { ClientsDetailsPage } from "@/presentation/pages/ClientsDetailsPage";
 import { SectorPage } from "@/presentation/pages/SectorPage";
+import { TechnologiesPage } from "@/presentation/pages/TechnologiesPage";
 
 import { AuthGuard } from "@/presentation/guards/AuthGuard";
 import { AdminGuard } from "@/presentation/guards/AdminGuard";
@@ -82,6 +83,10 @@ const router = createBrowserRouter([
               {
                 path: "clientes/sectores",
                 element: <SectorPage />,
+              },
+              {
+                path: "proyectos/tecnologias",
+                element: <TechnologiesPage />,
               },
             ],
           },
