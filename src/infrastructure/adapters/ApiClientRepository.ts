@@ -72,6 +72,7 @@ export class ApiClientRepository implements ClientRepository {
       full_name: contact.fullName,
       phone_number: contact.phoneNumber || null,
       email: contact.email,
+      is_main: false,
       note: contact.note || null,
     });
   }
