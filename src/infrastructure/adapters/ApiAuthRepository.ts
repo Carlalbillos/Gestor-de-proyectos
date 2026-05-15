@@ -56,7 +56,7 @@ export class ApiAuthRepository implements AuthRepository {
   async refreshToken(token: string): Promise<{ accessToken: string; refreshToken: string }> {
     // Usamos axios directamente para evitar interceptores y posibles bucles infinitos
     const baseURL = import.meta.env.VITE_API_URL;
-    const response = await axios.post(`${baseURL}token/refresh`, { refresh_token: token }, {
+    const response = await axios.post(`${baseURL}refresh`, { refresh_token: token }, {
       headers: { "Content-Type": "application/json" },
     });
 
