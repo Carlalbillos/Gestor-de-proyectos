@@ -128,7 +128,7 @@ export class ApiProjectRepository implements ProjectRepository {
   }
 
   async changeStatus(id: string): Promise<void> {
-    await api.patch(`projects/${id}/change-status`);
+    await api.patch(`projects/${id}`);
   }
 
   async deleteProject(id: string): Promise<void> {
