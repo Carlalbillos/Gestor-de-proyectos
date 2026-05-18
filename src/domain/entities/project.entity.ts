@@ -48,6 +48,7 @@ export interface Project {
 
 export interface ProjectTimeEntry {
   id: string;
+  appUserId?: string;
   name: string;
   surname: string;
   date: string;

@@ -29,14 +29,13 @@ export class UserMapper {
   static toTimeEntryDomain(raw: any): TimeEntry {
     return {
       id: raw.id,
-      projectUserId: raw.project_user_id,
       date: raw.date,
       hour: Number(raw.hour),
-      comment: raw.comment,
+      comment: raw.comment || "",
       project: raw.project ? {
         id: raw.project.id,
         name: raw.project.name,
-      } : { id: '', name: '' },
+      } : { id: "", name: "" },
     };
   }
 }

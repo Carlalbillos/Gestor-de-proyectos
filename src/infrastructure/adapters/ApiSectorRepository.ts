@@ -1,9 +1,10 @@
-import { api } from "./AxiosHttpClient";
+import { api } from "../http/AxiosHttpClient";
 import type { SectorRepository } from "../../domain/ports/SectorRepository";
 import type { Sector } from "../../domain/entities/sector.entity";
 import { SectorMapper } from "../mappers/SectorMapper";
 
-import type { CreateSectorDTO, UpdateSectorDTO } from "@/application/dto/sector.dto";
+import type { CreateSectorDTO } from "@/application/dto/sector/CreateSector.dto";
+import type { UpdateSectorDTO } from "@/application/dto/sector/UpdateSector.dto";
 
 
 export class ApiSectorRepository implements SectorRepository {

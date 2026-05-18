@@ -1,4 +1,4 @@
-import { api } from "./AxiosHttpClient";
+import { api } from "../http/AxiosHttpClient";
 import type { ClientRepository, Client, ClientContact, CreateClientDTO, UpdateClientDTO, Project, ClientQueryParams, PaginatedResult } from "../../domain/ports/ClientRepository";
 import { ClientMapper } from "../mappers/ClientMapper";
 import { ProjectMapper } from "../mappers/ProjectMapper";
@@ -70,21 +70,25 @@ export class ApiClientRepository implements ClientRepository {
     await api.post(`clients/${clientId}/contacts`, {
       id: contactId,
       full_name: contact.fullName,
-      phone_number: contact.phoneNumber,
+      phone_number: contact.phoneNumber || null,
       email: contact.email,
-      is_main: contact.isMain,
-      note: contact.note,
+      is_main: false,
+      note: contact.note || null,
     });
   }
 
   async updateContact(clientId: string, contactId: string, contact: any): Promise<void> {
     await api.put(`clients/${clientId}/contacts/${contactId}`, {
       full_name: contact.fullName,
-      phone_number: contact.phoneNumber,
+      phone_number: contact.phoneNumber || null,
       email: contact.email,
       is_main: contact.isMain,
-      note: contact.note,
+      note: contact.note || null,
     });
+  }
+
+  async setMainContact(clientId: string, contactId: string): Promise<void> {
+    await api.patch(`clients/${clientId}/contacts/${contactId}`);
   }
 
   async deleteContact(clientId: string, contactId: string): Promise<void> {

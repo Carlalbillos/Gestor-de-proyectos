@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
@@ -10,11 +11,14 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  test: {
+    environment: "jsdom",
+    globals: true,
+  },
   css: {
     preprocessorOptions: {
       scss: {},
     },
-
   },
   server: {
     host: true,
@@ -27,12 +31,11 @@ export default defineConfig({
       clientPort: 5173,
     },
     proxy: {
-      '/api': {
-        target: 'http://host.docker.internal:8000',
+      "/api": {
+        target: "http://host.docker.internal:8000",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/480project'),
+        rewrite: (path) => path.replace(/^\/api/, "/480project"),
       },
     },
-  }
-
-});
+  },
+} as any);

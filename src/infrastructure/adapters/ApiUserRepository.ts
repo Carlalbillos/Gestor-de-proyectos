@@ -1,7 +1,11 @@
-import { api } from "./AxiosHttpClient";
+import { api } from "../http/AxiosHttpClient";
 import type { UserRepository, UserQueryParams, PaginatedResult } from "../../domain/ports/UserRepository";
 import type { User, TimeEntriesResponse } from "../../domain/entities/user.entity";
-import type { CreateUserDTO, UpdateUserDTO, ChangePasswordDTO, AdminChangePasswordDTO, CreateTimeEntryDTO } from "../../application/dto/user.dto";
+import type { CreateUserDTO } from "../../application/dto/user/CreateUser.dto";
+import type { UpdateUserDTO } from "../../application/dto/user/UpdateUser.dto";
+import type { ChangePasswordDTO } from "../../application/dto/user/ChangePassword.dto";
+import type { AdminChangePasswordDTO } from "../../application/dto/user/AdminChangePassword.dto";
+import type { CreateTimeEntryDTO } from "../../application/dto/user/CreateTimeEntry.dto";
 import type { Project } from "../../domain/entities/project.entity";
 import { UserMapper } from "../mappers/UserMapper";
 import { ProjectMapper } from "../mappers/ProjectMapper";
@@ -68,8 +72,18 @@ export class ApiUserRepository implements UserRepository {
 
   async getUserTimeEntries(id: string): Promise<TimeEntriesResponse> {
     const response = await api.get<any>(`users/${id}/time-entries`);
+    
+    // Si la respuesta es directamente un array
+    if (Array.isArray(response.data)) {
+      return {
+        totalHours: response.data.reduce((acc: number, curr: any) => acc + Number(curr.hour || 0), 0),
+        data: response.data.map(UserMapper.toTimeEntryDomain),
+      };
+    }
+
+    // Si viene envuelto en un objeto (total_hours, data)
     return {
-      totalHours: response.data.total_hours,
+      totalHours: response.data.total_hours || 0,
       data: (response.data.data || []).map(UserMapper.toTimeEntryDomain),
     };
   }

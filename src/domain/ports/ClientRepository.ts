@@ -1,5 +1,6 @@
 import type { Client, ClientContact } from "../entities/client.entity";
-import type { CreateClientDTO, UpdateClientDTO } from "../../application/dto/client.dto";
+import type { CreateClientDTO } from "../../application/dto/client/CreateClient.dto";
+import type { UpdateClientDTO } from "../../application/dto/client/UpdateClient.dto";
 import type { Project } from "../entities/project.entity";
 
 export type { Client, ClientContact, CreateClientDTO, UpdateClientDTO, Project };
@@ -27,5 +28,6 @@ export interface ClientRepository {
   getClientContacts(clientId: string): Promise<ClientContact[]>;
   createContact(clientId: string, contactId: string, contact: any): Promise<void>;
   updateContact(clientId: string, contactId: string, contact: any): Promise<void>;
+  setMainContact(clientId: string, contactId: string): Promise<void>;
   deleteContact(clientId: string, contactId: string): Promise<void>;
 }
