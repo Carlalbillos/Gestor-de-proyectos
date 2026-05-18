@@ -8,6 +8,7 @@ interface JwtPayload {
   surname?: string;
   is_active?: boolean;
   email?: string;
+  username?: string;
   role?: string;
 }
 
@@ -31,14 +32,17 @@ export class AuthMapper {
       throw new Error("El token JWT no contiene el rol del usuario");
     }
 
+    // Resolvemos el email de forma agnóstica a ambos backends
+    const resolvedEmail = decoded.email ?? decoded.username ?? emailFallback;
+
     return {
       user: {
         id: decoded.id,
-        email: new Email(decoded.email ?? emailFallback),
+        email: new Email(resolvedEmail),
         name: decoded.name ?? "",
         surname: decoded.surname ?? "",
         role: decoded.role,
-        isActive: decoded.is_active ?? false,
+        isActive: decoded.is_active ?? true, // Si se ha logueado con éxito, asumimos true por defecto
       },
       accessToken: token,
       refreshToken,
