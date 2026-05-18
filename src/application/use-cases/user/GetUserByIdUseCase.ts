@@ -1,4 +1,5 @@
-import type { UserRepository, User } from "../../../domain/ports/UserRepository";
+import type { UserRepository } from "../../../domain/ports/UserRepository";
+import type { User } from "../../../domain/entities/user.entity";
 
 export class GetUserByIdUseCase {
   private userRepository: UserRepository;

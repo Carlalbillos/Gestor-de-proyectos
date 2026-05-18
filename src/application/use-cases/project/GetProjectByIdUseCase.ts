@@ -1,4 +1,5 @@
-import type { ProjectRepository, Project } from "../../../domain/ports/ProjectRepository";
+import type { ProjectRepository } from "../../../domain/ports/ProjectRepository";
+import type { Project } from "../../../domain/entities/project.entity";
 
 export class GetProjectByIdUseCase {
   private projectRepository: ProjectRepository;

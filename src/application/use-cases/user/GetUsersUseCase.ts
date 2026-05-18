@@ -1,4 +1,5 @@
-import type { UserRepository, UserQueryParams, PaginatedResult, User } from "../../../domain/ports/UserRepository";
+import type { UserRepository, UserQueryParams, PaginatedResult } from "../../../domain/ports/UserRepository";
+import type { User } from "../../../domain/entities/user.entity";
 
 export class GetUsersUseCase {
   private userRepository: UserRepository;
