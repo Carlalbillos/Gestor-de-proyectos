@@ -1,4 +1,5 @@
-import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider, redirect } from "react-router-dom";
+import { useAuthStore } from "@/presentation/stores/auth.store";
 
 import { DashboardLayout } from "@/presentation/components/layout/DashboardLayout";
 
@@ -21,9 +22,42 @@ import { UserDetailsPage } from "@/presentation/pages/UserDetailsPage";
 import { SettingsPage } from "@/presentation/pages/SettingsPage";
 
 
+const authLoader = async () => {
+  const store = useAuthStore.getState();
+  
+  if (!store._hasHydrated) {
+    await useAuthStore.persist.rehydrate();
+  }
+  
+  await store.initializeAuth();
+  
+  if (!useAuthStore.getState().isAuthenticated) {
+    return redirect("/login");
+  }
+  
+  return null;
+};
+
+const unauthLoader = async () => {
+  const store = useAuthStore.getState();
+  
+  if (!store._hasHydrated) {
+    await useAuthStore.persist.rehydrate();
+  }
+  
+  await store.initializeAuth();
+  
+  if (useAuthStore.getState().isAuthenticated) {
+    return redirect("/");
+  }
+  
+  return null;
+};
+
 const router = createBrowserRouter([
   {
     element: <UnauthGuard />,
+    loader: unauthLoader,
     children: [
       {
         path: "/login",
@@ -33,6 +67,7 @@ const router = createBrowserRouter([
   },
   {
     element: <AuthGuard />,
+    loader: authLoader,
     children: [
       {
         element: <DashboardLayout />,
