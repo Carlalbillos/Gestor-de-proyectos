@@ -22,7 +22,7 @@ interface ProjectTeamTabProps {
 
 export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTeamTabProps) => {
   const usersCount = users.length;
-  const { removeUser, updateUserRole, assignUser } = useProjectDetailsStore();
+  const { changeUserStatus, updateUserRole, assignUser } = useProjectDetailsStore();
   const [isManaging, setIsManaging] = useState(false);
   const [editingUser, setEditingUser] = useState<ProjectUser | null>(null);
   const [selectedUserId, setSelectedUserId] = useState("");
@@ -74,17 +74,17 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
     }
   };
 
-  const handleDelete = async (userId: string) => {
+  const handleStatusChange = async (userId: string, isActive: boolean) => {
     setActionLoading(userId);
     setTabError(null);
     try {
-      await removeUser(projectId, userId);
+      await changeUserStatus(projectId, userId, isActive);
       setShowDeleteConfirm(null);
     } catch (e: any) {
-      if (e.status === 409) {
-        setTabError("No se puede eliminar al usuario porque tiene horas imputadas en este proyecto.");
+      if (!isActive && e.status === 409) {
+        setTabError("No se puede desvincular al usuario porque tiene horas imputadas en este proyecto.");
       } else {
-        setTabError("Error al eliminar usuario");
+        setTabError(`Error al ${isActive ? "activar" : "desactivar"} usuario`);
       }
       setShowDeleteConfirm(null);
     } finally {
@@ -127,10 +127,10 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
           setShowDeleteConfirm(null);
           setTabError(null);
         }}
-        onConfirm={() => handleDelete(showDeleteConfirm!)}
-        title="Eliminar miembro del proyecto"
-        description={tabError || "¿Estás seguro de que deseas desvincular a este usuario del proyecto?"}
-        confirmText="Eliminar"
+        onConfirm={() => handleStatusChange(showDeleteConfirm!, false)}
+        title="Desactivar miembro del proyecto"
+        description={tabError || "¿Estás seguro de que deseas desactivar a este usuario en el proyecto?"}
+        confirmText="Desvincular"
         isLoading={!!actionLoading}
       />
 
@@ -206,17 +206,22 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
         <Card className="border-muted/60 shadow-sm bg-card/30">
           <CardContent className="p-4 grid gap-4">
             {users.map(member => (
-              <Card key={member.appUserId} className="border-muted/50 hover:border-primary/30">
+              <Card key={member.appUserId} className={`border-muted/50 hover:border-primary/30 ${member.isActive === false ? "opacity-70 bg-muted/20" : ""}`}>
                 <CardContent className="p-3 flex items-center gap-4">
                   <div
                     aria-hidden
-                    className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+                    className={`h-12 w-12 rounded-full flex items-center justify-center font-bold text-lg shrink-0 transition-colors ${member.isActive === false ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground"}`}
                   >
                     {`${member.name?.[0] ?? ""}${member.surname?.[0] ?? ""}`}
                   </div>
                   <div className="flex-1 overflow-hidden">
-                    <p className="font-bold truncate text-base">
+                    <p className="font-bold truncate text-base flex items-center gap-2">
                       {member.name} {member.surname}
+                      {member.isActive === false && (
+                        <Badge variant="secondary" className="text-[10px] uppercase h-4 px-1.5 py-0 bg-muted-foreground/20 text-muted-foreground">
+                          Inactivo
+                        </Badge>
+                      )}
                     </p>
                     <div className="flex items-center gap-2 mt-0.5">
                       <Badge variant="outline" className="text-[10px] uppercase font-bold py-0 h-5 bg-background/80">
@@ -234,11 +239,28 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
                           setSelectedRoleId(member.role?.id || "");
                         }}
                       />
-                      <DeleteButton
-                        label=""
-                        onClick={() => setShowDeleteConfirm(member.appUserId)}
-                        isLoading={actionLoading === member.appUserId}
-                      />
+                      {member.isActive === false ? (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-100 dark:hover:bg-green-900/30"
+                          title="Activar usuario en el proyecto"
+                          onClick={() => handleStatusChange(member.appUserId, true)}
+                          disabled={actionLoading === member.appUserId}
+                        >
+                          {actionLoading === member.appUserId ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Check className="h-4 w-4" />
+                          )}
+                        </Button>
+                      ) : (
+                        <DeleteButton
+                          label=""
+                          onClick={() => setShowDeleteConfirm(member.appUserId)}
+                          isLoading={actionLoading === member.appUserId}
+                        />
+                      )}
                     </div>
                   )}
                 </CardContent>

@@ -38,7 +38,7 @@ import { GetProjectRolesUseCase } from "@/application/use-cases/project/GetProje
 import { GetProjectTimeEntriesUseCase } from "@/application/use-cases/project/GetProjectTimeEntriesUseCase";
 import { GetProjectUsersUseCase } from "@/application/use-cases/project/GetProjectUsersUseCase";
 import { GetProjectsUseCase } from "@/application/use-cases/project/GetProjectsUseCase";
-import { RemoveUserUseCase } from "@/application/use-cases/project/RemoveUserUseCase";
+import { ChangeUserStatusUseCase } from "@/application/use-cases/project/ChangeUserStatusUseCase";
 import { UpdateDevelopmentUseCase } from "@/application/use-cases/project/UpdateDevelopmentUseCase";
 import { UpdateProjectTimeEntryUseCase } from "@/application/use-cases/project/UpdateProjectTimeEntryUseCase";
 import { UpdateProjectUseCase } from "@/application/use-cases/project/UpdateProjectUseCase";
@@ -112,7 +112,7 @@ export const container = {
   getProjectTimeEntriesUseCase: new GetProjectTimeEntriesUseCase(projectRepository),
   getProjectUsersUseCase: new GetProjectUsersUseCase(projectRepository),
   getProjectsUseCase: new GetProjectsUseCase(projectRepository),
-  removeUserUseCase: new RemoveUserUseCase(projectRepository),
+  changeUserStatusUseCase: new ChangeUserStatusUseCase(projectRepository),
   updateDevelopmentUseCase: new UpdateDevelopmentUseCase(projectRepository),
   updateProjectTimeEntryUseCase: new UpdateProjectTimeEntryUseCase(projectRepository),
   updateProjectUseCase: new UpdateProjectUseCase(projectRepository),

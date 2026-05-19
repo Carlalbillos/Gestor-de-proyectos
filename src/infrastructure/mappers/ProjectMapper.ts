@@ -26,6 +26,7 @@ export class ProjectMapper {
         id: raw.role.id,
         name: raw.role.name,
       } : null,
+      isActive: raw.is_user_active !== undefined ? Boolean(raw.is_user_active) : true,
     };
   }
 

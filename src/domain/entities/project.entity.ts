@@ -13,6 +13,7 @@ export interface ProjectUser {
   name: string;
   surname: string;
   role: ProjectRole | null;
+  isActive?: boolean;
 }
 
 export interface Technology {

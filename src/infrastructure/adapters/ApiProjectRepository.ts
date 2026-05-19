@@ -115,8 +115,8 @@ export class ApiProjectRepository implements ProjectRepository {
     );
   }
 
-  async removeUser(projectId: string, userId: string): Promise<void> {
-    await api.delete(`projects/${projectId}/users/${userId}`);
+  async changeUserStatus(projectId: string, userId: string, isActive: boolean): Promise<void> {
+    await api.patch(`projects/${projectId}/users/${userId}`, { is_active: isActive });
   }
 
   async updateProjectTimeEntry(projectId: string, entryId: string, data: UpdateTimeEntryDTO): Promise<void> {
@@ -146,8 +146,7 @@ export class ApiProjectRepository implements ProjectRepository {
   }
 
   async updateDevelopment(projectId: string, development: UpdateDevelopmentDTO): Promise<void> {
-    await api.put(`projects/${projectId}/developments`, {
-      id: development.id,
+    await api.put(`projects/${projectId}/developments/${development.id}`, {
       name: development.name,
       description: development.description,
       technology_id: development.technologyId,

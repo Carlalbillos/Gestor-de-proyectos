@@ -41,7 +41,7 @@ export interface ProjectRepository {
   getProjectTimeEntries(id: string, params?: ProjectTimeEntryQueryParams): Promise<ProjectTimeEntry[]>;
   assignUser(projectId: string, userId: string, roleId: string): Promise<void>;
   updateProjectUsers(projectId: string, users: { appUserId: string, roleId: string }[]): Promise<void>;
-  removeUser(projectId: string, userId: string): Promise<void>;
+  changeUserStatus(projectId: string, userId: string, isActive: boolean): Promise<void>;
 
   updateProject(id: string, project: UpdateProjectDTO): Promise<void>;
   createProject(project: CreateProjectDTO): Promise<void>;

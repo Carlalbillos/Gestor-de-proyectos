@@ -18,7 +18,7 @@ import { GetProjectTimeEntriesUseCase } from "@/application/use-cases/project/Ge
 import { GetProjectRolesUseCase } from "@/application/use-cases/project/GetProjectRolesUseCase";
 import { AssignUserUseCase } from "@/application/use-cases/project/AssignUserUseCase";
 import { UpdateProjectUsersUseCase } from "@/application/use-cases/project/UpdateProjectUsersUseCase";
-import { RemoveUserUseCase } from "@/application/use-cases/project/RemoveUserUseCase";
+import { ChangeUserStatusUseCase } from "@/application/use-cases/project/ChangeUserStatusUseCase";
 import { UpdateProjectTimeEntryUseCase } from "@/application/use-cases/project/UpdateProjectTimeEntryUseCase";
 import { DeleteProjectTimeEntryUseCase } from "@/application/use-cases/project/DeleteProjectTimeEntryUseCase";
 import { ChangeProjectStatusUseCase } from "@/application/use-cases/project/ChangeProjectStatusUseCase";
@@ -45,7 +45,7 @@ const getProjectTimeEntriesUseCase = new GetProjectTimeEntriesUseCase(projectRep
 const getProjectRolesUseCase = new GetProjectRolesUseCase(projectRepository);
 const assignUserUseCase = new AssignUserUseCase(projectRepository);
 const updateProjectUsersUseCase = new UpdateProjectUsersUseCase(projectRepository);
-const removeUserUseCase = new RemoveUserUseCase(projectRepository);
+const changeUserStatusUseCase = new ChangeUserStatusUseCase(projectRepository);
 const updateProjectTimeEntryUseCase = new UpdateProjectTimeEntryUseCase(projectRepository);
 const deleteProjectTimeEntryUseCase = new DeleteProjectTimeEntryUseCase(projectRepository);
 const changeProjectStatusUseCase = new ChangeProjectStatusUseCase(projectRepository);
@@ -80,7 +80,7 @@ interface ProjectDetailsState {
   fetchTechnologies: () => Promise<void>;
   assignUser: (projectId: string, userId: string, roleId: string) => Promise<void>;
   updateUserRole: (projectId: string, userId: string, roleId: string) => Promise<void>;
-  removeUser: (projectId: string, userId: string) => Promise<void>;
+  changeUserStatus: (projectId: string, userId: string, isActive: boolean) => Promise<void>;
   updateTimeEntry: (projectId: string, entryId: string, data: UpdateTimeEntryDTO) => Promise<void>;
   deleteTimeEntry: (projectId: string, entryId: string) => Promise<void>;
   changeStatus: (id: string) => Promise<void>;
@@ -198,10 +198,10 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     }
   },
 
-  removeUser: async (projectId: string, userId: string) => {
+  changeUserStatus: async (projectId: string, userId: string, isActive: boolean) => {
     set({ isSaving: true });
     try {
-      await removeUserUseCase.execute(projectId, userId);
+      await changeUserStatusUseCase.execute(projectId, userId, isActive);
       const usersResponse = await getProjectUsersUseCase.execute(projectId);
       set({ users: usersResponse, isSaving: false });
     } catch (error: any) {

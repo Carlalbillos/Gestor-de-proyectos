@@ -72,7 +72,7 @@ export class ApiUserRepository implements UserRepository {
 
   async getUserTimeEntries(id: string): Promise<TimeEntriesResponse> {
     const response = await api.get<any>(`users/${id}/time-entries`);
-    
+
     // Si la respuesta es directamente un array
     if (Array.isArray(response.data)) {
       return {
