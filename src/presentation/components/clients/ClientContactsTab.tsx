@@ -88,7 +88,7 @@ export const ClientContactsTab = ({
   const handleStartEditContact = (contact: ClientContact) => {
     setEditingContactId(contact.id);
     setEditContactValue("fullName", contact.fullName);
-    setEditContactValue("email", contact.email.getValue());
+    setEditContactValue("email", contact.email ? contact.email.getValue() : "");
     setEditContactValue("phoneNumber", contact.phoneNumber || "");
     setEditContactValue("isMain", contact.isMain);
     setEditContactValue("note", contact.note || "");
@@ -223,7 +223,7 @@ export const ClientContactsTab = ({
                       {contact.isMain && <Badge className="bg-amber-500/10 text-amber-700"><Star className="mr-1 h-3 w-3" /> Principal</Badge>}
                     </div>
                     <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5" /> {contact.email.getValue()}</span>
+                      <span className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5" /> {contact.email ? contact.email.getValue() : "Sin email"}</span>
                       {contact.phoneNumber && <span className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" /> {contact.phoneNumber}</span>}
                     </div>
                   </div>

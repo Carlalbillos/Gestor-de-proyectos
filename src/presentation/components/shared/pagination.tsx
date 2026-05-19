@@ -1,4 +1,10 @@
-export const Pagination = ({ totalPages, currentPage, onPageChange }) => {
+interface PaginationProps {
+  totalPages: number;
+  currentPage: number;
+  onPageChange: (page: number) => void;
+}
+
+export const Pagination = ({ totalPages, currentPage, onPageChange }: PaginationProps) => {
   const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
 
   if (totalPages <= 1) return null;
@@ -19,8 +25,8 @@ export const Pagination = ({ totalPages, currentPage, onPageChange }) => {
             key={page}
             onClick={() => onPageChange(page)}
             className={`min-w-[40px] h-10 rounded-lg text-sm font-medium transition-all ${page === currentPage
-                ? "bg-primary text-white shadow-sm"
-                : "bg-muted/50 text-muted-foreground hover:bg-muted"
+              ? "bg-primary text-white shadow-sm"
+              : "bg-muted/50 text-muted-foreground hover:bg-muted"
               }`}
           >
             {page}

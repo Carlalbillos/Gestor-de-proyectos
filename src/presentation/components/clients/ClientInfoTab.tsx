@@ -133,7 +133,7 @@ export const ClientInfoTab = ({
               <div className="space-y-2 pt-2">
                 <div className="flex items-center gap-2 text-sm">
                   <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-foreground truncate">{mainContact.email.getValue()}</span>
+                  <span className="text-foreground truncate">{mainContact.email ? mainContact.email.getValue() : "Sin email"}</span>
                 </div>
                 {mainContact.phoneNumber && (
                   <div className="flex items-center gap-2 text-sm">

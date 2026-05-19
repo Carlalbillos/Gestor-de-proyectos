@@ -215,14 +215,14 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
                     {`${member.name?.[0] ?? ""}${member.surname?.[0] ?? ""}`}
                   </div>
                   <div className="flex-1 overflow-hidden">
-                    <p className="font-bold truncate text-base flex items-center gap-2">
+                    <div className="font-bold truncate text-base flex items-center gap-2">
                       {member.name} {member.surname}
                       {member.isActive === false && (
                         <Badge variant="secondary" className="text-[10px] uppercase h-4 px-1.5 py-0 bg-muted-foreground/20 text-muted-foreground">
                           Inactivo
                         </Badge>
                       )}
-                    </p>
+                    </div>
                     <div className="flex items-center gap-2 mt-0.5">
                       <Badge variant="outline" className="text-[10px] uppercase font-bold py-0 h-5 bg-background/80">
                         {member.role?.name || "Colaborador"}
