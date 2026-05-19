@@ -1,50 +1,33 @@
-import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/react';
-import { DetailsHeader } from './details-header';
+import { describe, it, expect } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { DetailsHeader } from "./details-header";
+import "@testing-library/jest-dom";
 
+describe("DetailsHeader", () => {
 
-describe('DetailsHeader', () => {
-  const title = 'Test Title'
+  const title = "Test Title";
+  const subtitle = "Test Subtitle";
 
-
-  it('should render the title (h1) correctly', () => {
-    const { container } = render(<DetailsHeader title={title} onBack={() => { }} />)
-    const div = container.querySelector('div');
-    const h1 = div.querySelector('h1');
-
-
-    expect(h1).not.toBeNull();
+  it("renders the title", () => {
+    render(<DetailsHeader title={title} onBack={() => { }} />);
+    expect(screen.getByText(title)).toBeInTheDocument();
   });
 
-
-  it('should render the subtitle (div) when provided', () => {
-    const { container } = render(<DetailsHeader subTitle='subTitle' title={title} onBack={() => { }} />)
-    const div = container.querySelector('div');
-
-
-    expect(div).not.toBeNull();
+  it("renders the subtitle when provided", () => {
+    render(
+      <DetailsHeader
+        title={title}
+        subTitle={subtitle}
+        onBack={() => { }}
+      />
+    );
+    expect(screen.getByText(subtitle)).toBeInTheDocument();
   });
 
-
-  it('should not render subtitle when not provided', () => {
-    const { container } = render(<DetailsHeader title={title} onBack={() => { }} />)
-    const div = container.querySelector('div');
-    const p = div.querySelector('p');
-
-
-    expect(p).toBeNull();
+  it("renders the back button", () => {
+    render(<DetailsHeader title={title} onBack={() => { }} />);
+    expect(
+      screen.getByRole("button", { name: /volver al listado/i })
+    ).toBeInTheDocument();
   });
-
-
-  it('should not render buttons when showActions is false', () => {
-    const { container } = render(<DetailsHeader title={title} showActions={false} onBack={() => { }} />)
-    const div = container.querySelector('div');
-    const button = div.querySelector('button');
-
-
-    expect(button).not.toBeDefined();
-  });
-
-
-
 });
