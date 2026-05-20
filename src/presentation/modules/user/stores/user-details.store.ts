@@ -1,17 +1,17 @@
 import { create } from "zustand";
-import { GetUserByIdUseCase } from "@/application/use-cases/user/GetUserByIdUseCase";
-import { GetUserProjectsUseCase } from "@/application/use-cases/user/GetUserProjectsUseCase";
-import { GetUserTimeEntriesUseCase } from "@/application/use-cases/user/GetUserTimeEntriesUseCase";
-import { UpdateUserUseCase } from "@/application/use-cases/user/UpdateUserUseCase";
-import { ChangeActivityUserUseCase } from "@/application/use-cases/user/ChangeActivityUserUseCase";
-import { DeleteUserUseCase } from "@/application/use-cases/user/DeleteUserUseCase";
-import { AdminChangePasswordUseCase } from "@/application/use-cases/user/AdminChangePasswordUseCase";
-import { CreateTimeEntryUseCase } from "@/application/use-cases/user/CreateTimeEntryUseCase";
+import { GetUserByIdUseCase } from "@/application/user/GetUserByIdUseCase";
+import { GetUserProjectsUseCase } from "@/application/user/GetUserProjectsUseCase";
+import { GetUserTimeEntriesUseCase } from "@/application/user/GetUserTimeEntriesUseCase";
+import { UpdateUserUseCase } from "@/application/user/UpdateUserUseCase";
+import { ChangeActivityUserUseCase } from "@/application/user/ChangeActivityUserUseCase";
+import { DeleteUserUseCase } from "@/application/user/DeleteUserUseCase";
+import { AdminChangePasswordUseCase } from "@/application/user/AdminChangePasswordUseCase";
+import { CreateTimeEntryUseCase } from "@/application/user/CreateTimeEntryUseCase";
 
 import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
 import type { User, TimeEntry } from "@/domain/entities/user.entity";
 import type { Project } from "@/domain/entities/project.entity";
-import type { CreateTimeEntryDTO } from "@/application/dto/user/CreateTimeEntry.dto";
+import type { CreateTimeEntryDTO } from "@/domain/ports/UserRepository";
 
 const userRepository = new ApiUserRepository();
 const getUserByIdUseCase = new GetUserByIdUseCase(userRepository);

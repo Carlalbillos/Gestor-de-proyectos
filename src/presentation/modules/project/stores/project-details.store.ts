@@ -2,63 +2,35 @@ import { create } from "zustand";
 import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry, Technology } from "@/domain/entities/project.entity";
 import type { User } from "@/domain/entities/user.entity";
 import type { ClientContact } from "@/domain/entities/client.entity";
-import type { CreateDevelopmentDTO } from "@/application/dto/project/CreateDevelopment.dto";
-import type { UpdateDevelopmentDTO } from "@/application/dto/project/UpdateDevelopment.dto";
-import type { UpdateProjectDTO } from "@/application/dto/project/UpdateProject.dto";
-import type { UpdateTimeEntryDTO } from "@/application/dto/user/UpdateTimeEntry.dto";
-import { ApiProjectRepository } from "@/infrastructure/adapters/ApiProjectRepository";
-import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
-import { ApiClientRepository } from "@/infrastructure/adapters/ApiClientRepository";
-import { ApiTechnologyRepository } from "@/infrastructure/adapters/ApiTechnologyRepository";
+import type { CreateDevelopmentDTO } from "@/domain/ports/ProjectRepository";
+import type { UpdateDevelopmentDTO } from "@/domain/ports/ProjectRepository";
+import type { UpdateProjectDTO } from "@/domain/ports/ProjectRepository";
+import type { UpdateTimeEntryDTO } from "@/domain/ports/ProjectRepository";
+import { container } from "@/infrastructure/di/container";
 
-import { GetProjectByIdUseCase } from "@/application/use-cases/project/GetProjectByIdUseCase";
-import { GetProjectUsersUseCase } from "@/application/use-cases/project/GetProjectUsersUseCase";
-import { GetProjectDevelopmentsUseCase } from "@/application/use-cases/project/GetProjectDevelopmentsUseCase";
-import { GetProjectTimeEntriesUseCase } from "@/application/use-cases/project/GetProjectTimeEntriesUseCase";
-import { GetProjectRolesUseCase } from "@/application/use-cases/project/GetProjectRolesUseCase";
-import { AssignUserUseCase } from "@/application/use-cases/project/AssignUserUseCase";
-import { UpdateProjectUsersUseCase } from "@/application/use-cases/project/UpdateProjectUsersUseCase";
-import { ChangeUserStatusUseCase } from "@/application/use-cases/project/ChangeUserStatusUseCase";
-import { UpdateProjectTimeEntryUseCase } from "@/application/use-cases/project/UpdateProjectTimeEntryUseCase";
-import { DeleteProjectTimeEntryUseCase } from "@/application/use-cases/project/DeleteProjectTimeEntryUseCase";
-import { ChangeProjectStatusUseCase } from "@/application/use-cases/project/ChangeProjectStatusUseCase";
-import { UpdateProjectUseCase } from "@/application/use-cases/project/UpdateProjectUseCase";
-import { DeleteProjectUseCase } from "@/application/use-cases/project/DeleteProjectUseCase";
-import { CreateDevelopmentUseCase } from "@/application/use-cases/project/CreateDevelopmentUseCase";
-import { UpdateDevelopmentUseCase } from "@/application/use-cases/project/UpdateDevelopmentUseCase";
-import { DeleteDevelopmentUseCase } from "@/application/use-cases/project/DeleteDevelopmentUseCase";
+const {
+  getProjectByIdUseCase,
+  getProjectUsersUseCase,
+  getProjectDevelopmentsUseCase,
+  getProjectTimeEntriesUseCase,
+  getProjectRolesUseCase,
+  assignUserUseCase,
+  updateProjectUsersUseCase,
+  changeUserStatusUseCase,
+  updateProjectTimeEntryUseCase,
+  deleteProjectTimeEntryUseCase,
+  changeProjectStatusUseCase,
+  updateProjectUseCase,
+  deleteProjectUseCase,
+  createDevelopmentUseCase,
+  updateDevelopmentUseCase,
+  deleteDevelopmentUseCase,
+  getUsersUseCase,
+  getClientContactsUseCase,
+  setMainContactUseCase,
+  getTechnologiesUseCase,
+} = container;
 
-import { GetUsersUseCase } from "@/application/use-cases/user/GetUsersUseCase";
-import { GetClientContactsUseCase } from "@/application/use-cases/client/GetClientContactsUseCase";
-import { SetMainContactUseCase } from "@/application/use-cases/client/SetMainContactUseCase";
-import { GetTechnologiesUseCase } from "@/application/use-cases/technology/GetTechnologiesUseCase";
-
-const projectRepository = new ApiProjectRepository();
-const userRepository = new ApiUserRepository();
-const clientRepository = new ApiClientRepository();
-const technologyRepository = new ApiTechnologyRepository();
-
-const getProjectByIdUseCase = new GetProjectByIdUseCase(projectRepository);
-const getProjectUsersUseCase = new GetProjectUsersUseCase(projectRepository);
-const getProjectDevelopmentsUseCase = new GetProjectDevelopmentsUseCase(projectRepository);
-const getProjectTimeEntriesUseCase = new GetProjectTimeEntriesUseCase(projectRepository);
-const getProjectRolesUseCase = new GetProjectRolesUseCase(projectRepository);
-const assignUserUseCase = new AssignUserUseCase(projectRepository);
-const updateProjectUsersUseCase = new UpdateProjectUsersUseCase(projectRepository);
-const changeUserStatusUseCase = new ChangeUserStatusUseCase(projectRepository);
-const updateProjectTimeEntryUseCase = new UpdateProjectTimeEntryUseCase(projectRepository);
-const deleteProjectTimeEntryUseCase = new DeleteProjectTimeEntryUseCase(projectRepository);
-const changeProjectStatusUseCase = new ChangeProjectStatusUseCase(projectRepository);
-const updateProjectUseCase = new UpdateProjectUseCase(projectRepository);
-const deleteProjectUseCase = new DeleteProjectUseCase(projectRepository);
-const createDevelopmentUseCase = new CreateDevelopmentUseCase(projectRepository);
-const updateDevelopmentUseCase = new UpdateDevelopmentUseCase(projectRepository);
-const deleteDevelopmentUseCase = new DeleteDevelopmentUseCase(projectRepository);
-
-const getUsersUseCase = new GetUsersUseCase(userRepository);
-const getClientContactsUseCase = new GetClientContactsUseCase(clientRepository);
-const setMainContactUseCase = new SetMainContactUseCase(clientRepository);
-const getTechnologiesUseCase = new GetTechnologiesUseCase(technologyRepository);
 
 interface ProjectDetailsState {
   project: Project | null;

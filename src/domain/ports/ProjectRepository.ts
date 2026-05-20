@@ -1,56 +1,58 @@
 import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry } from "../entities/project.entity";
-import type { CreateProjectDTO } from "../../application/dto/project/CreateProject.dto";
-import type { UpdateProjectDTO } from "../../application/dto/project/UpdateProject.dto";
-import type { CreateDevelopmentDTO } from "../../application/dto/project/CreateDevelopment.dto";
-import type { UpdateDevelopmentDTO } from "../../application/dto/project/UpdateDevelopment.dto";
-import type { UpdateTimeEntryDTO } from "../../application/dto/user/UpdateTimeEntry.dto";
+import type { PaginatedResult } from "../shared/types/PaginatedResult";
 
-export interface ProjectQueryParams {
-  page?: number;
-  limit?: number;
-  clientId?: string;
-  appUserId?: string;
-  isActive?: boolean;
-  search?: string;
-}
+// Re-export DTOs and shared types for backward compatibility
+export type { PaginatedResult } from "../shared/types/PaginatedResult";
+export type {
+  CreateProjectDTO,
+  UpdateProjectDTO,
+  CreateDevelopmentDTO,
+  UpdateDevelopmentDTO,
+  UpdateTimeEntryDTO,
+  ProjectQueryParams,
+  ProjectTimeEntryQueryParams,
+} from "../dtos/project.dto";
 
-export interface ProjectTimeEntryQueryParams {
-  from?: string;
-  to?: string;
-  app_user_id?: string;
-  min_hour?: number;
-  max_hour?: number;
-  has_comment?: boolean;
-  sort_by?: string;
-  sort_order?: string;
-  page?: number;
-  limit?: number;
-}
+import type {
+  CreateProjectDTO,
+  UpdateProjectDTO,
+  CreateDevelopmentDTO,
+  UpdateDevelopmentDTO,
+  UpdateTimeEntryDTO,
+  ProjectQueryParams,
+  ProjectTimeEntryQueryParams,
+} from "../dtos/project.dto";
 
-export interface PaginatedResult<T> {
-  data: T[];
-  total: number;
-}
-
+// 1. Basic CRUD operations
 export interface ProjectRepository {
   getProjects(params?: ProjectQueryParams): Promise<PaginatedResult<Project>>;
   getProjectById(id: string): Promise<Project>;
+  updateProject(id: string, project: UpdateProjectDTO): Promise<void>;
+  createProject(project: CreateProjectDTO): Promise<void>;
+  changeStatus(id: string): Promise<void>;
+  deleteProject(id: string): Promise<void>;
+}
+
+// 2. Team and Member Management operations
+export interface ProjectTeamRepository {
   getProjectUsers(id: string): Promise<ProjectUser[]>;
-  getProjectDevelopments(id: string): Promise<ProjectDevelopment[]>;
   getProjectRoles(): Promise<ProjectRole[]>;
-  getProjectTimeEntries(id: string, params?: ProjectTimeEntryQueryParams): Promise<ProjectTimeEntry[]>;
   assignUser(projectId: string, userId: string, roleId: string): Promise<void>;
   updateProjectUsers(projectId: string, users: { appUserId: string, roleId: string }[]): Promise<void>;
   changeUserStatus(projectId: string, userId: string, isActive: boolean): Promise<void>;
+}
 
-  updateProject(id: string, project: UpdateProjectDTO): Promise<void>;
-  createProject(project: CreateProjectDTO): Promise<void>;
-  updateProjectTimeEntry(projectId: string, entryId: string, data: UpdateTimeEntryDTO): Promise<void>;
-  deleteProjectTimeEntry(projectId: string, entryId: string): Promise<void>;
-  changeStatus(id: string): Promise<void>;
-  deleteProject(id: string): Promise<void>;
-
+// 3. Development Environments operations
+export interface ProjectDevelopmentRepository {
+  getProjectDevelopments(id: string): Promise<ProjectDevelopment[]>;
   createDevelopment(projectId: string, development: CreateDevelopmentDTO): Promise<void>;
   updateDevelopment(projectId: string, development: UpdateDevelopmentDTO): Promise<void>;
   deleteDevelopment(projectId: string, developmentId: string): Promise<void>;
+}
+
+// 4. Imputed Hours operations
+export interface ProjectTimeEntryRepository {
+  getProjectTimeEntries(id: string, params?: ProjectTimeEntryQueryParams): Promise<ProjectTimeEntry[]>;
+  updateProjectTimeEntry(projectId: string, entryId: string, data: UpdateTimeEntryDTO): Promise<void>;
+  deleteProjectTimeEntry(projectId: string, entryId: string): Promise<void>;
 }

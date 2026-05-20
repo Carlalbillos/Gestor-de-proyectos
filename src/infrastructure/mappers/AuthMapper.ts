@@ -1,3 +1,4 @@
+import { User } from "../../domain/entities/user.entity";
 import { jwtDecode } from "jwt-decode";
 import type { AuthResponse } from "../../domain/ports/AuthRepository";
 import { Email } from "../../domain/value-objects/Email";
@@ -36,14 +37,14 @@ export class AuthMapper {
     const resolvedEmail = decoded.email ?? decoded.username ?? emailFallback;
 
     return {
-      user: {
-        id: decoded.id,
-        email: new Email(resolvedEmail),
-        name: decoded.name ?? "",
-        surname: decoded.surname ?? "",
-        role: decoded.role,
-        isActive: decoded.is_active ?? true, // Si se ha logueado con éxito, asumimos true por defecto
-      },
+      user: new User(
+        decoded.id,
+        decoded.name ?? "",
+        decoded.surname ?? "",
+        new Email(resolvedEmail),
+        decoded.role,
+        decoded.is_active ?? true
+      ),
       accessToken: token,
       refreshToken,
     };

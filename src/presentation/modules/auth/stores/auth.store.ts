@@ -3,8 +3,8 @@ import { persist } from "zustand/middleware";
 import { jwtDecode } from "jwt-decode";
 
 import type { User } from "@/domain/entities/user.entity";
-import type { ChangePasswordDTO } from "@/application/dto/user/ChangePassword.dto";
-import { setAccessToken } from "@/infrastructure/http/AxiosHttpClient";
+import type { ChangePasswordDTO } from "@/domain/ports/UserRepository";
+import { setAccessToken, setHttpAuthHandler } from "@/infrastructure/http/AxiosHttpClient";
 import { container } from "@/infrastructure/di/container";
 
 const {
@@ -192,3 +192,20 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
+
+setHttpAuthHandler({
+  getRefreshToken: () => useAuthStore.getState().refreshToken,
+  refresh: async (refreshToken: string) => {
+    return await refreshTokenUseCase.execute(refreshToken);
+  },
+  onRefreshSuccess: (accessToken: string, refreshToken?: string) => {
+    const currentRefreshToken = useAuthStore.getState().refreshToken;
+    useAuthStore.getState().updateTokens(accessToken, refreshToken || currentRefreshToken || "");
+  },
+  onRefreshFailure: () => {
+    useAuthStore.getState().logout();
+    if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+      window.location.href = "/login";
+    }
+  },
+});

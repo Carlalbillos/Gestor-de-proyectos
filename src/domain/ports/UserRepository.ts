@@ -1,23 +1,26 @@
 import type { User, TimeEntriesResponse } from "../entities/user.entity";
-import type { CreateUserDTO } from "../../application/dto/user/CreateUser.dto";
-import type { UpdateUserDTO } from "../../application/dto/user/UpdateUser.dto";
-import type { ChangePasswordDTO } from "../../application/dto/user/ChangePassword.dto";
-import type { AdminChangePasswordDTO } from "../../application/dto/user/AdminChangePassword.dto";
-import type { CreateTimeEntryDTO } from "../../application/dto/user/CreateTimeEntry.dto";
 import type { Project } from "../entities/project.entity";
+import type { PaginatedResult } from "../shared/types/PaginatedResult";
 
-export interface UserQueryParams {
-  isActive?: boolean;
-  role?: string;
-  search?: string;
-  page?: number;
-  limit?: number;
-}
+// Re-export DTOs and shared types for backward compatibility
+export type { PaginatedResult } from "../shared/types/PaginatedResult";
+export type {
+  CreateUserDTO,
+  UpdateUserDTO,
+  ChangePasswordDTO,
+  AdminChangePasswordDTO,
+  CreateTimeEntryDTO,
+  UserQueryParams,
+} from "../dtos/user.dto";
 
-export interface PaginatedResult<T> {
-  data: T[];
-  total: number;
-}
+import type {
+  CreateUserDTO,
+  UpdateUserDTO,
+  ChangePasswordDTO,
+  AdminChangePasswordDTO,
+  CreateTimeEntryDTO,
+  UserQueryParams,
+} from "../dtos/user.dto";
 
 export interface UserRepository {
   getUsers(params?: UserQueryParams): Promise<PaginatedResult<User>>;

@@ -1,8 +1,7 @@
-import type { LoginRequestDTO } from "@/application/dto/auth/LoginRequest.dto";
-import type { LoginResponseDTO } from "@/application/dto/auth/LoginResponse.dto";
+// Re-export DTOs for backward compatibility
+export type { LoginRequestDTO, LoginResponseDTO, AuthResponse } from "../dtos/auth.dto";
 
-export type AuthResponse = LoginResponseDTO;
-
+import type { LoginRequestDTO, LoginResponseDTO } from "../dtos/auth.dto";
 
 export interface AuthRepository {
   login(credentials: LoginRequestDTO): Promise<LoginResponseDTO>;

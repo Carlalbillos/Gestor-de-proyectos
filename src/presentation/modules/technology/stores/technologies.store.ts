@@ -1,12 +1,12 @@
 import { create } from "zustand";
-import { GetTechnologiesUseCase } from "@/application/use-cases/technology/GetTechnologiesUseCase";
-import { CreateTechnologyUseCase } from "@/application/use-cases/technology/CreateTechnologyUseCase";
-import { UpdateTechnologyUseCase } from "@/application/use-cases/technology/UpdateTechnologyUseCase";
-import { DeleteTechnologyUseCase } from "@/application/use-cases/technology/DeleteTechnologyUseCase";
+import { GetTechnologiesUseCase } from "@/application/technology/GetTechnologiesUseCase";
+import { CreateTechnologyUseCase } from "@/application/technology/CreateTechnologyUseCase";
+import { UpdateTechnologyUseCase } from "@/application/technology/UpdateTechnologyUseCase";
+import { DeleteTechnologyUseCase } from "@/application/technology/DeleteTechnologyUseCase";
 import { ApiTechnologyRepository } from "@/infrastructure/adapters/ApiTechnologyRepository";
 import type { Technology } from "@/domain/entities/technology.entity";
-import type { CreateTechnologyDTO } from "@/application/dto/technology/CreateTechnology.dto";
-import type { UpdateTechnologyDTO } from "@/application/dto/technology/UpdateTechnology.dto";
+import type { CreateTechnologyDTO } from "@/domain/ports/TechnologyRepository";
+import type { UpdateTechnologyDTO } from "@/domain/ports/TechnologyRepository";
 
 const repository = new ApiTechnologyRepository();
 const getTechnologiesUseCase = new GetTechnologiesUseCase(repository);

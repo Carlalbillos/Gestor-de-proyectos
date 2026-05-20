@@ -1,23 +1,35 @@
-import type { Project, ProjectUser, ProjectDevelopment, DevelopmentLink, ProjectRole, ProjectTimeEntry } from "../../domain/entities/project.entity";
+import { Project } from "../../domain/entities/project.entity";
+import type { ProjectUser, ProjectDevelopment, DevelopmentLink, ProjectRole, ProjectTimeEntry } from "../../domain/entities/project.entity";
+import type {
+  ApiProjectResponse,
+  ApiProjectUserResponse,
+  ApiProjectDevelopmentResponse,
+  ApiProjectRoleResponse,
+  ApiProjectTimeEntryResponse,
+} from "../http/responses/api-responses";
 
 export class ProjectMapper {
-  static toDomain(raw: any): Project {
-    return {
-      userProjectId: raw.user_project_id,
-      id: raw.id,
-      name: raw.name,
-      description: raw.description,
-      isActive: Boolean(raw.is_active),
-      startDate: raw.start_date,
-      client: raw.client ? {
+  static toDomain(raw: ApiProjectResponse): Project {
+    return new Project(
+      raw.id,
+      raw.name,
+      raw.description,
+      Boolean(raw.is_active),
+      raw.start_date,
+      raw.client ? {
         id: raw.client.id,
         name: raw.client.name,
       } : null,
-      teamMembers: raw.team_members,
-    };
+      typeof raw.team_members === "number"
+        ? raw.team_members
+        : Array.isArray(raw.team_members)
+        ? raw.team_members.length
+        : undefined,
+      raw.user_project_id
+    );
   }
 
-  static toUserDomain(raw: any): ProjectUser {
+  static toUserDomain(raw: ApiProjectUserResponse): ProjectUser {
     return {
       appUserId: raw.app_user_id,
       name: raw.name,
@@ -30,7 +42,7 @@ export class ProjectMapper {
     };
   }
 
-  static toDevelopmentDomain(raw: any): ProjectDevelopment {
+  static toDevelopmentDomain(raw: ApiProjectDevelopmentResponse): ProjectDevelopment {
     return {
       id: raw.id,
       name: raw.name,
@@ -40,7 +52,7 @@ export class ProjectMapper {
         name: raw.technology.name,
       } : null,
       urlRepository: raw.url_repository,
-      links: (raw.links || []).map((link: any): DevelopmentLink => ({
+      links: (raw.links || []).map((link): DevelopmentLink => ({
         id: link.id,
         environment: link.environment,
         url: link.url,
@@ -48,14 +60,14 @@ export class ProjectMapper {
     };
   }
 
-  static toRoleDomain(raw: any): ProjectRole {
+  static toRoleDomain(raw: ApiProjectRoleResponse): ProjectRole {
     return {
       id: raw.id,
       name: raw.name,
     };
   }
 
-  static toTimeEntryDomain(raw: any): ProjectTimeEntry {
+  static toTimeEntryDomain(raw: ApiProjectTimeEntryResponse): ProjectTimeEntry {
     return {
       id: raw.id,
       appUserId: raw.app_user_id,

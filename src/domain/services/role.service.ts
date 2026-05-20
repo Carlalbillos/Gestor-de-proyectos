@@ -3,11 +3,19 @@ import type { User } from "@/domain/entities/user.entity";
 const getRoleName = (user: User | null): string | undefined => {
   if (!user) return undefined;
 
-  if (typeof user.role === "string") {
-    return user.role;
+  const role = user.role as unknown;
+  if (typeof role === "string") {
+    return role;
   }
 
-  return (user.role as any)?.name;
+  if (role && typeof role === "object" && "name" in role) {
+    const roleObj = role as { name: unknown };
+    if (typeof roleObj.name === "string") {
+      return roleObj.name;
+    }
+  }
+
+  return undefined;
 };
 
 export const isAdmin = (user: User | null): boolean => {

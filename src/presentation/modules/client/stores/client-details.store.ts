@@ -1,17 +1,17 @@
 import { create } from "zustand";
-import { GetClientByIdUseCase } from "@/application/use-cases/client/GetClientByIdUseCase";
-import { GetClientProjectsUseCase } from "@/application/use-cases/client/GetClientProjectsUseCase";
-import { GetClientContactsUseCase } from "@/application/use-cases/client/GetClientContactsUseCase";
-import { UpdateClientUseCase } from "@/application/use-cases/client/UpdateClientUseCase";
-import { DeleteClientUseCase } from "@/application/use-cases/client/DeleteClientUseCase";
-import { ChangeClientStatusUseCase } from "@/application/use-cases/client/ChangeClientStatusUseCase";
-import { CreateContactUseCase } from "@/application/use-cases/client/CreateContactUseCase";
-import { UpdateContactUseCase } from "@/application/use-cases/client/UpdateContactUseCase";
-import { DeleteContactUseCase } from "@/application/use-cases/client/DeleteContactUseCase";
-import { SetMainContactUseCase } from "@/application/use-cases/client/SetMainContactUseCase";
+import { GetClientByIdUseCase } from "@/application/client/GetClientByIdUseCase";
+import { GetClientProjectsUseCase } from "@/application/client/GetClientProjectsUseCase";
+import { GetClientContactsUseCase } from "@/application/client/GetClientContactsUseCase";
+import { UpdateClientUseCase } from "@/application/client/UpdateClientUseCase";
+import { DeleteClientUseCase } from "@/application/client/DeleteClientUseCase";
+import { ChangeClientStatusUseCase } from "@/application/client/ChangeClientStatusUseCase";
+import { CreateContactUseCase } from "@/application/client/CreateContactUseCase";
+import { UpdateContactUseCase } from "@/application/client/UpdateContactUseCase";
+import { DeleteContactUseCase } from "@/application/client/DeleteContactUseCase";
+import { SetMainContactUseCase } from "@/application/client/SetMainContactUseCase";
 import { ApiClientRepository } from "@/infrastructure/adapters/ApiClientRepository";
 import type { Client, ClientContact } from "@/domain/entities/client.entity";
-import type { UpdateClientDTO } from "@/application/dto/client/UpdateClient.dto";
+import type { UpdateClientDTO } from "@/domain/ports/ClientRepository";
 import type { Project } from "@/domain/entities/project.entity";
 
 interface ClientDetailsState {

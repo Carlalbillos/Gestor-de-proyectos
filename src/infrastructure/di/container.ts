@@ -6,65 +6,65 @@ import { ApiTechnologyRepository } from "../adapters/ApiTechnologyRepository";
 import { ApiUserRepository } from "../adapters/ApiUserRepository";
 
 // Auth
-import { LoginUseCase } from "@/application/use-cases/auth/LoginUseCase";
-import { LogoutUseCase } from "@/application/use-cases/auth/LogoutUseCase";
-import { RefreshTokenUseCase } from "@/application/use-cases/auth/RefreshTokenUseCase";
+import { LoginUseCase } from "@/application/auth/LoginUseCase";
+import { LogoutUseCase } from "@/application/auth/LogoutUseCase";
+import { RefreshTokenUseCase } from "@/application/auth/RefreshTokenUseCase";
 
 // Client
-import { CreateClientUseCase } from "@/application/use-cases/client/CreateClientUseCase";
-import { ChangeClientStatusUseCase } from "@/application/use-cases/client/ChangeClientStatusUseCase";
-import { GetClientByIdUseCase } from "@/application/use-cases/client/GetClientByIdUseCase";
-import { DeleteClientUseCase } from "@/application/use-cases/client/DeleteClientUseCase";
-import { GetClientProjectsUseCase } from "@/application/use-cases/client/GetClientProjectsUseCase";
-import { UpdateClientUseCase } from "@/application/use-cases/client/UpdateClientUseCase";
-import { DeleteContactUseCase } from "@/application/use-cases/client/DeleteContactUseCase";
-import { GetClientContactsUseCase } from "@/application/use-cases/client/GetClientContactsUseCase";
-import { UpdateContactUseCase } from "@/application/use-cases/client/UpdateContactUseCase";
-import { CreateContactUseCase } from "@/application/use-cases/client/CreateContactUseCase";
-import { GetClientsUseCase } from "@/application/use-cases/client/GetClientsUseCase";
-import { SetMainContactUseCase } from "@/application/use-cases/client/SetMainContactUseCase";
+import { CreateClientUseCase } from "@/application/client/CreateClientUseCase";
+import { ChangeClientStatusUseCase } from "@/application/client/ChangeClientStatusUseCase";
+import { GetClientByIdUseCase } from "@/application/client/GetClientByIdUseCase";
+import { DeleteClientUseCase } from "@/application/client/DeleteClientUseCase";
+import { GetClientProjectsUseCase } from "@/application/client/GetClientProjectsUseCase";
+import { UpdateClientUseCase } from "@/application/client/UpdateClientUseCase";
+import { DeleteContactUseCase } from "@/application/client/DeleteContactUseCase";
+import { GetClientContactsUseCase } from "@/application/client/GetClientContactsUseCase";
+import { UpdateContactUseCase } from "@/application/client/UpdateContactUseCase";
+import { CreateContactUseCase } from "@/application/client/CreateContactUseCase";
+import { GetClientsUseCase } from "@/application/client/GetClientsUseCase";
+import { SetMainContactUseCase } from "@/application/client/SetMainContactUseCase";
 
 // Project
-import { AssignUserUseCase } from "@/application/use-cases/project/AssignUserUseCase";
-import { ChangeProjectStatusUseCase } from "@/application/use-cases/project/ChangeProjectStatusUseCase";
-import { CreateDevelopmentUseCase } from "@/application/use-cases/project/CreateDevelopmentUseCase";
-import { CreateProjectUseCase } from "@/application/use-cases/project/CreateProjectUseCase";
-import { DeleteDevelopmentUseCase } from "@/application/use-cases/project/DeleteDevelopmentUseCase";
-import { DeleteProjectTimeEntryUseCase } from "@/application/use-cases/project/DeleteProjectTimeEntryUseCase";
-import { DeleteProjectUseCase } from "@/application/use-cases/project/DeleteProjectUseCase";
-import { GetProjectByIdUseCase } from "@/application/use-cases/project/GetProjectByIdUseCase";
-import { GetProjectDevelopmentsUseCase } from "@/application/use-cases/project/GetProjectDevelopmentsUseCase";
-import { GetProjectRolesUseCase } from "@/application/use-cases/project/GetProjectRolesUseCase";
-import { GetProjectTimeEntriesUseCase } from "@/application/use-cases/project/GetProjectTimeEntriesUseCase";
-import { GetProjectUsersUseCase } from "@/application/use-cases/project/GetProjectUsersUseCase";
-import { GetProjectsUseCase } from "@/application/use-cases/project/GetProjectsUseCase";
-import { ChangeUserStatusUseCase } from "@/application/use-cases/project/ChangeUserStatusUseCase";
-import { UpdateDevelopmentUseCase } from "@/application/use-cases/project/UpdateDevelopmentUseCase";
-import { UpdateProjectTimeEntryUseCase } from "@/application/use-cases/project/UpdateProjectTimeEntryUseCase";
-import { UpdateProjectUseCase } from "@/application/use-cases/project/UpdateProjectUseCase";
-import { UpdateProjectUsersUseCase } from "@/application/use-cases/project/UpdateProjectUsersUseCase";
+import { AssignUserUseCase } from "@/application/project/AssignUserUseCase";
+import { ChangeProjectStatusUseCase } from "@/application/project/ChangeProjectStatusUseCase";
+import { CreateDevelopmentUseCase } from "@/application/project/CreateDevelopmentUseCase";
+import { CreateProjectUseCase } from "@/application/project/CreateProjectUseCase";
+import { DeleteDevelopmentUseCase } from "@/application/project/DeleteDevelopmentUseCase";
+import { DeleteProjectTimeEntryUseCase } from "@/application/project/DeleteProjectTimeEntryUseCase";
+import { DeleteProjectUseCase } from "@/application/project/DeleteProjectUseCase";
+import { GetProjectByIdUseCase } from "@/application/project/GetProjectByIdUseCase";
+import { GetProjectDevelopmentsUseCase } from "@/application/project/GetProjectDevelopmentsUseCase";
+import { GetProjectRolesUseCase } from "@/application/project/GetProjectRolesUseCase";
+import { GetProjectTimeEntriesUseCase } from "@/application/project/GetProjectTimeEntriesUseCase";
+import { GetProjectUsersUseCase } from "@/application/project/GetProjectUsersUseCase";
+import { GetProjectsUseCase } from "@/application/project/GetProjectsUseCase";
+import { ChangeUserStatusUseCase } from "@/application/project/ChangeUserStatusUseCase";
+import { UpdateDevelopmentUseCase } from "@/application/project/UpdateDevelopmentUseCase";
+import { UpdateProjectTimeEntryUseCase } from "@/application/project/UpdateProjectTimeEntryUseCase";
+import { UpdateProjectUseCase } from "@/application/project/UpdateProjectUseCase";
+import { UpdateProjectUsersUseCase } from "@/application/project/UpdateProjectUsersUseCase";
 
 // Sector
-import { CreateSectorUseCase } from "@/application/use-cases/sector/CreateSectorUseCase";
-import { DeleteSectorUseCase } from "@/application/use-cases/sector/DeleteSectorUseCase";
-import { GetSectorsUseCase } from "@/application/use-cases/sector/GetSectorsUseCase";
-import { UpdateSectorUseCase } from "@/application/use-cases/sector/UpdateSectorUseCase";
+import { CreateSectorUseCase } from "@/application/sector/CreateSectorUseCase";
+import { DeleteSectorUseCase } from "@/application/sector/DeleteSectorUseCase";
+import { GetSectorsUseCase } from "@/application/sector/GetSectorsUseCase";
+import { UpdateSectorUseCase } from "@/application/sector/UpdateSectorUseCase";
 
 // Technology
-import { GetTechnologiesUseCase } from "@/application/use-cases/technology/GetTechnologiesUseCase";
+import { GetTechnologiesUseCase } from "@/application/technology/GetTechnologiesUseCase";
 
 // User
-import { AdminChangePasswordUseCase } from "@/application/use-cases/user/AdminChangePasswordUseCase";
-import { ChangeActivityUserUseCase } from "@/application/use-cases/user/ChangeActivityUserUseCase";
-import { ChangePasswordUseCase } from "@/application/use-cases/user/ChangePasswordUseCase";
-import { CreateTimeEntryUseCase } from "@/application/use-cases/user/CreateTimeEntryUseCase";
-import { CreateUserUseCase } from "@/application/use-cases/user/CreateUserUseCase";
-import { DeleteUserUseCase } from "@/application/use-cases/user/DeleteUserUseCase";
-import { GetUserByIdUseCase } from "@/application/use-cases/user/GetUserByIdUseCase";
-import { GetUserProjectsUseCase } from "@/application/use-cases/user/GetUserProjectsUseCase";
-import { GetUserTimeEntriesUseCase } from "@/application/use-cases/user/GetUserTimeEntriesUseCase";
-import { GetUsersUseCase } from "@/application/use-cases/user/GetUsersUseCase";
-import { UpdateUserUseCase } from "@/application/use-cases/user/UpdateUserUseCase";
+import { AdminChangePasswordUseCase } from "@/application/user/AdminChangePasswordUseCase";
+import { ChangeActivityUserUseCase } from "@/application/user/ChangeActivityUserUseCase";
+import { ChangePasswordUseCase } from "@/application/user/ChangePasswordUseCase";
+import { CreateTimeEntryUseCase } from "@/application/user/CreateTimeEntryUseCase";
+import { CreateUserUseCase } from "@/application/user/CreateUserUseCase";
+import { DeleteUserUseCase } from "@/application/user/DeleteUserUseCase";
+import { GetUserByIdUseCase } from "@/application/user/GetUserByIdUseCase";
+import { GetUserProjectsUseCase } from "@/application/user/GetUserProjectsUseCase";
+import { GetUserTimeEntriesUseCase } from "@/application/user/GetUserTimeEntriesUseCase";
+import { GetUsersUseCase } from "@/application/user/GetUsersUseCase";
+import { UpdateUserUseCase } from "@/application/user/UpdateUserUseCase";
 
 // Instancias de Repositorios
 const authRepository = new ApiAuthRepository();

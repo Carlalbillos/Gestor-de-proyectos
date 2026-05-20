@@ -1,12 +1,12 @@
 import { create } from "zustand";
-import { GetSectorsUseCase } from "@/application/use-cases/sector/GetSectorsUseCase";
-import { CreateSectorUseCase } from "@/application/use-cases/sector/CreateSectorUseCase";
-import { UpdateSectorUseCase } from "@/application/use-cases/sector/UpdateSectorUseCase";
-import { DeleteSectorUseCase } from "@/application/use-cases/sector/DeleteSectorUseCase";
+import { GetSectorsUseCase } from "@/application/sector/GetSectorsUseCase";
+import { CreateSectorUseCase } from "@/application/sector/CreateSectorUseCase";
+import { UpdateSectorUseCase } from "@/application/sector/UpdateSectorUseCase";
+import { DeleteSectorUseCase } from "@/application/sector/DeleteSectorUseCase";
 import { ApiSectorRepository } from "@/infrastructure/adapters/ApiSectorRepository";
 import type { Sector } from "@/domain/entities/sector.entity";
-import type { CreateSectorDTO } from "@/application/dto/sector/CreateSector.dto";
-import type { UpdateSectorDTO } from "@/application/dto/sector/UpdateSector.dto";
+import type { CreateSectorDTO } from "@/domain/ports/SectorRepository";
+import type { UpdateSectorDTO } from "@/domain/ports/SectorRepository";
 
 const repository = new ApiSectorRepository();
 const getSectorsUseCase = new GetSectorsUseCase(repository);

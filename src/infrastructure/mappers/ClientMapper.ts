@@ -1,21 +1,23 @@
-import type { Client, ClientContact } from "../../domain/entities/client.entity";
+import { Client } from "../../domain/entities/client.entity";
+import type { ClientContact } from "../../domain/entities/client.entity";
 import { Email } from "../../domain/value-objects/Email";
 import { SectorMapper } from "./SectorMapper";
+import type { ApiClientResponse, ApiClientContactResponse } from "../http/responses/api-responses";
 
 export class ClientMapper {
-  static toDomain(raw: any): Client {
-    return {
-      id: raw.id,
-      name: raw.name,
-      isActive: Boolean(raw.is_active),
-      sector: {
+  static toDomain(raw: ApiClientResponse): Client {
+    return new Client(
+      raw.id,
+      raw.name,
+      Boolean(raw.is_active),
+      {
         id: raw.sector?.id ?? "",
         name: SectorMapper.capitalize(raw.sector?.name ?? ""),
-      },
-    };
+      }
+    );
   }
 
-  static toContactDomain(raw: any): ClientContact {
+  static toContactDomain(raw: ApiClientContactResponse): ClientContact {
     let email: Email | null = null;
     try {
       if (raw.email) {

@@ -1,29 +1,13 @@
 import { create } from "zustand";
-
-import { GetProjectsUseCase } from "@/application/use-cases/project/GetProjectsUseCase";
-import { CreateProjectUseCase } from "@/application/use-cases/project/CreateProjectUseCase";
-import { UpdateProjectUseCase } from "@/application/use-cases/project/UpdateProjectUseCase";
-import { GetUserProjectsUseCase } from "@/application/use-cases/user/GetUserProjectsUseCase";
-
-import { ApiProjectRepository } from "@/infrastructure/adapters/ApiProjectRepository";
-import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
-
+import { container } from "@/infrastructure/di/container";
 import { useAuthStore } from "@/presentation/modules/auth/stores/auth.store";
 import { isAdmin } from "@/domain/services/role.service";
-
 import type { Project } from "@/domain/entities/project.entity";
-import type { CreateProjectDTO } from "@/application/dto/project/CreateProject.dto";
-import type { UpdateProjectDTO } from "@/application/dto/project/UpdateProject.dto";
+import type { CreateProjectDTO, UpdateProjectDTO, ProjectQueryParams } from "@/domain/ports/ProjectRepository";
 import { createBaseListSlice, handleListFetch } from "@/presentation/stores/factories/list-factory";
 import type { BaseListState } from "@/presentation/stores/factories/list-factory";
 
-const projectRepository = new ApiProjectRepository();
-const userRepository = new ApiUserRepository();
-
-const getProjectsUseCase = new GetProjectsUseCase(projectRepository);
-const createProjectUseCase = new CreateProjectUseCase(projectRepository);
-const updateProjectUseCase = new UpdateProjectUseCase(projectRepository);
-const getUserProjectsUseCase = new GetUserProjectsUseCase(userRepository);
+const { getProjectsUseCase, createProjectUseCase, updateProjectUseCase, getUserProjectsUseCase } = container;
 
 interface ProjectsListState extends BaseListState<Project> {
   page: number;
@@ -66,7 +50,7 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
         if (!user) return [];
 
         if (isAdminUser) {
-          const params: any = {
+          const params: ProjectQueryParams = {
             page: state.page,
           };
 
@@ -104,8 +88,8 @@ export const useProjectsListStore = create<ProjectsListState>((set, get) => ({
         }
 
         return filteredProjects;
-      },
-      false
+      }
+      // No authorize option — projects are viewable by all authenticated users
     );
   },
 

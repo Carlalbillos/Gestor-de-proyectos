@@ -1,14 +1,14 @@
 import { create } from "zustand";
-import { GetUserByIdUseCase } from "@/application/use-cases/user/GetUserByIdUseCase";
-import { GetUserProjectsUseCase } from "@/application/use-cases/user/GetUserProjectsUseCase";
-import { GetUserTimeEntriesUseCase } from "@/application/use-cases/user/GetUserTimeEntriesUseCase";
-import { UpdateProjectTimeEntryUseCase } from "@/application/use-cases/project/UpdateProjectTimeEntryUseCase";
-import { DeleteProjectTimeEntryUseCase } from "@/application/use-cases/project/DeleteProjectTimeEntryUseCase";
+import { GetUserByIdUseCase } from "@/application/user/GetUserByIdUseCase";
+import { GetUserProjectsUseCase } from "@/application/user/GetUserProjectsUseCase";
+import { GetUserTimeEntriesUseCase } from "@/application/user/GetUserTimeEntriesUseCase";
+import { UpdateProjectTimeEntryUseCase } from "@/application/project/UpdateProjectTimeEntryUseCase";
+import { DeleteProjectTimeEntryUseCase } from "@/application/project/DeleteProjectTimeEntryUseCase";
 import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
 import { ApiProjectRepository } from "@/infrastructure/adapters/ApiProjectRepository";
 import type { User, TimeEntry } from "@/domain/entities/user.entity";
 import type { Project } from "@/domain/entities/project.entity";
-import type { UpdateTimeEntryDTO } from "@/application/dto/user/UpdateTimeEntry.dto";
+import type { UpdateTimeEntryDTO } from "@/domain/ports/ProjectRepository";
 
 const userRepository = new ApiUserRepository();
 const projectRepository = new ApiProjectRepository();
