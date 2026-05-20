@@ -50,7 +50,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const { useAuthStore } = await import("@/presentation/stores/auth.store");
+        const { useAuthStore } = await import("@/presentation/modules/auth/stores/auth.store");
         const { RefreshTokenUseCase } = await import("@/application/use-cases/auth/RefreshTokenUseCase");
         const { ApiAuthRepository } = await import("@/infrastructure/adapters/ApiAuthRepository");
 
@@ -76,7 +76,7 @@ api.interceptors.response.use(
         isRefreshing = false;
         refreshSubscribers = [];
 
-        const { useAuthStore } = await import("@/presentation/stores/auth.store");
+        const { useAuthStore } = await import("@/presentation/modules/auth/stores/auth.store");
         useAuthStore.getState().logout();
 
         if (window.location.pathname !== '/login') {

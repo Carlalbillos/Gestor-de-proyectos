@@ -39,7 +39,7 @@ export default defineConfig({
       "/api": {
         target: "http://host.docker.internal:8000",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, "/480project"),
+        rewrite: (path: string) => path.replace(/^\/api/, "/480project"),
       },
     },
   },

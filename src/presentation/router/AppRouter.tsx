@@ -1,25 +1,25 @@
 import { createBrowserRouter, Navigate, RouterProvider, redirect } from "react-router-dom";
-import { useAuthStore } from "@/presentation/stores/auth.store";
+import { useAuthStore } from "@/presentation/modules/auth/stores/auth.store";
 
 import { DashboardLayout } from "@/presentation/components/layout/DashboardLayout";
 
-import { LoginPage } from "@/presentation/pages/LoginPage";
-import { HomePage } from "@/presentation/pages/HomePage";
-import { ProjectsPage } from "@/presentation/pages/ProjectsPage";
-import { ProjectDetailsPage } from "@/presentation/pages/ProjectDetailsPage";
-import { ClientsPage } from "@/presentation/pages/ClientsPage";
-import { CreateClientPage } from "@/presentation/pages/CreateClientPage";
-import { ClientsDetailsPage } from "@/presentation/pages/ClientsDetailsPage";
-import { SectorPage } from "@/presentation/pages/SectorPage";
-import { TechnologiesPage } from "@/presentation/pages/TechnologiesPage";
+import { LoginPage } from "@/presentation/modules/auth/pages/LoginPage";
+import { HomePage } from "@/presentation/modules/dashboard/pages/HomePage";
+import { ProjectsPage } from "@/presentation/modules/project/pages/ProjectsPage";
+import { ProjectDetailsPage } from "@/presentation/modules/project/pages/ProjectDetailsPage";
+import { ClientsPage } from "@/presentation/modules/client/pages/ClientsPage";
+import { CreateClientPage } from "@/presentation/modules/client/pages/CreateClientPage";
+import { ClientsDetailsPage } from "@/presentation/modules/client/pages/ClientsDetailsPage";
+import { SectorPage } from "@/presentation/modules/sector/pages/SectorPage";
+import { TechnologiesPage } from "@/presentation/modules/technology/pages/TechnologiesPage";
 
 import { AuthGuard } from "@/presentation/guards/AuthGuard";
 import { AdminGuard } from "@/presentation/guards/AdminGuard";
 import { UnauthGuard } from "@/presentation/guards/UnauthGuard";
-import { UsersPage } from "@/presentation/pages/UsersPage";
-import { CreateUserPage } from "@/presentation/pages/CreateUserPage";
-import { UserDetailsPage } from "@/presentation/pages/UserDetailsPage";
-import { SettingsPage } from "@/presentation/pages/SettingsPage";
+import { UsersPage } from "@/presentation/modules/user/pages/UsersPage";
+import { CreateUserPage } from "@/presentation/modules/user/pages/CreateUserPage";
+import { UserDetailsPage } from "@/presentation/modules/user/pages/UserDetailsPage";
+import { SettingsPage } from "@/presentation/modules/settings/pages/SettingsPage";
 
 
 const authLoader = async () => {

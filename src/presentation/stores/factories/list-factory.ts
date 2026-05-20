@@ -1,4 +1,4 @@
-import { useAuthStore } from "../auth.store";
+import { useAuthStore } from "@/presentation/modules/auth/stores/auth.store";
 import { isAdmin } from "@/domain/services/role.service";
 
 export interface BaseListState<T> {
