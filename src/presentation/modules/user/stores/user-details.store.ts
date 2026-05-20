@@ -1,27 +1,19 @@
 import { create } from "zustand";
-import { GetUserByIdUseCase } from "@/application/user/GetUserByIdUseCase";
-import { GetUserProjectsUseCase } from "@/application/user/GetUserProjectsUseCase";
-import { GetUserTimeEntriesUseCase } from "@/application/user/GetUserTimeEntriesUseCase";
-import { UpdateUserUseCase } from "@/application/user/UpdateUserUseCase";
-import { ChangeActivityUserUseCase } from "@/application/user/ChangeActivityUserUseCase";
-import { DeleteUserUseCase } from "@/application/user/DeleteUserUseCase";
-import { AdminChangePasswordUseCase } from "@/application/user/AdminChangePasswordUseCase";
-import { CreateTimeEntryUseCase } from "@/application/user/CreateTimeEntryUseCase";
-
-import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
+import { container } from "@/infrastructure/di/container";
 import type { User, TimeEntry } from "@/domain/entities/user.entity";
 import type { Project } from "@/domain/entities/project.entity";
 import type { CreateTimeEntryDTO } from "@/domain/ports/UserRepository";
 
-const userRepository = new ApiUserRepository();
-const getUserByIdUseCase = new GetUserByIdUseCase(userRepository);
-const getUserProjectsUseCase = new GetUserProjectsUseCase(userRepository);
-const getUserTimeEntriesUseCase = new GetUserTimeEntriesUseCase(userRepository);
-const updateUserUseCase = new UpdateUserUseCase(userRepository);
-const changeActivityUserUseCase = new ChangeActivityUserUseCase(userRepository);
-const deleteUserUseCase = new DeleteUserUseCase(userRepository);
-const adminChangePasswordUseCase = new AdminChangePasswordUseCase(userRepository);
-const createTimeEntryUseCase = new CreateTimeEntryUseCase(userRepository);
+const {
+  getUserByIdUseCase,
+  getUserProjectsUseCase,
+  getUserTimeEntriesUseCase,
+  updateUserUseCase,
+  changeActivityUserUseCase,
+  deleteUserUseCase,
+  adminChangePasswordUseCase,
+  createTimeEntryUseCase,
+} = container;
 
 interface UserDetailsState {
   user: User | null;

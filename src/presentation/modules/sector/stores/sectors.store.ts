@@ -1,18 +1,15 @@
 import { create } from "zustand";
-import { GetSectorsUseCase } from "@/application/sector/GetSectorsUseCase";
-import { CreateSectorUseCase } from "@/application/sector/CreateSectorUseCase";
-import { UpdateSectorUseCase } from "@/application/sector/UpdateSectorUseCase";
-import { DeleteSectorUseCase } from "@/application/sector/DeleteSectorUseCase";
-import { ApiSectorRepository } from "@/infrastructure/adapters/ApiSectorRepository";
+import { container } from "@/infrastructure/di/container";
 import type { Sector } from "@/domain/entities/sector.entity";
 import type { CreateSectorDTO } from "@/domain/ports/SectorRepository";
 import type { UpdateSectorDTO } from "@/domain/ports/SectorRepository";
 
-const repository = new ApiSectorRepository();
-const getSectorsUseCase = new GetSectorsUseCase(repository);
-const createSectorUseCase = new CreateSectorUseCase(repository);
-const updateSectorUseCase = new UpdateSectorUseCase(repository);
-const deleteSectorUseCase = new DeleteSectorUseCase(repository);
+const {
+  getSectorsUseCase,
+  createSectorUseCase,
+  updateSectorUseCase,
+  deleteSectorUseCase,
+} = container;
 
 interface SectorsState {
   sectors: Sector[];

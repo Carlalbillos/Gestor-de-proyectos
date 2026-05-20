@@ -1,22 +1,16 @@
 import { create } from "zustand";
-import { GetUserByIdUseCase } from "@/application/user/GetUserByIdUseCase";
-import { GetUserProjectsUseCase } from "@/application/user/GetUserProjectsUseCase";
-import { GetUserTimeEntriesUseCase } from "@/application/user/GetUserTimeEntriesUseCase";
-import { UpdateProjectTimeEntryUseCase } from "@/application/project/UpdateProjectTimeEntryUseCase";
-import { DeleteProjectTimeEntryUseCase } from "@/application/project/DeleteProjectTimeEntryUseCase";
-import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
-import { ApiProjectRepository } from "@/infrastructure/adapters/ApiProjectRepository";
+import { container } from "@/infrastructure/di/container";
 import type { User, TimeEntry } from "@/domain/entities/user.entity";
 import type { Project } from "@/domain/entities/project.entity";
 import type { UpdateTimeEntryDTO } from "@/domain/ports/ProjectRepository";
 
-const userRepository = new ApiUserRepository();
-const projectRepository = new ApiProjectRepository();
-const getUserByIdUseCase = new GetUserByIdUseCase(userRepository);
-const getUserProjectsUseCase = new GetUserProjectsUseCase(userRepository);
-const getUserTimeEntriesUseCase = new GetUserTimeEntriesUseCase(userRepository);
-const updateProjectTimeEntryUseCase = new UpdateProjectTimeEntryUseCase(projectRepository);
-const deleteProjectTimeEntryUseCase = new DeleteProjectTimeEntryUseCase(projectRepository);
+const {
+  getUserByIdUseCase,
+  getUserProjectsUseCase,
+  getUserTimeEntriesUseCase,
+  updateProjectTimeEntryUseCase,
+  deleteProjectTimeEntryUseCase,
+} = container;
 
 interface DashboardState {
   profile: User | null;

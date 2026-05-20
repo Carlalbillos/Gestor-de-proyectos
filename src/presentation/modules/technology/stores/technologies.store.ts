@@ -1,18 +1,15 @@
 import { create } from "zustand";
-import { GetTechnologiesUseCase } from "@/application/technology/GetTechnologiesUseCase";
-import { CreateTechnologyUseCase } from "@/application/technology/CreateTechnologyUseCase";
-import { UpdateTechnologyUseCase } from "@/application/technology/UpdateTechnologyUseCase";
-import { DeleteTechnologyUseCase } from "@/application/technology/DeleteTechnologyUseCase";
-import { ApiTechnologyRepository } from "@/infrastructure/adapters/ApiTechnologyRepository";
+import { container } from "@/infrastructure/di/container";
 import type { Technology } from "@/domain/entities/technology.entity";
 import type { CreateTechnologyDTO } from "@/domain/ports/TechnologyRepository";
 import type { UpdateTechnologyDTO } from "@/domain/ports/TechnologyRepository";
 
-const repository = new ApiTechnologyRepository();
-const getTechnologiesUseCase = new GetTechnologiesUseCase(repository);
-const createTechnologyUseCase = new CreateTechnologyUseCase(repository);
-const updateTechnologyUseCase = new UpdateTechnologyUseCase(repository);
-const deleteTechnologyUseCase = new DeleteTechnologyUseCase(repository);
+const {
+  getTechnologiesUseCase,
+  createTechnologyUseCase,
+  updateTechnologyUseCase,
+  deleteTechnologyUseCase,
+} = container;
 
 interface TechnologiesState {
   technologies: Technology[];

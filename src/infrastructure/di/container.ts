@@ -52,6 +52,9 @@ import { UpdateSectorUseCase } from "@/application/sector/UpdateSectorUseCase";
 
 // Technology
 import { GetTechnologiesUseCase } from "@/application/technology/GetTechnologiesUseCase";
+import { CreateTechnologyUseCase } from "@/application/technology/CreateTechnologyUseCase";
+import { UpdateTechnologyUseCase } from "@/application/technology/UpdateTechnologyUseCase";
+import { DeleteTechnologyUseCase } from "@/application/technology/DeleteTechnologyUseCase";
 
 // User
 import { AdminChangePasswordUseCase } from "@/application/user/AdminChangePasswordUseCase";
@@ -126,6 +129,9 @@ export const container = {
 
   // Technology
   getTechnologiesUseCase: new GetTechnologiesUseCase(technologyRepository),
+  createTechnologyUseCase: new CreateTechnologyUseCase(technologyRepository),
+  updateTechnologyUseCase: new UpdateTechnologyUseCase(technologyRepository),
+  deleteTechnologyUseCase: new DeleteTechnologyUseCase(technologyRepository),
 
   // User
   adminChangePasswordUseCase: new AdminChangePasswordUseCase(userRepository),
