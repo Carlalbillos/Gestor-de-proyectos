@@ -2,14 +2,21 @@ import { create } from "zustand";
 import { GetUserByIdUseCase } from "@/application/use-cases/user/GetUserByIdUseCase";
 import { GetUserProjectsUseCase } from "@/application/use-cases/user/GetUserProjectsUseCase";
 import { GetUserTimeEntriesUseCase } from "@/application/use-cases/user/GetUserTimeEntriesUseCase";
+import { UpdateProjectTimeEntryUseCase } from "@/application/use-cases/project/UpdateProjectTimeEntryUseCase";
+import { DeleteProjectTimeEntryUseCase } from "@/application/use-cases/project/DeleteProjectTimeEntryUseCase";
 import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
+import { ApiProjectRepository } from "@/infrastructure/adapters/ApiProjectRepository";
 import type { User, TimeEntry } from "@/domain/entities/user.entity";
 import type { Project } from "@/domain/entities/project.entity";
+import type { UpdateTimeEntryDTO } from "@/application/dto/user/UpdateTimeEntry.dto";
 
 const userRepository = new ApiUserRepository();
+const projectRepository = new ApiProjectRepository();
 const getUserByIdUseCase = new GetUserByIdUseCase(userRepository);
 const getUserProjectsUseCase = new GetUserProjectsUseCase(userRepository);
 const getUserTimeEntriesUseCase = new GetUserTimeEntriesUseCase(userRepository);
+const updateProjectTimeEntryUseCase = new UpdateProjectTimeEntryUseCase(projectRepository);
+const deleteProjectTimeEntryUseCase = new DeleteProjectTimeEntryUseCase(projectRepository);
 
 interface DashboardState {
   profile: User | null;
@@ -17,8 +24,11 @@ interface DashboardState {
   timeEntries: TimeEntry[];
   totalHours: number;
   isLoading: boolean;
+  isSaving: boolean;
   error: string | null;
   fetchDashboardData: (userId: string) => Promise<void>;
+  updateTimeEntry: (userId: string, projectId: string, entryId: string, data: UpdateTimeEntryDTO) => Promise<void>;
+  deleteTimeEntry: (userId: string, projectId: string, entryId: string) => Promise<void>;
 }
 
 export const useDashboardStore = create<DashboardState>((set) => ({
@@ -27,6 +37,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   timeEntries: [],
   totalHours: 0,
   isLoading: false,
+  isSaving: false,
   error: null,
 
   fetchDashboardData: async (userId: string) => {
@@ -46,6 +57,38 @@ export const useDashboardStore = create<DashboardState>((set) => ({
       });
     } catch (error: any) {
       set({ isLoading: false, error: error.message || "Error al cargar el dashboard" });
+    }
+  },
+
+  updateTimeEntry: async (userId: string, projectId: string, entryId: string, data: UpdateTimeEntryDTO) => {
+    set({ isSaving: true });
+    try {
+      await updateProjectTimeEntryUseCase.execute(projectId, entryId, data);
+      const timeEntriesResponse = await getUserTimeEntriesUseCase.execute(userId);
+      set({ 
+        timeEntries: timeEntriesResponse.data, 
+        totalHours: timeEntriesResponse.totalHours 
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ isSaving: false });
+    }
+  },
+
+  deleteTimeEntry: async (userId: string, projectId: string, entryId: string) => {
+    set({ isSaving: true });
+    try {
+      await deleteProjectTimeEntryUseCase.execute(projectId, entryId);
+      const timeEntriesResponse = await getUserTimeEntriesUseCase.execute(userId);
+      set({ 
+        timeEntries: timeEntriesResponse.data, 
+        totalHours: timeEntriesResponse.totalHours 
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ isSaving: false });
     }
   },
 }));
