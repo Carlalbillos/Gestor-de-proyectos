@@ -1,9 +1,8 @@
-import { Outlet, NavLink, useNavigate } from "react-router";
-import { useEffect, useState } from "react";
+import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
-import { useAuthStore } from "@/presentation/stores/auth.store";
-import { useDashboardStore } from "@/presentation/stores/dashboard.store";
-import { Button } from "@/presentation/components/ui/button";
+import { useAuthStore } from "@/presentation/modules/auth/stores/auth.store";
+import { useDashboardStore } from "@/presentation/modules/dashboard/stores/dashboard.store";
 import { isAdmin } from "@/domain/services/role.service";
 import {
   Home,
@@ -12,21 +11,28 @@ import {
   Briefcase,
   Settings,
   LogOut,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarInset,
+  useSidebar,
+  TooltipProvider,
+} from "@/presentation/ui";
 
-export const DashboardLayout = () => {
+const AppSidebar = () => {
   const { logout, user } = useAuthStore();
-  const { profile, fetchDashboardData } = useDashboardStore();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { profile } = useDashboardStore();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (user?.id && !profile) {
-      fetchDashboardData(user.id);
-    }
-  }, [user?.id, profile]);
+  const location = useLocation();
+  const { state } = useSidebar();
 
   const handleLogout = async () => {
     try {
@@ -35,19 +41,6 @@ export const DashboardLayout = () => {
       navigate("/login");
     }
   };
-
-  const toggleSidebar = () => setIsCollapsed((prev) => !prev);
-
-  const baseClasses =
-    "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200";
-  const activeClasses =
-    "bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20";
-  const inactiveClasses =
-    "text-muted-foreground hover:bg-muted hover:text-foreground";
-
-  const navLinkClasses = ({ isActive }: { isActive: boolean }) =>
-    `${baseClasses} ${isActive ? activeClasses : inactiveClasses} ${isCollapsed ? "justify-center px-0" : ""
-    }`;
 
   const loggedAsAdmin = isAdmin(user);
   const initials = profile
@@ -59,157 +52,187 @@ export const DashboardLayout = () => {
       : "Usuario"
     : "";
 
-  return (
-    <div className="h-screen min-h-screen flex bg-muted/10 overflow-hidden">
-      {/* Sidebar */}
-      <aside
-        className={`${isCollapsed ? "w-20" : "w-64"
-          } bg-background border-r flex flex-col shadow-xl transition-all duration-300 ease-in-out relative z-20`}
-      >
-        {/* Toggle Button */}
-        <button
-          onClick={toggleSidebar}
-          className="absolute -right-3 top-20 bg-background border rounded-full p-1 shadow-md hover:bg-muted transition-colors z-30"
-          aria-label={isCollapsed ? "Expandir sidebar" : "Colapsar sidebar"}
-        >
-          {isCollapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <ChevronLeft className="h-4 w-4" />
-          )}
-        </button>
+  const isCollapsed = state === "collapsed";
 
-        {/* Header — Logo + Perfil */}
-        <div
-          className={`p-6 border-b flex flex-col items-center ${isCollapsed ? "px-2" : "space-y-4"
-            }`}
-        >
-          {/* Logo */}
-          <div className="h-8 flex items-center justify-center overflow-hidden">
-            {isCollapsed ? (
-              <span className="text-primary font-black text-lg leading-none">
-                <img
-                  src="/logo480-t.png"
-                  alt="480:DEV PROJECTS"
-                  className="h-3 w-auto"
-                />
-              </span>
-            ) : (
+  const isLinkActive = (path: string) => {
+    if (path === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(path);
+  };
+
+  return (
+    <Sidebar collapsible="icon" className="border-r shadow-xl">
+      {/* Header — Logo + Perfil */}
+      <SidebarHeader className={`p-6 border-b flex flex-col items-center ${isCollapsed ? "px-2" : "space-y-4"}`}>
+        {/* Logo */}
+        <div className="h-8 flex items-center justify-center overflow-hidden">
+          {isCollapsed ? (
+            <span className="text-primary font-black text-lg leading-none">
               <img
                 src="/logo480-t.png"
                 alt="480:DEV PROJECTS"
-                className="h-8 w-auto"
-                width={174}
-                height={32}
+                className="h-3 w-auto"
               />
-            )}
-          </div>
-
-          {/* Perfil del usuario */}
-          {profile && (
-            <div
-              className={`flex items-center gap-3 p-1 w-full ${isCollapsed ? "justify-center" : ""
-                }`}
-            >
-              <div className="h-10 w-10 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-sm">
-                <span className="text-sm font-bold text-primary">
-                  {initials}
-                </span>
-              </div>
-              {!isCollapsed && (
-                <div className="min-w-0 flex-1 animate-in fade-in duration-500">
-                  <p className="text-xs font-bold truncate text-foreground">
-                    {profile.name} {profile.surname}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground truncate uppercase tracking-widest font-bold opacity-70">
-                    {roleName}
-                  </p>
-                </div>
-              )}
-            </div>
+            </span>
+          ) : (
+            <img
+              src="/logo480-t.png"
+              alt="480:DEV PROJECTS"
+              className="h-8 w-auto"
+              width={174}
+              height={32}
+            />
           )}
         </div>
 
-        {/* Navegación principal */}
-        <nav className="flex-1 p-3 space-y-2 mt-2 overflow-y-auto overflow-x-hidden">
-          <NavLink
-            to="/"
-            end
-            className={navLinkClasses}
-            title={isCollapsed ? "Inicio" : undefined}
-          >
-            <Home className="h-5 w-5 shrink-0" />
-            {!isCollapsed && <span className="truncate">Inicio</span>}
-          </NavLink>
+        {/* Perfil del usuario */}
+        {profile && (
+          <div className={`flex items-center gap-3 p-1 w-full ${isCollapsed ? "justify-center" : ""}`}>
+            <div className="h-10 w-10 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-sm">
+              <span className="text-sm font-bold text-primary">
+                {initials}
+              </span>
+            </div>
+            {!isCollapsed && (
+              <div className="min-w-0 flex-1 animate-in fade-in duration-500">
+                <p className="text-xs font-bold truncate text-foreground">
+                  {profile.name} {profile.surname}
+                </p>
+                <p className="text-[10px] text-muted-foreground truncate uppercase tracking-widest font-bold opacity-70">
+                  {roleName}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </SidebarHeader>
+
+      {/* Navegación principal */}
+      <SidebarContent className="p-3">
+        <SidebarMenu className="space-y-1">
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={isLinkActive("/")}
+              tooltip="Inicio"
+              className="h-9"
+            >
+              <NavLink to="/">
+                <Home className="h-5 w-5 shrink-0" />
+                <span>Inicio</span>
+              </NavLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
 
           {loggedAsAdmin && (
             <>
-              <NavLink
-                to="/personal"
-                className={navLinkClasses}
-                title={isCollapsed ? "Personal" : undefined}
-              >
-                <Users className="h-5 w-5 shrink-0" />
-                {!isCollapsed && <span className="truncate">Personal</span>}
-              </NavLink>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={isLinkActive("/personal")}
+                  tooltip="Personal"
+                  className="h-9"
+                >
+                  <NavLink to="/personal">
+                    <Users className="h-5 w-5 shrink-0" />
+                    <span>Personal</span>
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
 
-              <NavLink
-                to="/clientes"
-                className={navLinkClasses}
-                title={isCollapsed ? "Clientes" : undefined}
-              >
-                <Building2 className="h-5 w-5 shrink-0" />
-                {!isCollapsed && <span className="truncate">Clientes</span>}
-              </NavLink>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={isLinkActive("/clientes")}
+                  tooltip="Clientes"
+                  className="h-9"
+                >
+                  <NavLink to="/clientes">
+                    <Building2 className="h-5 w-5 shrink-0" />
+                    <span>Clientes</span>
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </>
           )}
 
-          <NavLink
-            to="/proyectos"
-            className={navLinkClasses}
-            title={isCollapsed ? "Proyectos" : undefined}
-          >
-            <Briefcase className="h-5 w-5 shrink-0" />
-            {!isCollapsed && <span className="truncate">Proyectos</span>}
-          </NavLink>
-        </nav>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={isLinkActive("/proyectos")}
+              tooltip="Proyectos"
+              className="h-9"
+            >
+              <NavLink to="/proyectos">
+                <Briefcase className="h-5 w-5 shrink-0" />
+                <span>Proyectos</span>
+              </NavLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarContent>
 
-        {/* Navegación inferior */}
-        <div className="p-4 border-t bg-muted/20 space-y-2">
-          <NavLink
-            to="/configuracion"
-            className={navLinkClasses}
-            title={isCollapsed ? "Configuración" : undefined}
-          >
-            <Settings className="h-5 w-5 shrink-0" />
-            {!isCollapsed && <span className="truncate">Configuración</span>}
-          </NavLink>
+      {/* Navegación inferior */}
+      <SidebarFooter className="p-4 border-t bg-muted/20">
+        <SidebarMenu className="space-y-1">
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={isLinkActive("/configuracion")}
+              tooltip="Configuración"
+              className="h-9"
+            >
+              <NavLink to="/configuracion">
+                <Settings className="h-5 w-5 shrink-0" />
+                <span>Configuración</span>
+              </NavLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`w-full text-destructive hover:text-destructive hover:bg-destructive/10 h-10 ${isCollapsed ? "justify-center p-0" : "justify-start px-3"
-              }`}
-            onClick={handleLogout}
-            title={isCollapsed ? "Cerrar Sesión" : undefined}
-            aria-label="Cerrar Sesión"
-          >
-            <LogOut
-              className={`h-5 w-5 shrink-0 ${isCollapsed ? "" : "mr-3"}`}
-            />
-            {!isCollapsed && <span className="truncate">Cerrar Sesión</span>}
-          </Button>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={handleLogout}
+              tooltip="Cerrar Sesión"
+              className="w-full text-destructive hover:text-destructive hover:bg-destructive/10 h-9"
+            >
+              <LogOut className="h-5 w-5 shrink-0" />
+              <span>Cerrar Sesión</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
+  );
+};
+
+export const DashboardLayout = () => {
+  const { user } = useAuthStore();
+  const { profile, fetchDashboardData } = useDashboardStore();
+
+  useEffect(() => {
+    if (user?.id && !profile) {
+      fetchDashboardData(user.id);
+    }
+  }, [user?.id, profile]);
+
+  return (
+    <TooltipProvider>
+      <SidebarProvider>
+        <div className="h-screen min-h-screen flex w-full bg-muted/10 overflow-hidden">
+          <AppSidebar />
+          <SidebarInset className="flex-1 flex flex-col min-w-0 overflow-hidden relative bg-muted/10">
+            <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
+              <SidebarTrigger className="-ml-1" />
+            </header>
+            <div className="flex-1 overflow-y-auto p-4 md:p-8">
+              <div className="max-w-7xl mx-auto">
+                <Outlet />
+              </div>
+            </div>
+          </SidebarInset>
         </div>
-      </aside>
-
-      {/* Contenido principal */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        <div className="flex-1 overflow-y-auto p-4 md:p-8">
-          <div className="max-w-7xl mx-auto">
-            <Outlet />
-          </div>
-        </div>
-      </main>
-    </div>
+      </SidebarProvider>
+    </TooltipProvider>
   );
 };
