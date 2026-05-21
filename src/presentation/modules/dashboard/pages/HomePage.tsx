@@ -160,7 +160,7 @@ export const HomePage = () => {
       <ConfirmDialog
         isOpen={!!entryToDelete}
         title="Eliminar imputación"
-        description={`¿Estás seguro de que deseas eliminar la imputación de ${entryToDelete?.hour}h del día ${entryToDelete?.date}?`}
+        description={`¿Estás seguro de que deseas eliminar la imputación de ${entryToDelete?.hour ? (typeof entryToDelete.hour.getValue === "function" ? entryToDelete.hour.getValue() : entryToDelete.hour) : 0}h del día ${entryToDelete?.date}?`}
         onConfirm={handleDeleteConfirm}
         onClose={() => setEntryToDelete(null)}
         isLoading={isSaving}

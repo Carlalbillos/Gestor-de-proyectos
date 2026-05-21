@@ -187,8 +187,6 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     try {
       await updateProjectTimeEntryUseCase.execute(projectId, entryId, data);
       await get().fetchProjectTimeEntries(projectId);
-    } catch (error: any) {
-      throw error;
     } finally {
       set({ isSaving: false });
     }
@@ -200,8 +198,6 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     try {
       await deleteProjectTimeEntryUseCase.execute(projectId, entryId);
       await get().fetchProjectTimeEntries(projectId);
-    } catch (error) {
-      throw error;
     } finally {
       set({ isSaving: false });
     }
@@ -227,8 +223,6 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     try {
       await updateProjectUseCase.execute(id, project);
       await get().fetchProjectDetails(id);
-    } catch (error: any) {
-      throw error;
     } finally {
       set({ isSaving: false });
     }

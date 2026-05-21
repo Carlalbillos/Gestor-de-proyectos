@@ -49,8 +49,9 @@ export const useDashboardStore = create<DashboardState>((set) => ({
         totalHours: timeEntriesResponse.totalHours,
         isLoading: false 
       });
-    } catch (error: any) {
-      set({ isLoading: false, error: error.message || "Error al cargar el dashboard" });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Error al cargar el dashboard";
+      set({ isLoading: false, error: errorMessage });
     }
   },
 
@@ -63,8 +64,6 @@ export const useDashboardStore = create<DashboardState>((set) => ({
         timeEntries: timeEntriesResponse.data, 
         totalHours: timeEntriesResponse.totalHours 
       });
-    } catch (error) {
-      throw error;
     } finally {
       set({ isSaving: false });
     }
@@ -79,8 +78,6 @@ export const useDashboardStore = create<DashboardState>((set) => ({
         timeEntries: timeEntriesResponse.data, 
         totalHours: timeEntriesResponse.totalHours 
       });
-    } catch (error) {
-      throw error;
     } finally {
       set({ isSaving: false });
     }
