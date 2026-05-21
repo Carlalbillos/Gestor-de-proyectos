@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 
 import { useAuthStore } from "@/presentation/modules/auth/stores/auth.store";
 import { useDashboardStore } from "@/presentation/modules/dashboard/stores/dashboard.store";
+import type { TimeEntry } from "@/domain/entities/user.entity";
 
 import { TimeEntriesTable } from "@/presentation/modules/shared/components/TimeEntriesTable";
 import { Button, Card, CardDescription, CardHeader, CardTitle, CardFooter, Badge, PageHeader, EmptyState, ConfirmDialog } from "@/presentation/ui";
@@ -13,7 +14,7 @@ export const HomePage = () => {
   const navigate = useNavigate();
   const { profile, projects, timeEntries, totalHours, isLoading, isSaving, error, fetchDashboardData, updateTimeEntry, deleteTimeEntry } = useDashboardStore();
 
-  const [entryToDelete, setEntryToDelete] = useState<any | null>(null);
+  const [entryToDelete, setEntryToDelete] = useState<TimeEntry | null>(null);
 
   const handleSaveEntry = async (entryId: string, data: { date: string, hour: number, comment: string }) => {
     if (!user?.id) return;
@@ -149,7 +150,7 @@ export const HomePage = () => {
             entries={timeEntries} 
             mode="user" 
             onSave={handleSaveEntry}
-            onDelete={setEntryToDelete}
+            onDelete={(entry) => setEntryToDelete(entry as unknown as TimeEntry)}
             isSaving={isSaving}
             canEditEntry={() => true}
           />

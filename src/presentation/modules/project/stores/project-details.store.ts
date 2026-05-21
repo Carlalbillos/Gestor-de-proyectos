@@ -94,9 +94,9 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       }
 
       set({ project, users, developments, clientContacts, timeEntries, isLoading: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
-        error: error.message || "Error al cargar los detalles del proyecto",
+        error: error instanceof Error ? error.message : "Error al cargar los detalles del proyecto",
         isLoading: false
       });
     }
@@ -106,7 +106,8 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     try {
       const timeEntries = await getProjectTimeEntriesUseCase.execute(id);
       set({ timeEntries });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      console.error("Error fetching project time entries", error);
     }
   },
 
@@ -115,7 +116,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     try {
       const roles = await getProjectRolesUseCase.execute();
       set({ roles });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching roles", error);
     }
   },
@@ -125,7 +126,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     try {
       const response = await getUsersUseCase.execute({ limit: 9999 });
       set({ allUsers: response.data });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching all users", error);
     }
   },
@@ -135,7 +136,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     try {
       const technologies = await getTechnologiesUseCase.execute();
       set({ technologies });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching technologies", error);
     }
   },
@@ -146,7 +147,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       await assignUserUseCase.execute(projectId, userId, roleId);
       const users = await getProjectUsersUseCase.execute(projectId);
       set({ users, isSaving: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({ isSaving: false });
       throw error;
     }
@@ -164,7 +165,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       await updateProjectUsersUseCase.execute(projectId, updatedUsers);
       const usersResponse = await getProjectUsersUseCase.execute(projectId);
       set({ users: usersResponse, isSaving: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({ isSaving: false });
       throw error;
     }
@@ -176,7 +177,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       await changeUserStatusUseCase.execute(projectId, userId, isActive);
       const usersResponse = await getProjectUsersUseCase.execute(projectId);
       set({ users: usersResponse, isSaving: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({ isSaving: false });
       throw error;
     }
@@ -209,9 +210,9 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       await changeProjectStatusUseCase.execute(id);
       const project = await getProjectByIdUseCase.execute(id);
       set({ project, isLoading: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
-        error: error.message || "Error al cambiar el estado del proyecto",
+        error: error instanceof Error ? error.message : "Error al cambiar el estado del proyecto",
         isLoading: false
       });
       throw error;
@@ -233,9 +234,9 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     try {
       await deleteProjectUseCase.execute(id);
       set({ project: null, isSaving: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
-        error: error.message || "Error al eliminar el proyecto",
+        error: error instanceof Error ? error.message : "Error al eliminar el proyecto",
         isSaving: false
       });
       throw error;
@@ -248,7 +249,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       await createDevelopmentUseCase.execute(projectId, development);
       const developments = await getProjectDevelopmentsUseCase.execute(projectId);
       set({ developments, isSaving: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({ isSaving: false });
       throw error;
     }
@@ -260,7 +261,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       await updateDevelopmentUseCase.execute(projectId, development);
       const developments = await getProjectDevelopmentsUseCase.execute(projectId);
       set({ developments, isSaving: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({ isSaving: false });
       throw error;
     }
@@ -272,7 +273,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       await deleteDevelopmentUseCase.execute(projectId, developmentId);
       const developments = await getProjectDevelopmentsUseCase.execute(projectId);
       set({ developments, isSaving: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({ isSaving: false });
       throw error;
     }
@@ -284,9 +285,9 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       await setMainContactUseCase.execute(clientId, contactId);
       const clientContacts = await getClientContactsUseCase.execute(clientId);
       set({ clientContacts, isSaving: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
-        error: error.message || "Error al marcar el contacto como principal",
+        error: error instanceof Error ? error.message : "Error al marcar el contacto como principal",
         isSaving: false
       });
       throw error;

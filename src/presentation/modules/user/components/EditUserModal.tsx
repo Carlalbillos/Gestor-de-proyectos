@@ -48,10 +48,12 @@ export const EditUserModal = ({ isOpen, onClose, user }: EditUserModalProps) => 
         isActive: formData.isActive,
       });
       onClose();
-    } catch (err: any) {
-      setError(err.message || "Error al actualizar el usuario");
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "Error al actualizar el usuario";
+      setError(errorMsg);
     }
   };
+
 
   if (!isOpen) return null;
 

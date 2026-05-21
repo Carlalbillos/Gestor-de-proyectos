@@ -2,14 +2,34 @@ import { useState } from "react";
 import { Card, CardContent, Badge, Button, Input, EditButton, DeleteButton } from "@/presentation/ui";
 import { Check, X, Loader2 } from "lucide-react";
 
+export interface SharedTimeEntry {
+    id: string;
+    date: string;
+    hour: unknown;
+    comment: string | null;
+    name?: string;
+    surname?: string;
+    project?: {
+        id: string;
+        name: string;
+    };
+}
+
+const getHourValue = (hour: unknown): number => {
+    if (hour && typeof hour === "object" && "getValue" in hour && typeof (hour as { getValue: () => number }).getValue === "function") {
+        return (hour as { getValue: () => number }).getValue();
+    }
+    return Number(hour);
+};
+
 interface TimeEntriesTableProps {
-    entries: any[];
+    entries: SharedTimeEntry[];
     mode: "project" | "user"; // "project" shows Users column, "user" shows Projects column
-    onEdit?: (entry: any) => void;
-    onDelete?: (entry: any) => void;
+    onEdit?: (entry: SharedTimeEntry) => void;
+    onDelete?: (entry: SharedTimeEntry) => void;
     onSave?: (entryId: string, data: { date: string, hour: number, comment: string }) => Promise<void>;
     isSaving?: boolean;
-    canEditEntry?: (entry: any) => boolean;
+    canEditEntry?: (entry: SharedTimeEntry) => boolean;
 }
 
 export const TimeEntriesTable = ({ entries, mode, onEdit, onDelete, onSave, isSaving, canEditEntry }: TimeEntriesTableProps) => {
@@ -34,11 +54,11 @@ export const TimeEntriesTable = ({ entries, mode, onEdit, onDelete, onSave, isSa
         );
     }
 
-    const startEditing = (entry: any) => {
+    const startEditing = (entry: SharedTimeEntry) => {
         setEditingId(entry.id);
         setEditForm({
             date: entry.date,
-            hour: String(typeof entry.hour?.getValue === "function" ? entry.hour.getValue() : entry.hour),
+            hour: String(getHourValue(entry.hour)),
             comment: entry.comment || ""
         });
         if (onEdit) onEdit(entry); // Keep existing callback if needed
@@ -122,13 +142,13 @@ export const TimeEntriesTable = ({ entries, mode, onEdit, onDelete, onSave, isSa
                                             <Input
                                                 type="number"
                                                 step="0.5"
-                                                className="h-8 text-xs"
+                                                className="h-8 text-xs w-20"
                                                 value={editForm.hour}
                                                 onChange={(e) => setEditForm({ ...editForm, hour: e.target.value })}
                                             />
                                         ) : (
                                             <Badge variant="secondary" className="font-bold text-xs px-2 py-0">
-                                                {typeof entry.hour?.getValue === "function" ? entry.hour.getValue() : entry.hour}h
+                                                {getHourValue(entry.hour)}h
                                             </Badge>
                                         )}
                                     </td>

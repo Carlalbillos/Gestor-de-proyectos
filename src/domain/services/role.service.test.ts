@@ -4,7 +4,7 @@ import { User } from "../entities/user.entity";
 import { Email, SystemRole } from "../value-objects";
 
 describe("role.service", () => {
-  const createMockUser = (role: any): User => new User(
+  const createMockUser = (role: unknown): User => new User(
     "user-123",
     "John",
     "Doe",
@@ -56,7 +56,7 @@ describe("role.service", () => {
         email: { value: "john@example.com" },
         role: { value: "admin" },
         isActive: true
-      } as any;
+      } as unknown as User;
       expect(isAdmin(user)).toBe(true);
     });
   });
@@ -94,7 +94,7 @@ describe("role.service", () => {
         email: { value: "john@example.com" },
         role: { value: "user" },
         isActive: true
-      } as any;
+      } as unknown as User;
       expect(hasRole(user, "user")).toBe(true);
     });
   });

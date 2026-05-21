@@ -5,6 +5,13 @@ import { useDisclosure } from "@/presentation/hooks/useDisclosure";
 import { isAdmin } from "@/domain/services/role.service";
 import type { User } from "@/domain/entities/user.entity";
 
+export interface UserInfoFormData {
+  name: string;
+  surname: string;
+  email: string;
+  role: string;
+}
+
 interface UserInfoTabProps {
   user: User;
   currentUser: User | null;
@@ -12,7 +19,7 @@ interface UserInfoTabProps {
   totalHours: number;
   timeEntriesCount: number;
   isLoading: boolean;
-  onUpdate: (data: any) => Promise<void>;
+  onUpdate: (data: UserInfoFormData) => Promise<void>;
   onOpenPasswordModal: () => void;
 }
 
@@ -33,7 +40,6 @@ export const UserInfoTab = ({
     register,
     handleSubmit,
     reset,
-    formState: { },
   } = useForm({
     defaultValues: {
       name: user.name,
@@ -53,7 +59,7 @@ export const UserInfoTab = ({
     editing.open();
   };
 
-  const onEditSubmit = async (data: any) => {
+  const onEditSubmit = async (data: UserInfoFormData) => {
     try {
       await onUpdate(data);
       editing.close();
