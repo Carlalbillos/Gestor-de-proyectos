@@ -122,7 +122,7 @@ export const ProjectDevelopmentsTab = ({ developments }: ProjectDevelopmentsTabP
                 <div className="flex flex-wrap gap-2 mt-auto">
                   {dev.urlRepository && (
                     <Button variant="outline" size="sm" asChild className="h-7 text-xs">
-                      <a href={dev.urlRepository} target="_blank" rel="noopener noreferrer">
+                      <a href={dev.urlRepository.getValue()} target="_blank" rel="noopener noreferrer">
                         <Code2 className="mr-2 h-3 w-3" />
                         Repo
                       </a>
@@ -130,7 +130,7 @@ export const ProjectDevelopmentsTab = ({ developments }: ProjectDevelopmentsTabP
                   )}
                   {dev.links.map((link) => (
                     <Button key={link.id} variant="secondary" size="sm" asChild className="h-7 text-xs">
-                      <a href={link.url} target="_blank" rel="noopener noreferrer">
+                      <a href={link.url.getValue()} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="mr-2 h-3 w-3" />
                         {link.environment}
                       </a>

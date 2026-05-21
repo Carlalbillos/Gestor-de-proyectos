@@ -1,4 +1,4 @@
-import { Email } from "../value-objects/Email";
+import { Email, SystemRole, LoggedHours } from "../value-objects";
 import { BusinessRuleException } from "../shared/errors/BusinessRuleException";
 
 export class User {
@@ -6,7 +6,7 @@ export class User {
   name: string;
   surname: string;
   email: Email;
-  role: string;
+  role: SystemRole;
   isActive: boolean;
 
   constructor(
@@ -14,7 +14,7 @@ export class User {
     name: string,
     surname: string,
     email: Email,
-    role: string,
+    role: SystemRole,
     isActive: boolean
   ) {
     this.id = id;
@@ -36,10 +36,7 @@ export class User {
     this.surname = surname.trim();
   }
 
-  public changeRole(newRole: string): void {
-    if (newRole !== "admin" && newRole !== "user") {
-      throw new BusinessRuleException("Rol de usuario inválido");
-    }
+  public changeRole(newRole: SystemRole): void {
     this.role = newRole;
   }
 
@@ -55,7 +52,7 @@ export class User {
 export interface TimeEntry {
   id: string;
   date: string;
-  hour: number;
+  hour: LoggedHours;
   comment: string;
   project: {
     id: string;

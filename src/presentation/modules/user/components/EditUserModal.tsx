@@ -16,7 +16,7 @@ export const EditUserModal = ({ isOpen, onClose, user }: EditUserModalProps) => 
     name: user.name,
     surname: user.surname,
     email: user.email.getValue(),
-    role: user.role,
+    role: user.role.getValue(),
     isActive: user.isActive,
   });
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +27,7 @@ export const EditUserModal = ({ isOpen, onClose, user }: EditUserModalProps) => 
         name: user.name,
         surname: user.surname,
         email: user.email.getValue(),
-        role: user.role,
+        role: user.role.getValue(),
         isActive: user.isActive,
       });
       setError(null);

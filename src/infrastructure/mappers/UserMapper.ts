@@ -1,6 +1,6 @@
 import { User } from "../../domain/entities/user.entity";
 import type { TimeEntry } from "../../domain/entities/user.entity";
-import { Email } from "../../domain/value-objects/Email";
+import { Email, SystemRole, LoggedHours } from "../../domain/value-objects";
 import type { ApiUserResponse, ApiTimeEntryResponse } from "../http/responses/api-responses";
 
 export class UserMapper {
@@ -10,7 +10,7 @@ export class UserMapper {
       raw.name,
       raw.surname,
       new Email(raw.email),
-      UserMapper.fromApiRole(raw.role),
+      new SystemRole(raw.role),
       Boolean(raw.is_active)
     );
   }
@@ -41,7 +41,7 @@ export class UserMapper {
     return {
       id: raw.id,
       date: raw.date,
-      hour: Number(raw.hour),
+      hour: new LoggedHours(Number(raw.hour)),
       comment: raw.comment || "",
       project: raw.project ? {
         id: raw.project.id,

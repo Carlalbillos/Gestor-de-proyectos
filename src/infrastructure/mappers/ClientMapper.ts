@@ -1,6 +1,6 @@
 import { Client } from "../../domain/entities/client.entity";
 import type { ClientContact } from "../../domain/entities/client.entity";
-import { Email } from "../../domain/value-objects/Email";
+import { Email, PhoneNumber } from "../../domain/value-objects";
 import { SectorMapper } from "./SectorMapper";
 import type { ApiClientResponse, ApiClientContactResponse } from "../http/responses/api-responses";
 
@@ -27,10 +27,19 @@ export class ClientMapper {
       console.error("Invalid email for contact", raw.id, raw.email);
     }
 
+    let phoneNumber: PhoneNumber | null = null;
+    try {
+      if (raw.phone_number) {
+        phoneNumber = new PhoneNumber(raw.phone_number);
+      }
+    } catch (e) {
+      console.error("Invalid phone number for contact", raw.id, raw.phone_number);
+    }
+
     return {
       id: raw.id,
       fullName: raw.full_name,
-      phoneNumber: raw.phone_number ?? null,
+      phoneNumber: phoneNumber,
       email: email,
       isMain: Boolean(raw.is_main),
       note: raw.note ?? null,

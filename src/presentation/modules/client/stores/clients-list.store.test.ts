@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { useClientsListStore } from "./clients-list.store";
 import { useAuthStore } from "@/presentation/modules/auth/stores/auth.store";
-import { Email } from "@/domain/value-objects/Email";
+import { Email, SystemRole } from "@/domain/value-objects";
 import { Client } from "@/domain/entities/client.entity";
 import { User } from "@/domain/entities/user.entity";
 
@@ -43,7 +43,7 @@ describe("useClientsListStore", () => {
         "Admin",
         "User",
         new Email("admin@example.com"),
-        "ROLE_ADMIN",
+        new SystemRole("ROLE_ADMIN"),
         true
       ),
       isAuthenticated: true,

@@ -89,7 +89,7 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
         }
     };
 
-    const totalHours = timeEntries.reduce((acc, curr) => acc + curr.hour, 0);
+    const totalHours = timeEntries.reduce((acc, curr) => acc + curr.hour.getValue(), 0);
 
     return (
         <div className="grid gap-4">
@@ -220,7 +220,7 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
             <ConfirmDialog
                 isOpen={!!entryToDelete}
                 title="Eliminar imputación"
-                description={`¿Estás seguro de que deseas eliminar la imputación de ${entryToDelete?.hour}h del día ${entryToDelete?.date}?`}
+                description={`¿Estás seguro de que deseas eliminar la imputación de ${entryToDelete?.hour ? entryToDelete.hour.getValue() : 0}h del día ${entryToDelete?.date}?`}
                 onConfirm={handleDelete}
                 onClose={() => setEntryToDelete(null)}
                 isLoading={isLoading}

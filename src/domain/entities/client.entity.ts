@@ -1,4 +1,4 @@
-import { Email } from "../value-objects/Email";
+import { Email, PhoneNumber } from "../value-objects";
 import { BusinessRuleException } from "../shared/errors/BusinessRuleException";
 
 export interface ClientSector {
@@ -43,7 +43,7 @@ export class Client {
 export interface ClientContact {
   id: string;
   fullName: string;
-  phoneNumber: string | null;
+  phoneNumber: PhoneNumber | null;
   email: Email | null;
   isMain: boolean;
   note: string | null;

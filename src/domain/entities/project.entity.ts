@@ -1,13 +1,11 @@
 import { BusinessRuleException } from "../shared/errors/BusinessRuleException";
 import type { Technology } from "./technology.entity";
+import { ProjectRole, Url, LoggedHours } from "../value-objects";
+
 export type { Technology };
+export { ProjectRole };
 
 export interface ProjectClient {
-  id: string;
-  name: string;
-}
-
-export interface ProjectRole {
   id: string;
   name: string;
 }
@@ -24,7 +22,7 @@ export interface ProjectUser {
 export interface DevelopmentLink {
   id: string;
   environment: string;
-  url: string;
+  url: Url;
 }
 
 export interface ProjectDevelopment {
@@ -32,7 +30,7 @@ export interface ProjectDevelopment {
   name: string;
   description: string;
   technology: Technology | null;
-  urlRepository: string;
+  urlRepository: Url;
   links: DevelopmentLink[];
 }
 
@@ -88,6 +86,6 @@ export interface ProjectTimeEntry {
   name: string;
   surname: string;
   date: string;
-  hour: number;
+  hour: LoggedHours;
   comment: string | null;
 }

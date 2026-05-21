@@ -29,7 +29,7 @@ export const UserTimeEntriesTab = ({ timeEntries }: UserTimeEntriesTabProps) => 
                   </Badge>
                   <Badge className="bg-primary/10 text-primary border-primary/20">
                     <Clock className="mr-1.5 h-3 w-3" />
-                    {entry.hour}h
+                    {entry.hour.getValue()}h
                   </Badge>
                 </div>
               </div>

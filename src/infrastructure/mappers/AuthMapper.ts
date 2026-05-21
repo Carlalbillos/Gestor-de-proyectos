@@ -1,7 +1,7 @@
 import { User } from "../../domain/entities/user.entity";
 import { jwtDecode } from "jwt-decode";
 import type { AuthResponse } from "../../domain/ports/AuthRepository";
-import { Email } from "../../domain/value-objects/Email";
+import { Email, SystemRole } from "../../domain/value-objects";
 
 interface JwtPayload {
   id?: string;
@@ -42,7 +42,7 @@ export class AuthMapper {
         decoded.name ?? "",
         decoded.surname ?? "",
         new Email(resolvedEmail),
-        decoded.role,
+        new SystemRole(decoded.role),
         decoded.is_active ?? true
       ),
       accessToken: token,

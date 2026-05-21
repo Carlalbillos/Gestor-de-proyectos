@@ -157,7 +157,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     const { users } = get();
     const updatedUsers = users.map(u => ({
       appUserId: u.appUserId,
-      roleId: u.appUserId === userId ? roleId : (u.role?.id || "")
+      roleId: u.appUserId === userId ? roleId : (u.role ? u.role.getId() : "")
     }));
 
     try {

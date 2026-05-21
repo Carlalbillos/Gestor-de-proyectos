@@ -170,7 +170,7 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
                 >
                   <option value="">Selecciona un rol...</option>
                   {roles.map(r => (
-                    <option key={r.id} value={r.id}>{r.name}</option>
+                    <option key={r.getId()} value={r.getId()}>{r.getLabel()}</option>
                   ))}
                 </select>
               </div>
@@ -219,7 +219,7 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
                       <Badge variant="outline" className="text-[10px] uppercase font-bold py-0 h-5 bg-background/80">
-                        {member.role?.name || "Colaborador"}
+                        {member.role ? member.role.getLabel() : "Colaborador"}
                       </Badge>
                     </div>
                   </div>
@@ -230,7 +230,7 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
                         label=""
                         onClick={() => {
                           setEditingUser(member);
-                          setSelectedRoleId(member.role?.id || "");
+                          setSelectedRoleId(member.role ? member.role.getId() : "");
                         }}
                       />
                       {member.isActive === false ? (

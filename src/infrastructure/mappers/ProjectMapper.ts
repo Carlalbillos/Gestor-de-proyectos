@@ -1,5 +1,6 @@
 import { Project } from "../../domain/entities/project.entity";
-import type { ProjectUser, ProjectDevelopment, DevelopmentLink, ProjectRole, ProjectTimeEntry } from "../../domain/entities/project.entity";
+import type { ProjectUser, ProjectDevelopment, DevelopmentLink, ProjectTimeEntry } from "../../domain/entities/project.entity";
+import { ProjectRole, Url, LoggedHours } from "../../domain/value-objects";
 import type {
   ApiProjectResponse,
   ApiProjectUserResponse,
@@ -34,10 +35,7 @@ export class ProjectMapper {
       appUserId: raw.app_user_id,
       name: raw.name,
       surname: raw.surname,
-      role: raw.role ? {
-        id: raw.role.id,
-        name: raw.role.name,
-      } : null,
+      role: raw.role ? new ProjectRole(raw.role.id, raw.role.name) : null,
       isActive: raw.is_user_active !== undefined ? Boolean(raw.is_user_active) : true,
     };
   }
@@ -51,20 +49,17 @@ export class ProjectMapper {
         id: raw.technology.id,
         name: raw.technology.name,
       } : null,
-      urlRepository: raw.url_repository,
+      urlRepository: new Url(raw.url_repository),
       links: (raw.links || []).map((link): DevelopmentLink => ({
         id: link.id,
         environment: link.environment,
-        url: link.url,
+        url: new Url(link.url),
       })),
     };
   }
 
   static toRoleDomain(raw: ApiProjectRoleResponse): ProjectRole {
-    return {
-      id: raw.id,
-      name: raw.name,
-    };
+    return new ProjectRole(raw.id, raw.name);
   }
 
   static toTimeEntryDomain(raw: ApiProjectTimeEntryResponse): ProjectTimeEntry {
@@ -74,7 +69,7 @@ export class ProjectMapper {
       name: raw.name,
       surname: raw.surname,
       date: raw.date,
-      hour: Number(raw.hour),
+      hour: new LoggedHours(Number(raw.hour)),
       comment: raw.comment || null,
     };
   }

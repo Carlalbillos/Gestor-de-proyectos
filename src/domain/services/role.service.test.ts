@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { isAdmin, hasRole } from "./role.service";
 import { User } from "../entities/user.entity";
-import { Email } from "../value-objects/Email";
+import { Email, SystemRole } from "../value-objects";
 
 describe("role.service", () => {
   const createMockUser = (role: any): User => new User(
@@ -9,7 +9,7 @@ describe("role.service", () => {
     "John",
     "Doe",
     new Email("john@example.com"),
-    role,
+    new SystemRole(role),
     true
   );
 

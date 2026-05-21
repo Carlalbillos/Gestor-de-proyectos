@@ -44,8 +44,8 @@ export const ProjectDevelopmentForm = ({
       name: initialData?.name || "",
       description: initialData?.description || "",
       technologyId: initialData?.technology?.id || "",
-      urlRepository: initialData?.urlRepository || "",
-      links: initialData?.links.map(l => ({ environment: l.environment, url: l.url })) || [],
+      urlRepository: initialData?.urlRepository ? initialData.urlRepository.getValue() : "",
+      links: initialData?.links.map(l => ({ environment: l.environment, url: l.url ? l.url.getValue() : "" })) || [],
     },
   });
 

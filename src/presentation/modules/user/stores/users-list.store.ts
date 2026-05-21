@@ -74,7 +74,7 @@ export const useUsersListStore = create<UsersListState>((set, get) => ({
         }
 
         if (state.filterRole !== "all") {
-          filtered = filtered.filter(u => u.role === state.filterRole);
+          filtered = filtered.filter(u => u.role.getValue() === state.filterRole);
         }
 
         return filtered;
