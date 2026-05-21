@@ -47,6 +47,18 @@ describe("role.service", () => {
       const user = createMockUser({ name: "ROLE_USER" });
       expect(isAdmin(user)).toBe(false);
     });
+
+    it("should return true if user role is a deserialized value object with value admin", () => {
+      const user = {
+        id: "user-123",
+        name: "John",
+        surname: "Doe",
+        email: { value: "john@example.com" },
+        role: { value: "admin" },
+        isActive: true
+      } as any;
+      expect(isAdmin(user)).toBe(true);
+    });
   });
 
   describe("hasRole", () => {
@@ -72,6 +84,18 @@ describe("role.service", () => {
     it("should return false if user role object name does not match", () => {
       const user = createMockUser({ name: "ROLE_USER" });
       expect(hasRole(user, "ROLE_ADMIN")).toBe(false);
+    });
+
+    it("should return true if user role is a deserialized value object with matching value", () => {
+      const user = {
+        id: "user-123",
+        name: "John",
+        surname: "Doe",
+        email: { value: "john@example.com" },
+        role: { value: "user" },
+        isActive: true
+      } as any;
+      expect(hasRole(user, "user")).toBe(true);
     });
   });
 });

@@ -12,8 +12,11 @@ const getRoleName = (user: User | null): string | undefined => {
     return user.role.getValue();
   }
 
-  if (user.role && typeof user.role === "object" && "name" in user.role) {
-    const roleObj = user.role as Record<string, unknown>;
+  if (user.role && typeof user.role === "object") {
+    const roleObj = (user.role as unknown) as Record<string, unknown>;
+    if (typeof roleObj.value === "string") {
+      return roleObj.value;
+    }
     if (typeof roleObj.name === "string") {
       return roleObj.name;
     }
