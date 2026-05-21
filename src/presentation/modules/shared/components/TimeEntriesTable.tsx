@@ -38,7 +38,7 @@ export const TimeEntriesTable = ({ entries, mode, onEdit, onDelete, onSave, isSa
         setEditingId(entry.id);
         setEditForm({
             date: entry.date,
-            hour: String(entry.hour),
+            hour: String(typeof entry.hour?.getValue === "function" ? entry.hour.getValue() : entry.hour),
             comment: entry.comment || ""
         });
         if (onEdit) onEdit(entry); // Keep existing callback if needed
@@ -128,7 +128,7 @@ export const TimeEntriesTable = ({ entries, mode, onEdit, onDelete, onSave, isSa
                                             />
                                         ) : (
                                             <Badge variant="secondary" className="font-bold text-xs px-2 py-0">
-                                                {entry.hour}h
+                                                {typeof entry.hour?.getValue === "function" ? entry.hour.getValue() : entry.hour}h
                                             </Badge>
                                         )}
                                     </td>
