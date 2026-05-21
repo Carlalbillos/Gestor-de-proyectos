@@ -120,7 +120,7 @@ export const UserInfoTab = ({
             <div className="space-y-6">
               <DetailItem label="Nombre Completo" value={`${user.name} ${user.surname}`} icon={<Shield />} />
               <DetailItem label="Correo Electrónico" value={user.email.getValue()} icon={<Mail />} />
-              <DetailItem label="Rol de Sistema" value={user.role.isAdmin() ? "Administrador" : "Empleado"} icon={<Lock />} />
+              <DetailItem label="Rol de Sistema" value={user.role.getValue() === "admin" ? "Administrador" : "Empleado"} icon={<Lock />} />
             </div>
           )}
         </CardContent>
