@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { useDebounce } from "@/presentation/hooks/useDebounce";
+import { useSearchFilter } from "@/presentation/hooks/useSearchFilter";
 import { useClientsListStore } from "@/presentation/modules/client/stores/clients-list.store";
 import { useAuthStore } from "@/presentation/modules/auth/stores/auth.store";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, StatusBadge, EmptyState, PageHeader, Button, Input, Pagination, PageLoader } from "@/presentation/ui";
@@ -23,13 +23,7 @@ export const ClientsPage = () => {
     setFilterStatus,
     setPage,
   } = useClientsListStore();
-  const [searchInput, setSearchInput] = useState(search);
-  const debouncedSearch = useDebounce(searchInput, 300);
-
-  // Búsqueda reactiva con debounce
-  useEffect(() => {
-    setSearch(debouncedSearch);
-  }, [debouncedSearch, setSearch]);
+  const { searchInput, setSearchInput } = useSearchFilter(search, setSearch, 300);
 
   useEffect(() => {
     if (user) {

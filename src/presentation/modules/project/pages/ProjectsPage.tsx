@@ -5,7 +5,8 @@ import { useAuthStore } from "@/presentation/modules/auth/stores/auth.store";
 import { isAdmin } from "@/domain/services/role.service";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, StatusBadge, PageHeader, Button, Input, Pagination } from "@/presentation/ui";
 import { Building2, Users, Search, FolderPlus, Cpu } from "lucide-react";
-import { useDebounce } from "@/presentation/hooks/useDebounce";
+import { useSearchFilter } from "@/presentation/hooks/useSearchFilter";
+import { useDisclosure } from "@/presentation/hooks/useDisclosure";
 import { ProjectForm } from "@/presentation/modules/project/components/ProjectForm";
 import { uuidv7 } from "@/presentation/ui/lib/uuid";
 
@@ -27,13 +28,8 @@ export const ProjectsPage = () => {
     addProject
   } = useProjectsListStore();
 
-  const [searchInput, setSearchInput] = useState(search);
-  const debouncedSearch = useDebounce(searchInput, 400);
-  const [isAdding, setIsAdding] = useState(false);
-
-  useEffect(() => {
-    setSearch(debouncedSearch);
-  }, [debouncedSearch, setSearch]);
+  const { searchInput, setSearchInput } = useSearchFilter(search, setSearch, 400);
+  const addModal = useDisclosure();
 
   useEffect(() => {
     if (user) {
@@ -47,41 +43,12 @@ export const ProjectsPage = () => {
         id: uuidv7(),
         ...data,
       });
-      setIsAdding(false);
+      addModal.close();
     } catch (error) {
       console.error("Error creating project", error);
     }
-  };
 
-  const handleCancel = () => {
-    setIsAdding(false);
-  };
-
-  return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Proyectos"
-        description="Gestiona los proyectos de tu organización y su equipo"
-      >
-        {isAdmin(user) && (
-          <Button variant="outline" className="flex-1 sm:flex-none shadow-sm" onClick={() => navigate("/proyectos/tecnologias")}>
-            <Cpu className="mr-2 h-4 w-4" />
-            Administrar tecnologías
-          </Button>
-        )}
-        {isAdmin(user) && (
-          <Button
-            className="flex-1 sm:flex-none shadow-sm"
-            onClick={() => setIsAdding(true)}
-            disabled={isAdding}
-          >
-            <FolderPlus className="mr-2 h-4 w-4" />
-            Nuevo Proyecto
-          </Button>
-        )}
-      </PageHeader>
-
-      {isAdding && (
+      {addModal.isOpen && (
         <ProjectForm
           onSubmit={handleSubmit}
           onCancel={handleCancel}
