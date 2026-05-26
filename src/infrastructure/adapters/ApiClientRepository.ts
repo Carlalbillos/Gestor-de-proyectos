@@ -1,5 +1,5 @@
 import { api } from "../http/AxiosHttpClient";
-import type { ClientRepository, Client, ClientContact, CreateClientDTO, UpdateClientDTO, Project, ClientQueryParams, PaginatedResult } from "../../domain/ports/ClientRepository";
+import type { ClientRepository, Client, ClientContact, CreateClientDTO, UpdateClientDTO, CreateContactDTO, UpdateContactDTO, Project, ClientQueryParams, PaginatedResult } from "../../domain/ports/ClientRepository";
 import { ClientMapper } from "../mappers/ClientMapper";
 import { ProjectMapper } from "../mappers/ProjectMapper";
 
@@ -66,7 +66,7 @@ export class ApiClientRepository implements ClientRepository {
     return (Array.isArray(response.data) ? response.data : []).map(ClientMapper.toContactDomain);
   }
 
-  async createContact(clientId: string, contactId: string, contact: any): Promise<void> {
+  async createContact(clientId: string, contactId: string, contact: CreateContactDTO): Promise<void> {
     await api.post(`clients/${clientId}/contacts`, {
       id: contactId,
       full_name: contact.fullName,
@@ -77,7 +77,7 @@ export class ApiClientRepository implements ClientRepository {
     });
   }
 
-  async updateContact(clientId: string, contactId: string, contact: any): Promise<void> {
+  async updateContact(clientId: string, contactId: string, contact: UpdateContactDTO): Promise<void> {
     await api.put(`clients/${clientId}/contacts/${contactId}`, {
       full_name: contact.fullName,
       phone_number: contact.phoneNumber || null,

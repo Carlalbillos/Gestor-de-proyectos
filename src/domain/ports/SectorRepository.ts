@@ -1,7 +1,9 @@
 import type { Sector } from "../entities/sector.entity";
-import type { CreateSectorDTO } from "@/application/dto/sector/CreateSector.dto";
-import type { UpdateSectorDTO } from "@/application/dto/sector/UpdateSector.dto";
 
+// Re-export DTOs for backward compatibility
+export type { CreateSectorDTO, UpdateSectorDTO } from "../dtos/sector.dto";
+
+import type { CreateSectorDTO, UpdateSectorDTO } from "../dtos/sector.dto";
 
 export interface SectorRepository {
   getSectors(): Promise<Sector[]>;

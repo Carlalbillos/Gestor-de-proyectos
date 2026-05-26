@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, Button, Input, Label } from "@/presentation/ui";
 import { Loader2, X, Save, Edit, UserCircle } from "lucide-react";
 import { useUserDetailsStore } from "@/presentation/modules/user/stores/user-details.store";
@@ -12,27 +12,29 @@ interface EditUserModalProps {
 
 export const EditUserModal = ({ isOpen, onClose, user }: EditUserModalProps) => {
   const { updateUser, isLoading } = useUserDetailsStore();
+  const [prevUser, setPrevUser] = useState(user);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   const [formData, setFormData] = useState({
     name: user.name,
     surname: user.surname,
     email: user.email.getValue(),
-    role: user.role,
+    role: user.role.getValue(),
     isActive: user.isActive,
   });
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isOpen) {
-      setFormData({
-        name: user.name,
-        surname: user.surname,
-        email: user.email.getValue(),
-        role: user.role,
-        isActive: user.isActive,
-      });
-      setError(null);
-    }
-  }, [isOpen, user]);
+  if (user !== prevUser || isOpen !== prevIsOpen) {
+    setPrevUser(user);
+    setPrevIsOpen(isOpen);
+    setFormData({
+      name: user.name,
+      surname: user.surname,
+      email: user.email.getValue(),
+      role: user.role.getValue(),
+      isActive: user.isActive,
+    });
+    setError(null);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,10 +48,12 @@ export const EditUserModal = ({ isOpen, onClose, user }: EditUserModalProps) => 
         isActive: formData.isActive,
       });
       onClose();
-    } catch (err: any) {
-      setError(err.message || "Error al actualizar el usuario");
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "Error al actualizar el usuario";
+      setError(errorMsg);
     }
   };
+
 
   if (!isOpen) return null;
 

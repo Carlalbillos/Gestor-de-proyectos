@@ -83,7 +83,7 @@ export const ClientContactsTab = ({
     setEditingContactId(contact.id);
     setEditContactValue("fullName", contact.fullName);
     setEditContactValue("email", contact.email ? contact.email.getValue() : "");
-    setEditContactValue("phoneNumber", contact.phoneNumber || "");
+    setEditContactValue("phoneNumber", contact.phoneNumber ? contact.phoneNumber.getValue() : "");
     setEditContactValue("isMain", contact.isMain);
     setEditContactValue("note", contact.note || "");
   };
@@ -218,7 +218,7 @@ export const ClientContactsTab = ({
                     </div>
                     <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5" /> {contact.email ? contact.email.getValue() : "Sin email"}</span>
-                      {contact.phoneNumber && <span className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" /> {contact.phoneNumber}</span>}
+                      {contact.phoneNumber && <span className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" /> {contact.phoneNumber.getValue()}</span>}
                     </div>
                   </div>
                   <div className="flex gap-2">

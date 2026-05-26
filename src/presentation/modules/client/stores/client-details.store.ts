@@ -1,17 +1,7 @@
 import { create } from "zustand";
-import { GetClientByIdUseCase } from "@/application/use-cases/client/GetClientByIdUseCase";
-import { GetClientProjectsUseCase } from "@/application/use-cases/client/GetClientProjectsUseCase";
-import { GetClientContactsUseCase } from "@/application/use-cases/client/GetClientContactsUseCase";
-import { UpdateClientUseCase } from "@/application/use-cases/client/UpdateClientUseCase";
-import { DeleteClientUseCase } from "@/application/use-cases/client/DeleteClientUseCase";
-import { ChangeClientStatusUseCase } from "@/application/use-cases/client/ChangeClientStatusUseCase";
-import { CreateContactUseCase } from "@/application/use-cases/client/CreateContactUseCase";
-import { UpdateContactUseCase } from "@/application/use-cases/client/UpdateContactUseCase";
-import { DeleteContactUseCase } from "@/application/use-cases/client/DeleteContactUseCase";
-import { SetMainContactUseCase } from "@/application/use-cases/client/SetMainContactUseCase";
-import { ApiClientRepository } from "@/infrastructure/adapters/ApiClientRepository";
+import { container } from "@/infrastructure/di/container";
 import type { Client, ClientContact } from "@/domain/entities/client.entity";
-import type { UpdateClientDTO } from "@/application/dto/client/UpdateClient.dto";
+import type { UpdateClientDTO } from "@/domain/ports/ClientRepository";
 import type { Project } from "@/domain/entities/project.entity";
 
 interface ClientDetailsState {
@@ -31,17 +21,18 @@ interface ClientDetailsState {
   clearDetails: () => void;
 }
 
-const clientRepository = new ApiClientRepository();
-const getClientByIdUseCase = new GetClientByIdUseCase(clientRepository);
-const getClientProjectsUseCase = new GetClientProjectsUseCase(clientRepository);
-const getClientContactsUseCase = new GetClientContactsUseCase(clientRepository);
-const updateClientUseCase = new UpdateClientUseCase(clientRepository);
-const deleteClientUseCase = new DeleteClientUseCase(clientRepository);
-const changeClientStatusUseCase = new ChangeClientStatusUseCase(clientRepository);
-const createContactUseCase = new CreateContactUseCase(clientRepository);
-const updateContactUseCase = new UpdateContactUseCase(clientRepository);
-const deleteContactUseCase = new DeleteContactUseCase(clientRepository);
-const setMainContactUseCase = new SetMainContactUseCase(clientRepository);
+const {
+  getClientByIdUseCase,
+  getClientProjectsUseCase,
+  getClientContactsUseCase,
+  updateClientUseCase,
+  deleteClientUseCase,
+  changeClientStatusUseCase,
+  createContactUseCase,
+  updateContactUseCase,
+  deleteContactUseCase,
+  setMainContactUseCase,
+} = container;
 
 export const useClientDetailsStore = create<ClientDetailsState>((set) => ({
   client: null,

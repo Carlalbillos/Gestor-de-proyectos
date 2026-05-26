@@ -1,6 +1,9 @@
 import type { Technology } from "../entities/technology.entity";
-import type { CreateTechnologyDTO } from "../../application/dto/technology/CreateTechnology.dto";
-import type { UpdateTechnologyDTO } from "../../application/dto/technology/UpdateTechnology.dto";
+
+// Re-export DTOs for backward compatibility
+export type { CreateTechnologyDTO, UpdateTechnologyDTO } from "../dtos/technology.dto";
+
+import type { CreateTechnologyDTO, UpdateTechnologyDTO } from "../dtos/technology.dto";
 
 export interface TechnologyRepository {
   getTechnologies(): Promise<Technology[]>;

@@ -11,6 +11,7 @@ import { TimeEntriesTable } from "@/presentation/modules/shared/components/TimeE
 import { Button, Input, Card, CardContent, ConfirmDialog } from "@/presentation/ui";
 import { Loader2, CheckCircle2, Clock, X } from "lucide-react";
 import { isAdmin } from "@/domain/services/role.service";
+import { useDisclosure } from "@/presentation/hooks/useDisclosure";
 
 interface ProjectHoursTabProps {
     projectId: string;
@@ -44,7 +45,7 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
         }
     });
 
-    const [isAdding, setIsAdding] = useState(false);
+    const addForm = useDisclosure();
 
     const handleDelete = async () => {
         if (!entryToDelete) return;
@@ -82,14 +83,14 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
 
             setTimeout(() => {
                 setSuccess(false);
-                setIsAdding(false);
+                addForm.close();
             }, 2000);
         } catch (err: any) {
             setError(err.message || "Error al registrar las horas");
         }
     };
 
-    const totalHours = timeEntries.reduce((acc, curr) => acc + curr.hour, 0);
+    const totalHours = timeEntries.reduce((acc, curr) => acc + curr.hour.getValue(), 0);
 
     return (
         <div className="grid gap-4">
@@ -107,16 +108,16 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
                             hour: "",
                             comment: ""
                         });
-                        setIsAdding(true);
+                        addForm.open();
                     }}
-                    disabled={isAdding}
+                    disabled={addForm.isOpen}
                 >
                     <Clock className="h-4 w-4" />
                     Registrar Horas
                 </Button>
             </div>
 
-            {isAdding && (
+            {addForm.isOpen && (
                 <Card className="border-primary/50 bg-primary/5 shadow-lg animate-in fade-in slide-in-from-top-4 duration-300">
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-4">
@@ -124,7 +125,7 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
                                 <Clock className="h-4 w-4 text-primary" /> Nueva Imputación
                             </h3>
                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
-                                setIsAdding(false);
+                                addForm.close();
                             }}>
                                 <X className="h-4 w-4" />
                             </Button>
@@ -186,7 +187,7 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
 
                             <div className="flex justify-end gap-2 pt-2">
                                 <Button type="button" variant="ghost" onClick={() => {
-                                    setIsAdding(false);
+                                addForm.close();
                                 }}>
                                     Cancelar
                                 </Button>
@@ -220,7 +221,7 @@ export const ProjectHoursTab = ({ projectId }: ProjectHoursTabProps) => {
             <ConfirmDialog
                 isOpen={!!entryToDelete}
                 title="Eliminar imputación"
-                description={`¿Estás seguro de que deseas eliminar la imputación de ${entryToDelete?.hour}h del día ${entryToDelete?.date}?`}
+                description={`¿Estás seguro de que deseas eliminar la imputación de ${entryToDelete?.hour ? entryToDelete.hour.getValue() : 0}h del día ${entryToDelete?.date}?`}
                 onConfirm={handleDelete}
                 onClose={() => setEntryToDelete(null)}
                 isLoading={isLoading}

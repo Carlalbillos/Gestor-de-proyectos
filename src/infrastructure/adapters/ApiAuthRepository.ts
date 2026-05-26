@@ -5,8 +5,8 @@ import { AuthMapper } from "../mappers/AuthMapper";
 import type {
   AuthRepository,
 } from "@/domain/ports/AuthRepository";
-import type { LoginRequestDTO } from "@/application/dto/auth/LoginRequest.dto";
-import type { LoginResponseDTO } from "@/application/dto/auth/LoginResponse.dto";
+import type { LoginRequestDTO } from "@/domain/ports/AuthRepository";
+import type { LoginResponseDTO } from "@/domain/ports/AuthRepository";
 
 import { InvalidCredentialsError } from "@/domain/exceptions/InvalidCredentialsError";
 

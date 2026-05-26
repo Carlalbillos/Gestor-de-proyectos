@@ -2,63 +2,35 @@ import { create } from "zustand";
 import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry, Technology } from "@/domain/entities/project.entity";
 import type { User } from "@/domain/entities/user.entity";
 import type { ClientContact } from "@/domain/entities/client.entity";
-import type { CreateDevelopmentDTO } from "@/application/dto/project/CreateDevelopment.dto";
-import type { UpdateDevelopmentDTO } from "@/application/dto/project/UpdateDevelopment.dto";
-import type { UpdateProjectDTO } from "@/application/dto/project/UpdateProject.dto";
-import type { UpdateTimeEntryDTO } from "@/application/dto/user/UpdateTimeEntry.dto";
-import { ApiProjectRepository } from "@/infrastructure/adapters/ApiProjectRepository";
-import { ApiUserRepository } from "@/infrastructure/adapters/ApiUserRepository";
-import { ApiClientRepository } from "@/infrastructure/adapters/ApiClientRepository";
-import { ApiTechnologyRepository } from "@/infrastructure/adapters/ApiTechnologyRepository";
+import type { CreateDevelopmentDTO } from "@/domain/ports/ProjectRepository";
+import type { UpdateDevelopmentDTO } from "@/domain/ports/ProjectRepository";
+import type { UpdateProjectDTO } from "@/domain/ports/ProjectRepository";
+import type { UpdateTimeEntryDTO } from "@/domain/ports/ProjectRepository";
+import { container } from "@/infrastructure/di/container";
 
-import { GetProjectByIdUseCase } from "@/application/use-cases/project/GetProjectByIdUseCase";
-import { GetProjectUsersUseCase } from "@/application/use-cases/project/GetProjectUsersUseCase";
-import { GetProjectDevelopmentsUseCase } from "@/application/use-cases/project/GetProjectDevelopmentsUseCase";
-import { GetProjectTimeEntriesUseCase } from "@/application/use-cases/project/GetProjectTimeEntriesUseCase";
-import { GetProjectRolesUseCase } from "@/application/use-cases/project/GetProjectRolesUseCase";
-import { AssignUserUseCase } from "@/application/use-cases/project/AssignUserUseCase";
-import { UpdateProjectUsersUseCase } from "@/application/use-cases/project/UpdateProjectUsersUseCase";
-import { ChangeUserStatusUseCase } from "@/application/use-cases/project/ChangeUserStatusUseCase";
-import { UpdateProjectTimeEntryUseCase } from "@/application/use-cases/project/UpdateProjectTimeEntryUseCase";
-import { DeleteProjectTimeEntryUseCase } from "@/application/use-cases/project/DeleteProjectTimeEntryUseCase";
-import { ChangeProjectStatusUseCase } from "@/application/use-cases/project/ChangeProjectStatusUseCase";
-import { UpdateProjectUseCase } from "@/application/use-cases/project/UpdateProjectUseCase";
-import { DeleteProjectUseCase } from "@/application/use-cases/project/DeleteProjectUseCase";
-import { CreateDevelopmentUseCase } from "@/application/use-cases/project/CreateDevelopmentUseCase";
-import { UpdateDevelopmentUseCase } from "@/application/use-cases/project/UpdateDevelopmentUseCase";
-import { DeleteDevelopmentUseCase } from "@/application/use-cases/project/DeleteDevelopmentUseCase";
+const {
+  getProjectByIdUseCase,
+  getProjectUsersUseCase,
+  getProjectDevelopmentsUseCase,
+  getProjectTimeEntriesUseCase,
+  getProjectRolesUseCase,
+  assignUserUseCase,
+  updateProjectUsersUseCase,
+  changeUserStatusUseCase,
+  updateProjectTimeEntryUseCase,
+  deleteProjectTimeEntryUseCase,
+  changeProjectStatusUseCase,
+  updateProjectUseCase,
+  deleteProjectUseCase,
+  createDevelopmentUseCase,
+  updateDevelopmentUseCase,
+  deleteDevelopmentUseCase,
+  getUsersUseCase,
+  getClientContactsUseCase,
+  setMainContactUseCase,
+  getTechnologiesUseCase,
+} = container;
 
-import { GetUsersUseCase } from "@/application/use-cases/user/GetUsersUseCase";
-import { GetClientContactsUseCase } from "@/application/use-cases/client/GetClientContactsUseCase";
-import { SetMainContactUseCase } from "@/application/use-cases/client/SetMainContactUseCase";
-import { GetTechnologiesUseCase } from "@/application/use-cases/technology/GetTechnologiesUseCase";
-
-const projectRepository = new ApiProjectRepository();
-const userRepository = new ApiUserRepository();
-const clientRepository = new ApiClientRepository();
-const technologyRepository = new ApiTechnologyRepository();
-
-const getProjectByIdUseCase = new GetProjectByIdUseCase(projectRepository);
-const getProjectUsersUseCase = new GetProjectUsersUseCase(projectRepository);
-const getProjectDevelopmentsUseCase = new GetProjectDevelopmentsUseCase(projectRepository);
-const getProjectTimeEntriesUseCase = new GetProjectTimeEntriesUseCase(projectRepository);
-const getProjectRolesUseCase = new GetProjectRolesUseCase(projectRepository);
-const assignUserUseCase = new AssignUserUseCase(projectRepository);
-const updateProjectUsersUseCase = new UpdateProjectUsersUseCase(projectRepository);
-const changeUserStatusUseCase = new ChangeUserStatusUseCase(projectRepository);
-const updateProjectTimeEntryUseCase = new UpdateProjectTimeEntryUseCase(projectRepository);
-const deleteProjectTimeEntryUseCase = new DeleteProjectTimeEntryUseCase(projectRepository);
-const changeProjectStatusUseCase = new ChangeProjectStatusUseCase(projectRepository);
-const updateProjectUseCase = new UpdateProjectUseCase(projectRepository);
-const deleteProjectUseCase = new DeleteProjectUseCase(projectRepository);
-const createDevelopmentUseCase = new CreateDevelopmentUseCase(projectRepository);
-const updateDevelopmentUseCase = new UpdateDevelopmentUseCase(projectRepository);
-const deleteDevelopmentUseCase = new DeleteDevelopmentUseCase(projectRepository);
-
-const getUsersUseCase = new GetUsersUseCase(userRepository);
-const getClientContactsUseCase = new GetClientContactsUseCase(clientRepository);
-const setMainContactUseCase = new SetMainContactUseCase(clientRepository);
-const getTechnologiesUseCase = new GetTechnologiesUseCase(technologyRepository);
 
 interface ProjectDetailsState {
   project: Project | null;
@@ -122,9 +94,9 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       }
 
       set({ project, users, developments, clientContacts, timeEntries, isLoading: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
-        error: error.message || "Error al cargar los detalles del proyecto",
+        error: error instanceof Error ? error.message : "Error al cargar los detalles del proyecto",
         isLoading: false
       });
     }
@@ -134,7 +106,8 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     try {
       const timeEntries = await getProjectTimeEntriesUseCase.execute(id);
       set({ timeEntries });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      console.error("Error fetching project time entries", error);
     }
   },
 
@@ -143,7 +116,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     try {
       const roles = await getProjectRolesUseCase.execute();
       set({ roles });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching roles", error);
     }
   },
@@ -153,7 +126,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     try {
       const response = await getUsersUseCase.execute({ limit: 9999 });
       set({ allUsers: response.data });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching all users", error);
     }
   },
@@ -163,7 +136,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     try {
       const technologies = await getTechnologiesUseCase.execute();
       set({ technologies });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching technologies", error);
     }
   },
@@ -174,7 +147,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       await assignUserUseCase.execute(projectId, userId, roleId);
       const users = await getProjectUsersUseCase.execute(projectId);
       set({ users, isSaving: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({ isSaving: false });
       throw error;
     }
@@ -185,14 +158,14 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     const { users } = get();
     const updatedUsers = users.map(u => ({
       appUserId: u.appUserId,
-      roleId: u.appUserId === userId ? roleId : (u.role?.id || "")
+      roleId: u.appUserId === userId ? roleId : (u.role ? u.role.getId() : "")
     }));
 
     try {
       await updateProjectUsersUseCase.execute(projectId, updatedUsers);
       const usersResponse = await getProjectUsersUseCase.execute(projectId);
       set({ users: usersResponse, isSaving: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({ isSaving: false });
       throw error;
     }
@@ -204,7 +177,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       await changeUserStatusUseCase.execute(projectId, userId, isActive);
       const usersResponse = await getProjectUsersUseCase.execute(projectId);
       set({ users: usersResponse, isSaving: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({ isSaving: false });
       throw error;
     }
@@ -215,8 +188,6 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     try {
       await updateProjectTimeEntryUseCase.execute(projectId, entryId, data);
       await get().fetchProjectTimeEntries(projectId);
-    } catch (error: any) {
-      throw error;
     } finally {
       set({ isSaving: false });
     }
@@ -228,8 +199,6 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     try {
       await deleteProjectTimeEntryUseCase.execute(projectId, entryId);
       await get().fetchProjectTimeEntries(projectId);
-    } catch (error) {
-      throw error;
     } finally {
       set({ isSaving: false });
     }
@@ -241,9 +210,9 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       await changeProjectStatusUseCase.execute(id);
       const project = await getProjectByIdUseCase.execute(id);
       set({ project, isLoading: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
-        error: error.message || "Error al cambiar el estado del proyecto",
+        error: error instanceof Error ? error.message : "Error al cambiar el estado del proyecto",
         isLoading: false
       });
       throw error;
@@ -255,8 +224,6 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     try {
       await updateProjectUseCase.execute(id, project);
       await get().fetchProjectDetails(id);
-    } catch (error: any) {
-      throw error;
     } finally {
       set({ isSaving: false });
     }
@@ -267,9 +234,9 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
     try {
       await deleteProjectUseCase.execute(id);
       set({ project: null, isSaving: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
-        error: error.message || "Error al eliminar el proyecto",
+        error: error instanceof Error ? error.message : "Error al eliminar el proyecto",
         isSaving: false
       });
       throw error;
@@ -282,7 +249,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       await createDevelopmentUseCase.execute(projectId, development);
       const developments = await getProjectDevelopmentsUseCase.execute(projectId);
       set({ developments, isSaving: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({ isSaving: false });
       throw error;
     }
@@ -294,7 +261,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       await updateDevelopmentUseCase.execute(projectId, development);
       const developments = await getProjectDevelopmentsUseCase.execute(projectId);
       set({ developments, isSaving: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({ isSaving: false });
       throw error;
     }
@@ -306,7 +273,7 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       await deleteDevelopmentUseCase.execute(projectId, developmentId);
       const developments = await getProjectDevelopmentsUseCase.execute(projectId);
       set({ developments, isSaving: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({ isSaving: false });
       throw error;
     }
@@ -318,9 +285,9 @@ export const useProjectDetailsStore = create<ProjectDetailsState>((set, get) => 
       await setMainContactUseCase.execute(clientId, contactId);
       const clientContacts = await getClientContactsUseCase.execute(clientId);
       set({ clientContacts, isSaving: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
-        error: error.message || "Error al marcar el contacto como principal",
+        error: error instanceof Error ? error.message : "Error al marcar el contacto como principal",
         isSaving: false
       });
       throw error;

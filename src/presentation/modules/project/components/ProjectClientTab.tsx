@@ -84,7 +84,7 @@ export const ProjectClientTab = ({ client, contacts }: ProjectClientTabProps) =>
                                   <div className="p-1.5 rounded-full bg-primary/5">
                                     <Phone className="h-3.5 w-3.5 text-primary/70" />
                                   </div>
-                                  <span>{contact.phoneNumber}</span>
+                                  <span>{contact.phoneNumber.getValue()}</span>
                                 </div>
                               )}
                             </div>

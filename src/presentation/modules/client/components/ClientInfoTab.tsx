@@ -133,7 +133,7 @@ export const ClientInfoTab = ({
                 {mainContact.phoneNumber && (
                   <div className="flex items-center gap-2 text-sm">
                     <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-foreground">{mainContact.phoneNumber}</span>
+                    <span className="text-foreground">{mainContact.phoneNumber.getValue()}</span>
                   </div>
                 )}
               </div>

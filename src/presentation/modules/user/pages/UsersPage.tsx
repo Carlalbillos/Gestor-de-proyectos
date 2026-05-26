@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { useDebounce } from "@/presentation/hooks/useDebounce";
+import { useSearchFilter } from "@/presentation/hooks/useSearchFilter";
 import { useUsersListStore } from "@/presentation/modules/user/stores/users-list.store";
 import { useAuthStore } from "@/presentation/modules/auth/stores/auth.store";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, StatusBadge, EmptyState, PageHeader, Button, Input, PageLoader, Pagination } from "@/presentation/ui";
@@ -26,12 +26,7 @@ export const UsersPage = () => {
     setFilterRole,
     setPage,
   } = useUsersListStore();
-  const [searchInput, setSearchInput] = useState(search);
-  const debouncedSearch = useDebounce(searchInput, 300);
-
-  useEffect(() => {
-    setSearch(debouncedSearch);
-  }, [debouncedSearch, setSearch]);
+  const { searchInput, setSearchInput } = useSearchFilter(search, setSearch, 300);
 
   useEffect(() => {
     if (user) {

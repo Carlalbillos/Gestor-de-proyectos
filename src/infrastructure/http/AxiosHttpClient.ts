@@ -1,9 +1,21 @@
 import axios from "axios";
 
+export interface HttpAuthHandler {
+  getRefreshToken(): string | null;
+  refresh(refreshToken: string): Promise<{ accessToken: string; refreshToken?: string }>;
+  onRefreshSuccess(accessToken: string, refreshToken?: string): void;
+  onRefreshFailure(error: any): void;
+}
+
 let accessToken: string | null = null;
+let authHandler: HttpAuthHandler | null = null;
 
 export const setAccessToken = (token: string | null): void => {
   accessToken = token;
+};
+
+export const setHttpAuthHandler = (handler: HttpAuthHandler): void => {
+  authHandler = handler;
 };
 
 export const api = axios.create({
@@ -50,22 +62,19 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const { useAuthStore } = await import("@/presentation/modules/auth/stores/auth.store");
-        const { RefreshTokenUseCase } = await import("@/application/use-cases/auth/RefreshTokenUseCase");
-        const { ApiAuthRepository } = await import("@/infrastructure/adapters/ApiAuthRepository");
+        if (!authHandler) {
+          throw new Error("No auth handler registered for token refresh");
+        }
 
-        const refreshToken = useAuthStore.getState().refreshToken;
+        const refreshToken = authHandler.getRefreshToken();
 
         if (!refreshToken) {
           throw new Error("No refresh token available");
         }
 
-        const authRepository = new ApiAuthRepository();
-        const refreshTokenUseCase = new RefreshTokenUseCase(authRepository);
+        const { accessToken: newToken, refreshToken: newRefreshToken } = await authHandler.refresh(refreshToken);
 
-        const { accessToken: newToken, refreshToken: newRefreshToken } = await refreshTokenUseCase.execute(refreshToken);
-
-        useAuthStore.getState().updateTokens(newToken, newRefreshToken || refreshToken);
+        authHandler.onRefreshSuccess(newToken, newRefreshToken);
         onTokenRefreshed(newToken);
         isRefreshing = false;
 
@@ -76,11 +85,8 @@ api.interceptors.response.use(
         isRefreshing = false;
         refreshSubscribers = [];
 
-        const { useAuthStore } = await import("@/presentation/modules/auth/stores/auth.store");
-        useAuthStore.getState().logout();
-
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
+        if (authHandler) {
+          authHandler.onRefreshFailure(refreshError);
         }
 
         return Promise.reject(refreshError);

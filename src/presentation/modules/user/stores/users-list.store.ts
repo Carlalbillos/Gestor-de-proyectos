@@ -4,7 +4,9 @@ import type { User } from "@/domain/entities/user.entity";
 import type { UserQueryParams } from "@/domain/ports/UserRepository";
 import { createBaseListSlice, handleListFetch } from "@/presentation/stores/factories/list-factory";
 import type { BaseListState } from "@/presentation/stores/factories/list-factory";
-import type { CreateUserDTO } from "@/application/dto/user/CreateUser.dto";
+import type { CreateUserDTO } from "@/domain/ports/UserRepository";
+import { useAuthStore } from "@/presentation/modules/auth/stores/auth.store";
+import { isAdmin } from "@/domain/services/role.service";
 
 const { getUsersUseCase, createUserUseCase } = container;
 
@@ -72,12 +74,19 @@ export const useUsersListStore = create<UsersListState>((set, get) => ({
         }
 
         if (state.filterRole !== "all") {
-          filtered = filtered.filter(u => u.role === state.filterRole);
+          filtered = filtered.filter(u => u.role.getValue() === state.filterRole);
         }
 
         return filtered;
+      },
+      {
+        authorize: () => {
+          const user = useAuthStore.getState().user;
+          return !!user && isAdmin(user);
+        },
       }
     );
+
   },
 
   addUser: async (user: CreateUserDTO) => {

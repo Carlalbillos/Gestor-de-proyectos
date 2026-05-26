@@ -1,17 +1,42 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
 import { useAuthStore } from "@/presentation/modules/auth/stores/auth.store";
 import { useDashboardStore } from "@/presentation/modules/dashboard/stores/dashboard.store";
+import type { TimeEntry } from "@/domain/entities/user.entity";
 
 import { TimeEntriesTable } from "@/presentation/modules/shared/components/TimeEntriesTable";
-import { Button, Card, CardDescription, CardHeader, CardTitle, CardFooter, Badge, PageHeader, EmptyState } from "@/presentation/ui";
+import { Button, Card, CardDescription, CardHeader, CardTitle, CardFooter, Badge, PageHeader, EmptyState, ConfirmDialog } from "@/presentation/ui";
 import { Users, ChevronRight, Briefcase, Clock } from "lucide-react";
 
 export const HomePage = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  const { profile, projects, timeEntries, totalHours, isLoading, error, fetchDashboardData } = useDashboardStore();
+  const { profile, projects, timeEntries, totalHours, isLoading, isSaving, error, fetchDashboardData, updateTimeEntry, deleteTimeEntry } = useDashboardStore();
+
+  const [entryToDelete, setEntryToDelete] = useState<TimeEntry | null>(null);
+
+  const handleSaveEntry = async (entryId: string, data: { date: string, hour: number, comment: string }) => {
+    if (!user?.id) return;
+    const entry = timeEntries.find(e => e.id === entryId);
+    if (!entry?.project?.id) return;
+    try {
+      await updateTimeEntry(user.id, entry.project.id, entryId, data);
+    } catch (err) {
+      console.error("Error updating time entry", err);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!user?.id || !entryToDelete) return;
+    try {
+      await deleteTimeEntry(user.id, entryToDelete.project.id, entryToDelete.id);
+    } catch (err) {
+      console.error("Error deleting time entry", err);
+    } finally {
+      setEntryToDelete(null);
+    }
+  };
 
   useEffect(() => {
     if (user?.id) {
@@ -121,10 +146,28 @@ export const HomePage = () => {
             </div>
           </div>
 
-          <TimeEntriesTable entries={timeEntries} mode="user" />
+          <TimeEntriesTable 
+            entries={timeEntries} 
+            mode="user" 
+            onSave={handleSaveEntry}
+            onDelete={(entry) => setEntryToDelete(entry as unknown as TimeEntry)}
+            isSaving={isSaving}
+            canEditEntry={() => true}
+          />
         </div>
 
       </div>
+
+      <ConfirmDialog
+        isOpen={!!entryToDelete}
+        title="Eliminar imputación"
+        description={`¿Estás seguro de que deseas eliminar la imputación de ${entryToDelete?.hour ? (typeof entryToDelete.hour.getValue === "function" ? entryToDelete.hour.getValue() : entryToDelete.hour) : 0}h del día ${entryToDelete?.date}?`}
+        onConfirm={handleDeleteConfirm}
+        onClose={() => setEntryToDelete(null)}
+        isLoading={isSaving}
+        variant="destructive"
+        confirmText="Eliminar"
+      />
     </div>
   );
 };

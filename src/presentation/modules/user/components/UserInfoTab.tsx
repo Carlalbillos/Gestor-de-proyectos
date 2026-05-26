@@ -5,6 +5,13 @@ import { useDisclosure } from "@/presentation/hooks/useDisclosure";
 import { isAdmin } from "@/domain/services/role.service";
 import type { User } from "@/domain/entities/user.entity";
 
+export interface UserInfoFormData {
+  name: string;
+  surname: string;
+  email: string;
+  role: string;
+}
+
 interface UserInfoTabProps {
   user: User;
   currentUser: User | null;
@@ -12,7 +19,7 @@ interface UserInfoTabProps {
   totalHours: number;
   timeEntriesCount: number;
   isLoading: boolean;
-  onUpdate: (data: any) => Promise<void>;
+  onUpdate: (data: UserInfoFormData) => Promise<void>;
   onOpenPasswordModal: () => void;
 }
 
@@ -33,13 +40,12 @@ export const UserInfoTab = ({
     register,
     handleSubmit,
     reset,
-    formState: { },
   } = useForm({
     defaultValues: {
       name: user.name,
       surname: user.surname,
       email: user.email.getValue(),
-      role: user.role,
+      role: user.role.getValue(),
     }
   });
 
@@ -48,12 +54,12 @@ export const UserInfoTab = ({
       name: user.name,
       surname: user.surname,
       email: user.email.getValue(),
-      role: user.role,
+      role: user.role.getValue(),
     });
     editing.open();
   };
 
-  const onEditSubmit = async (data: any) => {
+  const onEditSubmit = async (data: UserInfoFormData) => {
     try {
       await onUpdate(data);
       editing.close();
@@ -120,7 +126,7 @@ export const UserInfoTab = ({
             <div className="space-y-6">
               <DetailItem label="Nombre Completo" value={`${user.name} ${user.surname}`} icon={<Shield />} />
               <DetailItem label="Correo Electrónico" value={user.email.getValue()} icon={<Mail />} />
-              <DetailItem label="Rol de Sistema" value={user.role === "admin" ? "Administrador" : "Empleado"} icon={<Lock />} />
+              <DetailItem label="Rol de Sistema" value={user.role.getValue() === "admin" ? "Administrador" : "Empleado"} icon={<Lock />} />
             </div>
           )}
         </CardContent>

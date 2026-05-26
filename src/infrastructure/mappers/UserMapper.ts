@@ -1,16 +1,18 @@
-import type { User, TimeEntry } from "../../domain/entities/user.entity";
-import { Email } from "../../domain/value-objects/Email";
+import { User } from "../../domain/entities/user.entity";
+import type { TimeEntry } from "../../domain/entities/user.entity";
+import { Email, SystemRole, LoggedHours } from "../../domain/value-objects";
+import type { ApiUserResponse, ApiTimeEntryResponse } from "../http/responses/api-responses";
 
 export class UserMapper {
-  static toDomain(raw: any): User {
-    return {
-      id: raw.id,
-      name: raw.name,
-      surname: raw.surname,
-      email: new Email(raw.email),
-      role: UserMapper.fromApiRole(raw.role),
-      isActive: Boolean(raw.is_active),
-    };
+  static toDomain(raw: ApiUserResponse): User {
+    return new User(
+      raw.id,
+      raw.name,
+      raw.surname,
+      new Email(raw.email),
+      new SystemRole(raw.role),
+      Boolean(raw.is_active)
+    );
   }
 
   static toApiRole(role: string): string {
@@ -20,17 +22,26 @@ export class UserMapper {
   }
 
   static fromApiRole(role: any): string {
-
-    if (role === 'ROLE_ADMIN') return 'admin';
-    if (role === 'ROLE_EMPLOYEE') return 'user';
-    return role;
+    if (!role) return 'user';
+    if (typeof role === 'string') {
+      if (role === 'ROLE_ADMIN') return 'admin';
+      if (role === 'ROLE_EMPLOYEE') return 'user';
+      return role;
+    }
+    if (typeof role === 'object' && role !== null) {
+      const name = role.name || role.id || '';
+      if (name === 'ROLE_ADMIN') return 'admin';
+      if (name === 'ROLE_EMPLOYEE') return 'user';
+      return name;
+    }
+    return String(role);
   }
 
-  static toTimeEntryDomain(raw: any): TimeEntry {
+  static toTimeEntryDomain(raw: ApiTimeEntryResponse): TimeEntry {
     return {
       id: raw.id,
       date: raw.date,
-      hour: Number(raw.hour),
+      hour: new LoggedHours(Number(raw.hour)),
       comment: raw.comment || "",
       project: raw.project ? {
         id: raw.project.id,

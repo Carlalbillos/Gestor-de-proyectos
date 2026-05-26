@@ -2,8 +2,8 @@ import { api } from "../http/AxiosHttpClient";
 import type { TechnologyRepository } from "../../domain/ports/TechnologyRepository";
 import type { Technology } from "../../domain/entities/technology.entity";
 import { TechnologyMapper } from "../mappers/TechnologyMapper";
-import type { CreateTechnologyDTO } from "../../application/dto/technology/CreateTechnology.dto";
-import type { UpdateTechnologyDTO } from "../../application/dto/technology/UpdateTechnology.dto";
+import type { CreateTechnologyDTO } from "../../domain/ports/TechnologyRepository";
+import type { UpdateTechnologyDTO } from "../../domain/ports/TechnologyRepository";
 
 export class ApiTechnologyRepository implements TechnologyRepository {
 

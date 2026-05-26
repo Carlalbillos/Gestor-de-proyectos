@@ -1,11 +1,11 @@
 import { create } from "zustand";
 import { container } from "@/infrastructure/di/container";
-import type { CreateClientDTO } from "@/application/dto/client/CreateClient.dto";
-import type { UpdateClientDTO } from "@/application/dto/client/UpdateClient.dto";
 import type { Client } from "@/domain/entities/client.entity";
-import type { ClientQueryParams } from "@/domain/ports/ClientRepository";
+import type { ClientQueryParams, CreateClientDTO, UpdateClientDTO } from "@/domain/ports/ClientRepository";
 import { createBaseListSlice, handleListFetch } from "@/presentation/stores/factories/list-factory";
 import type { BaseListState } from "@/presentation/stores/factories/list-factory";
+import { useAuthStore } from "@/presentation/modules/auth/stores/auth.store";
+import { isAdmin } from "@/domain/services/role.service";
 
 const { getClientsUseCase, createClientUseCase, updateClientUseCase, deleteClientUseCase } = container;
 
@@ -57,25 +57,16 @@ export const useClientsListStore = create<ClientsListState>((set, get) => ({
       set,
       get,
       () => getClientsUseCase.execute(params),
-      (clients, state) => {
-        let filtered = clients;
-
-        if (state.search.trim()) {
-          const term = state.search.trim().toLowerCase();
-          filtered = filtered.filter(c => 
-            c.name.toLowerCase().includes(term)
-          );
-        }
-
-        if (state.filterStatus !== "all") {
-          filtered = filtered.filter(c => 
-            c.isActive === (state.filterStatus === "active")
-          );
-        }
-
-        return filtered;
+      (clients) => clients,
+      {
+        authorize: () => {
+          const user = useAuthStore.getState().user;
+          return !!user && isAdmin(user);
+        },
       }
     );
+
+
   },
 
   addClient: async (client: CreateClientDTO) => {

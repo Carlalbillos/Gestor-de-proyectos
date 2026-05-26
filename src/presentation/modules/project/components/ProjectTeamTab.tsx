@@ -6,6 +6,7 @@ import { UserPlus, Loader2, X, Check, XCircle, Briefcase } from "lucide-react";
 import { useProjectDetailsStore } from "@/presentation/modules/project/stores/project-details.store";
 import { isAdmin } from "@/domain/services/role.service";
 import { useAuthStore } from "@/presentation/modules/auth/stores/auth.store";
+import { useDisclosure } from "@/presentation/hooks/useDisclosure";
 
 interface ProjectTeamTabProps {
   users: ProjectUser[];
@@ -17,7 +18,7 @@ interface ProjectTeamTabProps {
 export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTeamTabProps) => {
   const usersCount = users.length;
   const { changeUserStatus, updateUserRole, assignUser } = useProjectDetailsStore();
-  const [isManaging, setIsManaging] = useState(false);
+  const manageModal = useDisclosure();
   const [editingUser, setEditingUser] = useState<ProjectUser | null>(null);
   const [selectedUserId, setSelectedUserId] = useState("");
   const [selectedRoleId, setSelectedRoleId] = useState("");
@@ -32,7 +33,7 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
   );
 
   const resetForm = () => {
-    setIsManaging(false);
+    manageModal.close();
     setEditingUser(null);
     setSelectedUserId("");
     setSelectedRoleId("");
@@ -94,7 +95,7 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
           {usersCount} {usersCount === 1 ? "miembro" : "miembros"} asignados
         </div>
         {isAdmin(user) && (
-          <Button size="sm" className="gap-2" onClick={() => setIsManaging(true)}>
+          <Button size="sm" className="gap-2" onClick={manageModal.open}>
             <UserPlus className="h-4 w-4" />
             Asignar Miembro
           </Button>
@@ -128,7 +129,7 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
         isLoading={!!actionLoading}
       />
 
-      {isAdmin(user) && (isManaging || editingUser) && (
+      {isAdmin(user) && (manageModal.isOpen || editingUser) && (
         <Card className="border-primary/50 bg-primary/5 shadow-lg animate-in fade-in slide-in-from-top-4 duration-300">
           <CardContent className="p-4 space-y-4">
             <div className="flex items-center justify-between">
@@ -170,7 +171,7 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
                 >
                   <option value="">Selecciona un rol...</option>
                   {roles.map(r => (
-                    <option key={r.id} value={r.id}>{r.name}</option>
+                    <option key={r.getId()} value={r.getId()}>{r.getLabel()}</option>
                   ))}
                 </select>
               </div>
@@ -219,7 +220,7 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
                       <Badge variant="outline" className="text-[10px] uppercase font-bold py-0 h-5 bg-background/80">
-                        {member.role?.name || "Colaborador"}
+                        {member.role ? member.role.getLabel() : "Colaborador"}
                       </Badge>
                     </div>
                   </div>
@@ -230,7 +231,7 @@ export const ProjectTeamTab = ({ users, roles, allUsers, projectId }: ProjectTea
                         label=""
                         onClick={() => {
                           setEditingUser(member);
-                          setSelectedRoleId(member.role?.id || "");
+                          setSelectedRoleId(member.role ? member.role.getId() : "");
                         }}
                       />
                       {member.isActive === false ? (

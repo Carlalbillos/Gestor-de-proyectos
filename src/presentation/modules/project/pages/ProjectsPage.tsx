@@ -1,11 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useProjectsListStore } from "@/presentation/modules/project/stores/projects-list.store";
 import { useAuthStore } from "@/presentation/modules/auth/stores/auth.store";
 import { isAdmin } from "@/domain/services/role.service";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, StatusBadge, PageHeader, Button, Input, Pagination } from "@/presentation/ui";
-import { Building2, Users, Search, FolderPlus, Cpu } from "lucide-react";
-import { useDebounce } from "@/presentation/hooks/useDebounce";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  StatusBadge,
+  PageHeader,
+  Button,
+  Input,
+  Pagination,
+} from "@/presentation/ui";
+import { Building2, Users, Search, FolderPlus } from "lucide-react";
+import { useSearchFilter } from "@/presentation/hooks/useSearchFilter";
+import { useDisclosure } from "@/presentation/hooks/useDisclosure";
 import { ProjectForm } from "@/presentation/modules/project/components/ProjectForm";
 import { uuidv7 } from "@/presentation/ui/lib/uuid";
 
@@ -24,16 +36,11 @@ export const ProjectsPage = () => {
     setSearch,
     setFilterStatus,
     setPage,
-    addProject
+    addProject,
   } = useProjectsListStore();
 
-  const [searchInput, setSearchInput] = useState(search);
-  const debouncedSearch = useDebounce(searchInput, 400);
-  const [isAdding, setIsAdding] = useState(false);
-
-  useEffect(() => {
-    setSearch(debouncedSearch);
-  }, [debouncedSearch, setSearch]);
+  const { searchInput, setSearchInput } = useSearchFilter(search, setSearch, 400);
+  const addModal = useDisclosure();
 
   useEffect(() => {
     if (user) {
@@ -47,41 +54,29 @@ export const ProjectsPage = () => {
         id: uuidv7(),
         ...data,
       });
-      setIsAdding(false);
+      addModal.close();
     } catch (error) {
       console.error("Error creating project", error);
     }
   };
 
-  const handleCancel = () => {
-    setIsAdding(false);
-  };
+  const handleCancel = () => addModal.close();
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-4 p-4">
       <PageHeader
         title="Proyectos"
-        description="Gestiona los proyectos de tu organización y su equipo"
+        description="Gestiona los proyectos de tu organización"
       >
         {isAdmin(user) && (
-          <Button variant="outline" className="flex-1 sm:flex-none shadow-sm" onClick={() => navigate("/proyectos/tecnologias")}>
-            <Cpu className="mr-2 h-4 w-4" />
-            Administrar tecnologías
-          </Button>
-        )}
-        {isAdmin(user) && (
-          <Button
-            className="flex-1 sm:flex-none shadow-sm"
-            onClick={() => setIsAdding(true)}
-            disabled={isAdding}
-          >
+          <Button onClick={addModal.open}>
             <FolderPlus className="mr-2 h-4 w-4" />
-            Nuevo Proyecto
+            Nuevo proyecto
           </Button>
         )}
       </PageHeader>
 
-      {isAdding && (
+      {addModal.isOpen && (
         <ProjectForm
           onSubmit={handleSubmit}
           onCancel={handleCancel}
@@ -103,11 +98,15 @@ export const ProjectsPage = () => {
               />
             </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-              <label className="sr-only" htmlFor="project-filter-status">Filtrar estado</label>
+              <label className="sr-only" htmlFor="project-filter-status">
+                Filtrar estado
+              </label>
               <select
                 id="project-filter-status"
                 value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as "all" | "active" | "inactive")}
+                onChange={(e) =>
+                  setFilterStatus(e.target.value as "all" | "active" | "inactive")
+                }
                 className="h-10 rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:ring-2 focus:ring-primary outline-none transition-all"
               >
                 <option value="all">Todos los estados</option>
@@ -131,11 +130,15 @@ export const ProjectsPage = () => {
                 <div className="flex justify-between items-start mb-1">
                   <StatusBadge isActive={project.isActive} />
                 </div>
-                <CardTitle className="group-hover:text-primary transition-colors line-clamp-1" title={project.name}>
+                <CardTitle
+                  className="group-hover:text-primary transition-colors line-clamp-1"
+                  title={project.name}
+                >
                   {project.name}
                 </CardTitle>
                 <CardDescription className="line-clamp-2 h-10 mt-1">
-                  {project.description || "Este proyecto no tiene una descripción detallada asignada."}
+                  {project.description ||
+                    "Este proyecto no tiene una descripción detallada asignada."}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-1 pb-4">
@@ -143,14 +146,19 @@ export const ProjectsPage = () => {
                   {project.client && (
                     <div className="flex items-center text-sm text-muted-foreground bg-muted/40 p-2 rounded-md">
                       <Building2 className="mr-2.5 h-4 w-4 text-primary/60" />
-                      <span className="font-medium text-foreground/80 line-clamp-1" title={project.client.name}>
+                      <span
+                        className="font-medium text-foreground/80 line-clamp-1"
+                        title={project.client.name}
+                      >
                         {project.client.name}
                       </span>
                     </div>
                   )}
                   <div className="flex items-center text-sm text-muted-foreground px-2">
                     <Users className="mr-2.5 h-4 w-4 text-muted-foreground/70" />
-                    {project.teamMembers != null && <span>{project.teamMembers} miembros</span>}
+                    {project.teamMembers != null && (
+                      <span>{project.teamMembers} miembros</span>
+                    )}
                   </div>
                 </div>
               </CardContent>

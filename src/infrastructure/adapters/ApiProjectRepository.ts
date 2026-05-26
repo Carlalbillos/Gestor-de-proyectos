@@ -1,14 +1,22 @@
 import { api } from "../http/AxiosHttpClient";
-import type { ProjectRepository, ProjectQueryParams, PaginatedResult, ProjectTimeEntryQueryParams } from "../../domain/ports/ProjectRepository";
+import type {
+  ProjectRepository,
+  ProjectTeamRepository,
+  ProjectDevelopmentRepository,
+  ProjectTimeEntryRepository,
+  ProjectQueryParams,
+  PaginatedResult,
+  ProjectTimeEntryQueryParams,
+} from "../../domain/ports/ProjectRepository";
 import type { Project, ProjectUser, ProjectDevelopment, ProjectRole, ProjectTimeEntry } from "../../domain/entities/project.entity";
-import type { CreateProjectDTO } from "../../application/dto/project/CreateProject.dto";
-import type { UpdateProjectDTO } from "../../application/dto/project/UpdateProject.dto";
-import type { CreateDevelopmentDTO } from "../../application/dto/project/CreateDevelopment.dto";
-import type { UpdateDevelopmentDTO } from "../../application/dto/project/UpdateDevelopment.dto";
-import type { UpdateTimeEntryDTO } from "../../application/dto/user/UpdateTimeEntry.dto";
+import type { CreateProjectDTO } from "../../domain/ports/ProjectRepository";
+import type { UpdateProjectDTO } from "../../domain/ports/ProjectRepository";
+import type { CreateDevelopmentDTO } from "../../domain/ports/ProjectRepository";
+import type { UpdateDevelopmentDTO } from "../../domain/ports/ProjectRepository";
+import type { UpdateTimeEntryDTO } from "../../domain/ports/ProjectRepository";
 import { ProjectMapper } from "../mappers/ProjectMapper";
 
-export class ApiProjectRepository implements ProjectRepository {
+export class ApiProjectRepository implements ProjectRepository, ProjectTeamRepository, ProjectDevelopmentRepository, ProjectTimeEntryRepository {
   async getProjects(params?: ProjectQueryParams): Promise<PaginatedResult<Project>> {
     const queryParams: any = {};
     if (params?.page) {

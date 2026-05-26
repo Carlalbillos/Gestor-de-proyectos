@@ -1,21 +1,25 @@
 import type { Client, ClientContact } from "../entities/client.entity";
-import type { CreateClientDTO } from "../../application/dto/client/CreateClient.dto";
-import type { UpdateClientDTO } from "../../application/dto/client/UpdateClient.dto";
 import type { Project } from "../entities/project.entity";
+import type { PaginatedResult } from "../shared/types/PaginatedResult";
 
-export type { Client, ClientContact, CreateClientDTO, UpdateClientDTO, Project };
+// Re-export DTOs and shared types for backward compatibility
+export type { PaginatedResult } from "../shared/types/PaginatedResult";
+export type { Client, ClientContact, Project };
+export type {
+  CreateClientDTO,
+  UpdateClientDTO,
+  CreateContactDTO,
+  UpdateContactDTO,
+  ClientQueryParams,
+} from "../dtos/client.dto";
 
-export interface ClientQueryParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  isActive?: boolean;
-}
-
-export interface PaginatedResult<T> {
-  data: T[];
-  total: number;
-}
+import type {
+  CreateClientDTO,
+  UpdateClientDTO,
+  CreateContactDTO,
+  UpdateContactDTO,
+  ClientQueryParams,
+} from "../dtos/client.dto";
 
 export interface ClientRepository {
   getClients(params?: ClientQueryParams): Promise<PaginatedResult<Client>>;
@@ -26,8 +30,8 @@ export interface ClientRepository {
   changeStatus(id: string): Promise<void>;
   getClientProjects(clientId: string): Promise<Project[]>;
   getClientContacts(clientId: string): Promise<ClientContact[]>;
-  createContact(clientId: string, contactId: string, contact: any): Promise<void>;
-  updateContact(clientId: string, contactId: string, contact: any): Promise<void>;
+  createContact(clientId: string, contactId: string, contact: CreateContactDTO): Promise<void>;
+  updateContact(clientId: string, contactId: string, contact: UpdateContactDTO): Promise<void>;
   setMainContact(clientId: string, contactId: string): Promise<void>;
   deleteContact(clientId: string, contactId: string): Promise<void>;
 }
