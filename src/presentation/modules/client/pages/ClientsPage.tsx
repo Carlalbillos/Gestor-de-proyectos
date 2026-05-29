@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useSearchFilter } from "@/presentation/hooks/useSearchFilter";
 import { useClientsListStore } from "@/presentation/modules/client/stores/clients-list.store";
